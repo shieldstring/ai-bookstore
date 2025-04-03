@@ -2,23 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 // import { logoutUser } from '../../redux/slices/authSlice';
-import {
-  Heart,
-  ShoppingCart,
-  User,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  Star,
-  Filter,
-  Truck,
-  ShieldCheck,
-  CheckCircle,
-  ArrowLeft,
-  ArrowRight,
-  Menu,
-  X,
-} from "lucide-react";
+import { User, Menu, X } from "lucide-react";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,37 +43,57 @@ const Header = () => {
             </Link>
           </div>
 
-          <form
-            onSubmit={handleSearch}
-            className="flex-1 max-w-lg mx-8 hidden md:block"
-          >
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Find books here..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <button
-                type="submit"
-                className="absolute right-0 top-0 h-full px-4 bg-purple-600 text-white rounded-r-md"
+          <div className="flex justify-center items-center gap-x-3 w-[40rem]">
+            <button
+              className="hidden md:flex items-center gap-x-1 text-[#8D27AE] font-semibold"
+              onClick={toggleSidebar}
+            >
+              Menu
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 text-gray-500"
+                viewBox="0 0 20 20"
+                fill="currentColor"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
+                <path
+                  fillRule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+            <form
+              onSubmit={handleSearch}
+              className="flex-1 max-w-lg hidden md:block"
+            >
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Find books here..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button
+                  type="submit"
+                  className="absolute right-0 top-0 h-full px-4 bg-purple-600 text-white rounded-r-md"
                 >
-                  <path
-                    fillRule="evenodd"
-                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
-            </div>
-          </form>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </form>
+          </div>
 
           <div className="flex items-center space-x-1 lg:space-x-4">
             <Link to="/cart" className="relative p-2">
@@ -199,19 +203,24 @@ const Header = () => {
             </button>
           </div>
         </form>
-        {/* Navigation */}
-        <nav className="bg-white border-t border-gray-200 hidden md:block mt-3">
+      </div>
+      {/* Navigation */}
+      {sidebarOpen && (
+        <nav className="bg-[#8D27AE] hidden md:block py-3">
           <div className="container mx-auto px-4">
             <ul className="flex items-center justify-center space-x-6 py-2">
               <li>
-                <Link to="/" className="font-semibold text-gray-600 hover:text-purple-600">
+                <Link
+                  to="/"
+                  className="font-semibold text-gray-100 hover:text-purple-600"
+                >
                   Home
                 </Link>
               </li>
               <li>
                 <Link
                   to="/books"
-                  className="font-semibold text-gray-600 hover:text-purple-600"
+                  className="font-semibold text-gray-100 hover:text-purple-600"
                 >
                   Books
                 </Link>
@@ -219,7 +228,7 @@ const Header = () => {
               <li>
                 <Link
                   to="/categories"
-                  className="font-semibold text-gray-600 hover:text-purple-600"
+                  className="font-semibold text-gray-100 hover:text-purple-600"
                 >
                   Categories
                 </Link>
@@ -227,7 +236,7 @@ const Header = () => {
               <li>
                 <Link
                   to="/bestsellers"
-                  className="font-semibold text-gray-600 hover:text-purple-600"
+                  className="font-semibold text-gray-100 hover:text-purple-600"
                 >
                   Bestsellers
                 </Link>
@@ -235,7 +244,7 @@ const Header = () => {
               <li>
                 <Link
                   to="/new-releases"
-                  className="font-semibold text-gray-600 hover:text-purple-600"
+                  className="font-semibold text-gray-100 hover:text-purple-600"
                 >
                   New Releases
                 </Link>
@@ -243,7 +252,7 @@ const Header = () => {
               <li>
                 <Link
                   to="/deals"
-                  className="font-semibold text-gray-600 hover:text-purple-600"
+                  className="font-semibold text-gray-100 hover:text-purple-600"
                 >
                   Deals
                 </Link>
@@ -251,7 +260,7 @@ const Header = () => {
               <li>
                 <Link
                   to="/authors"
-                  className="font-semibold text-gray-600 hover:text-purple-600"
+                  className="font-semibold text-gray-100 hover:text-purple-600"
                 >
                   Authors
                 </Link>
@@ -259,7 +268,7 @@ const Header = () => {
               <li>
                 <Link
                   to="/recommendations"
-                  className="font-semibold text-gray-600 hover:text-purple-600"
+                  className="font-semibold text-gray-100 hover:text-purple-600"
                 >
                   Recommendations
                 </Link>
@@ -267,95 +276,92 @@ const Header = () => {
               <li>
                 <Link
                   to="/blog"
-                  className="font-semibold text-gray-600 hover:text-purple-600"
+                  className="font-semibold text-gray-100 hover:text-purple-600"
                 >
                   Blog
                 </Link>
               </li>
-              
             </ul>
           </div>
         </nav>
+      )}
 
-        {/* Mobile Sidebar */}
-        {sidebarOpen && (
-          <div className="fixed inset-0 z-50 md:hidden">
-            <div
-              className="fixed inset-0 bg-black bg-opacity-50"
-              onClick={toggleSidebar}
-            ></div>
-            <div className="fixed top-0 left-0 bottom-0 w-64 bg-white p-4 overflow-y-auto">
-              <div className="flex justify-between items-center mb-6">
-                <div className="font-bold text-xl text-purple-700">
-                  Bookstore
-                </div>
-                <button onClick={toggleSidebar}>
-                  <X className="h-5 w-5 text-gray-600" />
-                </button>
-              </div>
-
-              <ul className="space-y-4">
-                <li>
-                  <a
-                    href="#"
-                    className="block py-2 text-gray-800 hover:text-purple-700"
-                  >
-                    Home
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="block py-2 text-gray-800 hover:text-purple-700"
-                  >
-                    Books
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="block py-2 text-gray-800 hover:text-purple-700"
-                  >
-                    Categories
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="block py-2 text-gray-800 hover:text-purple-700"
-                  >
-                    Authors
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="block py-2 text-gray-800 hover:text-purple-700"
-                  >
-                    Bestsellers
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="block py-2 text-gray-800 hover:text-purple-700"
-                  >
-                    Recommendations
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="block py-2 text-gray-800 hover:text-purple-700"
-                  >
-                    Blog
-                  </a>
-                </li>
-              </ul>
+      {/* Mobile Sidebar */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50"
+            onClick={toggleSidebar}
+          ></div>
+          <div className="fixed top-0 left-0 bottom-0 w-64 bg-white p-4 overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <div className="font-bold text-xl text-purple-700">Bookstore</div>
+              <button onClick={toggleSidebar}>
+                <X className="h-5 w-5 text-gray-600" />
+              </button>
             </div>
+
+            <ul className="space-y-4">
+              <li>
+                <a
+                  href="#"
+                  className="block py-2 text-gray-800 hover:text-purple-700"
+                >
+                  Home
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block py-2 text-gray-800 hover:text-purple-700"
+                >
+                  Books
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block py-2 text-gray-800 hover:text-purple-700"
+                >
+                  Categories
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block py-2 text-gray-800 hover:text-purple-700"
+                >
+                  Authors
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block py-2 text-gray-800 hover:text-purple-700"
+                >
+                  Bestsellers
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block py-2 text-gray-800 hover:text-purple-700"
+                >
+                  Recommendations
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="block py-2 text-gray-800 hover:text-purple-700"
+                >
+                  Blog
+                </a>
+              </li>
+            </ul>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </header>
   );
 };
