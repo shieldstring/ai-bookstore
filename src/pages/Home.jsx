@@ -19,8 +19,9 @@ import {
   X,
 } from "lucide-react";
 import ValueProps from "../components/common/ValueProps";
-import BestSellers from "../components/home/BestSellers";
+import BestSellers from "../components/home/TopRated";
 import LatestNews from "../components/home/LatestNews";
+import TrendingBooks from "../components/home/TrendingBooks";
 
 const Home = () => {
   return (
@@ -95,8 +96,13 @@ const Home = () => {
           </div>
         </div>
       </section>
-      {/* Features */}
-      <ValueProps />
+ 
+
+      {/* Trending Books */}
+      <TrendingBooks />
+
+           {/* Features */}
+           <ValueProps />
 
       {/* Best Sellers Section */}
       <BestSellers />

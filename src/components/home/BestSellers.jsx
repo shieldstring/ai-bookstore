@@ -1,74 +1,121 @@
-import { ShoppingCart } from 'lucide-react';
-import React from 'react'
+import React, { useRef } from "react";
+import { Star, ArrowRight, ArrowLeft } from "lucide-react";
 
-function BestSellers() {
-    const featuredBooks = [
-        { id: 1, title: 'Be Your Self & Never Surrender', author: 'Robert Connor', rating: 4.7, price: 21.5, image: '/api/placeholder/170/250', category: 'Fiction', tag: 'BEST SELLER', color: 'bg-blue-900' },
-        { id: 2, title: 'What colors of the sky', author: 'Anna Carter', rating: 4.9, price: 19.99, image: '/api/placeholder/170/250', category: 'Arts & Photography', tag: 'BEST SELLER', color: 'bg-blue-600' },
-        { id: 3, title: 'Electronic Basic', author: 'David Turner', rating: 4.8, price: 15.0, image: '/api/placeholder/170/250', category: 'Science', tag: '', color: 'bg-red-900' },
-        { id: 4, title: 'Theory is Alien Real', author: 'Michael Stevens', rating: 4.6, price: 18.5, image: '/api/placeholder/170/250', category: 'Fiction', tag: '', color: 'bg-purple-600' },
-        { id: 5, title: 'Life of Wilds', author: 'Sarah Johnson', rating: 4.5, price: 17.4, image: '/api/placeholder/170/250', category: 'Animals', tag: '', color: 'bg-green-700' },
-        { id: 6, title: 'Emily and the Backbone', author: 'Emma Roberts', rating: 4.9, price: 19.5, image: '/api/placeholder/170/250', category: 'Biography', tag: '', color: 'bg-green-500' },
-      ];
+const bestSellers = [
+  {
+    title: "So You Want To Talk About Race",
+    author: "Ijeoma Oluo",
+    img: "/images/book1.jpg",
+    category: "Biography",
+    rating: 4.5,
+    price: "$15.63",
+    oldPrice: "$19.99",
+  },
+  {
+    title: "Life of Wilds",
+    author: "Jasmine Bello",
+    img: "/images/book2.jpg",
+    category: "Nature",
+    rating: 3.5,
+    price: "$24.99",
+  },
+  {
+    title: "Story of Everest",
+    author: "Henry Martopo",
+    img: "/images/book3.jpg",
+    category: "Adventure",
+    rating: 4.7,
+    price: "$21.99",
+    oldPrice: "$25",
+  },
+];
+
+export default function BestSellers() {
+  const scrollRef = useRef(null);
+
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const { scrollLeft } = scrollRef.current;
+      const offset = 250;
+      scrollRef.current.scrollTo({
+        left: direction === "left" ? scrollLeft - offset : scrollLeft + offset,
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
-    <section className="py-12 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Best Sellers</h2>
-            <button 
-              className="text-sm text-purple-700"
-            //   onClick={() => onViewChange('catalog')}
+    <section className="py-10 px-5 max-w-6xl mx-auto">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl md:text-3xl font-semibold">Best Sellers</h2>
+        <button className="text-pink-500 flex items-center gap-1 text-sm font-medium">
+          View more <ArrowRight size={18} />
+        </button>
+      </div>
+
+      <div className="relative mt-6">
+        {/* Left Scroll Button */}
+        <button
+          onClick={() => scroll("left")}
+          className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white shadow-md rounded-full p-2 text-pink-500"
+        >
+          <ArrowLeft size={20} />
+        </button>
+
+        {/* Books List */}
+        <div
+          ref={scrollRef}
+          className="flex gap-6 overflow-x-auto scroll-smooth hide-scrollbar"
+        >
+          {bestSellers.map((book, index) => (
+            <div
+              key={index}
+              className="min-w-[220px] md:min-w-[250px] bg-white shadow-lg rounded-lg overflow-hidden relative"
             >
-              View All →
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {featuredBooks.map((book) => (
-              <div key={book.id} className="relative">
-                <div className="relative">
-                  {book.tag && (
-                    <div className="absolute top-2 right-2 bg-orange-500 text-white text-xs font-medium py-1 px-2 rounded z-10">
-                      {book.tag}
-                    </div>
-                  )}
-                  <div 
-                    className="bg-gray-100 rounded-lg overflow-hidden" 
-                    // onClick={() => onViewChange('detail')}
-                  >
-                    <img 
-                      src={book.image} 
-                      alt={book.title} 
-                      className="w-full h-auto object-cover aspect-[2/3]"
-                    />
-                  </div>
+              {/* Book Cover */}
+              <img
+                src={book.img}
+                alt={book.title}
+                className="w-full h-56 object-cover"
+              />
+
+              {/* Category Badge */}
+              <span className="absolute top-3 left-3 bg-pink-200 text-pink-600 text-xs px-2 py-1 rounded">
+                {book.category}
+              </span>
+
+              {/* Book Details */}
+              <div className="p-3">
+                <h3 className="text-lg font-bold">{book.title}</h3>
+                <p className="text-gray-500 text-sm">{book.author}</p>
+
+                {/* Rating */}
+                <div className="flex items-center gap-1 text-yellow-500 text-sm mt-2">
+                  <Star size={14} fill="currentColor" stroke="none" /> {book.rating}
                 </div>
-                <div className="mt-3">
-                  <div className="flex items-center text-xs text-gray-600 mb-1">
-                    <span className="mr-2">⭐ {book.rating}</span>
-                    <span>133 reviews</span>
-                  </div>
-                  <p className="text-xs text-purple-600 mb-1">{book.category}</p>
-                  <h3 
-                    className="font-medium text-sm mb-1 line-clamp-2 cursor-pointer hover:text-purple-700"
-                    // onClick={() => onViewChange('detail')}
-                  >
-                    {book.title}
-                  </h3>
-                  <p className="text-xs text-gray-600 mb-2">{book.author}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-sm">${book.price.toFixed(1)}</span>
-                    <button className="bg-purple-100 rounded-full p-1">
-                      <ShoppingCart className="h-4 w-4 text-purple-700" />
-                    </button>
-                  </div>
+
+                {/* Price */}
+                <div className="mt-2 text-lg font-bold text-pink-500 flex gap-2">
+                  {book.price}
+                  {book.oldPrice && (
+                    <span className="text-gray-400 line-through text-sm">
+                      {book.oldPrice}
+                    </span>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-      </section>
-  )
-}
 
-export default BestSellers
+        {/* Right Scroll Button */}
+        <button
+          onClick={() => scroll("right")}
+          className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow-md rounded-full p-2 text-pink-500"
+        >
+          <ArrowRight size={20} />
+        </button>
+      </div>
+    </section>
+  );
+}
