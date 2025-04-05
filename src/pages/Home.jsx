@@ -10,6 +10,7 @@ import TopRated from "../components/home/TopRated";
 import RecommendedBooks from "../components/home/RecommendedBooks";
 import HeroBanner from "../components/home/HeroBanner";
 import Testimonials from "../components/common/Testimonials";
+import Stats from "../components/common/Stats";
 
 const Home = () => {
   return (
@@ -47,8 +48,9 @@ const Home = () => {
 
       {/* Testimonial */}
       <Testimonials />
-      {/* Statistics */}
 
+      {/* Statistics */}
+      <Stats />
       {/* Newsletter Section */}
       <Newsletter />
     </div>

@@ -48,12 +48,21 @@ const CategoriesSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const containerRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(0);
-  const itemsPerPage = 4.5;
+
+  // Dynamically set items per page based on screen width
+  const [itemsPerPage, setItemsPerPage] = useState(4.5);
 
   useEffect(() => {
     const updateWidth = () => {
       if (containerRef.current) {
         setContainerWidth(containerRef.current.offsetWidth);
+      }
+
+      // Adjust items per page based on window width
+      if (window.innerWidth <= 640) {
+        setItemsPerPage(2.5); // On mobile devices, show 2.5 items per page
+      } else {
+        setItemsPerPage(4.5); // On larger screens, show 4.5 items per page
       }
     };
 
@@ -121,7 +130,7 @@ const CategoriesSection = () => {
               <button
                 key={pageIndex}
                 onClick={() => setCurrentIndex(pageIndex)}
-                className={`w-6 h-1 rounded-full mx-1 ${
+                className={`w-3 md:w-6 h-0.5 sm:h-1 rounded-full mx-1 ${
                   currentIndex === pageIndex
                     ? "bg-blue-500"
                     : "bg-gray-300 hover:bg-gray-400"
@@ -145,7 +154,7 @@ const CategoriesSection = () => {
             {displayCategories.map((category, index) => (
               <div
                 key={index}
-                className="flex-shrink-0  w-full"
+                className="flex-shrink-0 w-full"
                 style={{
                   width: `${100 / itemsPerPage}vw`,
                 }}
@@ -162,7 +171,7 @@ const CategoriesSection = () => {
                   >
                     <div
                       className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4"
-                      style={{ backgroundColor: "rgba(91, 6, 125, 0.7)" }} //rgba(91, 6, 125, 0.6) with 80% opacity
+                      style={{ backgroundColor: "rgba(91, 6, 125, 0.7)" }}
                     >
                       <div className="text-white">
                         <h3 className="text-lg font-semibold">

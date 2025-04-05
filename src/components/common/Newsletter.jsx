@@ -13,23 +13,30 @@ const Newsletter = () => {
   };
 
   return (
-    <div className="bg-purple-600 py-8 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center">
+    <div className="bg-[#380B46] py-8 lg:py-16 px-4">
+      <div className="lg:px-24 mx-auto">
+        <div className="flex flex-col md:flex-row justify-center gap-x-36 items-center">
           <div className="mb-4 md:mb-0">
-            <h3 className="text-white text-xl font-medium mb-1">Subscribe our newsletter</h3>
-            <p className="text-purple-200">for newest books updates</p>
+            <h3 className="text-white text-xl lg:text-3xl font-semibold mb-1">Subscribe our newsletter </h3>
+            <p className="text-purple-200 text-xl lg:text-2xl">for newest books updates</p>
           </div>
           
-          <form onSubmit={handleSubmit} className="flex w-full md:w-auto">
-            <input
-              type="email"
-              value={email}
+
+          <form onSubmit={handleSubmit} className="sm:flex">
+            <div className="flex-1 min-w-0 sm:mr-2">
+              <label htmlFor="email" className="sr-only">
+                Email address
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Type your email here..."
-              className="flex-grow px-4 py-2 rounded-l outline-none"
               required
-            />
+                placeholder="Type your email here ..."
+                className="block w-full px-5 py-3 rounded-md border-0 text-base text-gray-900 placeholder-gray-500 shadow-sm focus:ring-2 focus:ring-purple-500 focus:outline-none"
+              />
+            </div>
             <Button 
               type="submit" 
               variant="secondary" 
