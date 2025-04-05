@@ -1,45 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 
 const testimonials = [
   {
     id: 1,
-    name: 'Steve Henry',
-    title: 'Book Lover',
-    quote: 'Shopping book in Clevr is very easy. Quick delivery and fast respon. Their service is awesome!',
-    image: 'https://placehold.co/100x100/E07A5F/fff?text=SH&font=Montserrat',
-    rating: 5
+    name: "Steve Henry",
+    title: "Book Lover",
+    quote:
+      "Shopping book in Clevr is very easy. Quick delivery and fast respon. Their service is awesome!",
+    image: "https://placehold.co/100x100/E07A5F/fff?text=SH&font=Montserrat",
+    rating: 5,
   },
   {
     id: 2,
-    name: 'Jane Smith',
-    title: 'Avid Reader',
-    quote: 'I love the variety of books available on Clevr. The website is user-friendly, and the delivery is always on time.',
-    image: 'https://placehold.co/100x100/81B29A/fff?text=JS&font=Montserrat',
-    rating: 4
+    name: "Jane Smith",
+    title: "Avid Reader",
+    quote:
+      "I love the variety of books available on Clevr. The website is user-friendly, and the delivery is always on time.",
+    image: "https://placehold.co/100x100/81B29A/fff?text=JS&font=Montserrat",
+    rating: 4,
   },
   {
     id: 3,
-    name: 'David Johnson',
-    title: 'Book Enthusiast',
-    quote: 'Clevr has made buying books online a delightful experience. The customer service is exceptional.',
-    image: 'https://placehold.co/100x100/F2CC8F/fff?text=DJ&font=Montserrat',
-    rating: 5
+    name: "David Johnson",
+    title: "Book Enthusiast",
+    quote:
+      "Clevr has made buying books online a delightful experience. The customer service is exceptional.",
+    image: "https://placehold.co/100x100/F2CC8F/fff?text=DJ&font=Montserrat",
+    rating: 5,
   },
   {
     id: 4,
-    name: 'Sarah Williams',
-    title: 'Casual Reader',
-    quote: "I'm impressed with the speed and efficiency of Clevr's delivery.  Great selection too!",
-    image: 'https://placehold.co/100x100/3D405B/fff?text=SW&font=Montserrat',
-    rating: 4
+    name: "Sarah Williams",
+    title: "Casual Reader",
+    quote:
+      "I'm impressed with the speed and efficiency of Clevr's delivery.  Great selection too!",
+    image: "https://placehold.co/100x100/3D405B/fff?text=SW&font=Montserrat",
+    rating: 4,
   },
 ];
 
 const TestimonialCard = ({ testimonial, isActive }) => (
   <div
     className={`transition-all duration-500 transform bg-white/5 backdrop-blur-md border border-white/10 shadow-lg p-6 rounded-lg ${
-      isActive ? 'scale-100 opacity-100 z-10' : 'scale-90 opacity-50'
+      isActive ? "scale-100 opacity-100 z-10" : "scale-90 opacity-50"
     }`}
   >
     <div className="flex items-center gap-2 mb-4">
@@ -68,7 +72,9 @@ const Testimonials = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const prevSlide = () => {
-    setActiveIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    setActiveIndex(
+      (prev) => (prev - 1 + testimonials.length) % testimonials.length
+    );
   };
 
   const nextSlide = () => {
@@ -76,7 +82,9 @@ const Testimonials = () => {
   };
 
   const getSlide = (offset) => {
-    return testimonials[(activeIndex + offset + testimonials.length) % testimonials.length];
+    return testimonials[
+      (activeIndex + offset + testimonials.length) % testimonials.length
+    ];
   };
 
   // Autoplay effect
@@ -95,30 +103,39 @@ const Testimonials = () => {
             Testimonials
           </h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            What our readers say about their experience with Clevr.
+            What our readers say about their experience with AI- Powered BookStore.
           </p>
         </div>
 
-        <div className="relative flex items-center justify-center space-x-4 max-w-5xl mx-auto">
+        <div className="relative flex items-center justify-center space-x-2 md:space-x-4 max-w-5xl mx-auto">
           <button
             onClick={prevSlide}
-            className="absolute -left-6 z-20 p-2 bg-white/10 text-white hover:bg-white/20 rounded-full"
+            className="absolute -left-4 lg:-left-6 z-20 p-2 bg-white/10 text-white hover:bg-white/20 rounded-full"
           >
-     <ChevronLeft className="w-4 h-4 text-gray-100" />
+            <ChevronLeft className="w-4 h-4 text-gray-100" />
           </button>
 
           <div className="flex items-center justify-center w-full overflow-hidden">
             <div className="flex space-x-4 transition-transform duration-500">
-              {[getSlide(-1), getSlide(0), getSlide(1)].map((testimonial, index) => (
-                <div
-                key={testimonial.id}
-                className={`transition-all duration-500
-                  ${index === 1 ? 'w-full sm:w-[55%] scale-100 z-10' : 'hidden sm:block sm:w-[30%] scale-95 opacity-50'}
+              {[getSlide(-1), getSlide(0), getSlide(1)].map(
+                (testimonial, index) => (
+                  <div
+                    key={testimonial.id}
+                    className={`transition-all duration-500
+                  ${
+                    index === 1
+                      ? "w-full sm:w-[55%] scale-100 z-10"
+                      : "hidden sm:block sm:w-[30%] scale-95 opacity-50"
+                  }
                 `}
-              >
-                <TestimonialCard testimonial={testimonial} isActive={index === 1} />
-              </div>
-              ))}
+                  >
+                    <TestimonialCard
+                      testimonial={testimonial}
+                      isActive={index === 1}
+                    />
+                  </div>
+                )
+              )}
             </div>
           </div>
 
@@ -126,7 +143,7 @@ const Testimonials = () => {
             onClick={nextSlide}
             className="absolute -right-6 z-20 p-2 bg-white/10 text-white hover:bg-white/20 rounded-full"
           >
-           <ChevronRight className="w-4 h-4 text-gray-100" />
+            <ChevronRight className="w-4 h-4 text-gray-100" />
           </button>
         </div>
 

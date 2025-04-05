@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import {
-  ShoppingCart,
-} from "lucide-react";
+import { ShoppingCart } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 const HeroBanner = () => {
   const [activeSlide, setActiveSlide] = useState(0);
+  const navigate = useNavigate();
   const books = [
     {
       title: "Be your self & Never Surrender",
@@ -34,14 +34,18 @@ const HeroBanner = () => {
     setActiveSlide(index);
   };
 
+  const handleBrowseClick = () => {
+    navigate("/books"); // Navigate to the "Books" page
+  };
+
   return (
     <section className="bg-purple-800 text-white py-12 lg:py-16">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div>
-            <h1 className="text-3xl font-bold mb-4">
+          <div className="text-center md:text-left">
+            <h1 className="text-3xl lg:text-4xl font-bold mb-4">
               Welcome to AI-Powered
-              <br />
+              <br className='hidden lg:block' /> {' '}
               Online Social Book Store
             </h1>
             <p className="text-purple-200 mb-6">
@@ -49,7 +53,7 @@ const HeroBanner = () => {
               bestsellers to indie gems, find your next great read with us.
             </p>
 
-            <div className="flex flex-wrap items-center gap-4 mb-6">
+            <div className="flex flex-wrap justify-center md:justify-start items-center gap-4 mb-6">
               <div className="flex items-center">
                 <div className="bg-white rounded-full p-1.5">
                   <div className="bg-purple-800 rounded-full w-6 h-6 flex items-center justify-center text-xs">
@@ -66,26 +70,26 @@ const HeroBanner = () => {
               </div>
             </div>
 
-            <button className="bg-pink-600 text-white px-6 py-3 rounded-full font-medium text-sm hover:bg-pink-700 transition">
+            <button onClick={handleBrowseClick} className="bg-pink-600 text-white px-6 py-3 rounded-full font-medium text-sm hover:bg-pink-700 transition">
               Browse the Collection
             </button>
           </div>
-
-          <div className="flex justify-center relative">
-            <div className="relative">
+          
+          <div className="flex justify-center relative mt-6 md:mt-0">
+            <div className="relative w-full max-w-md">
               <img
                 src={books[activeSlide].image}
                 alt={books[activeSlide].title}
-                className="rounded-lg shadow-lg relative z-10"
+                className="rounded-lg shadow-lg relative z-10 w-full"
               />
-              <div className="absolute -left-16 -bottom-4 z-0">
+              <div className="absolute -left-16 -bottom-4 z-0 hidden md:block">
                 <img
                   src={books[(activeSlide + 1) % books.length].image}
                   alt={books[(activeSlide + 1) % books.length].title}
                   className="rounded-lg shadow-lg transform -rotate-6"
                 />
               </div>
-              <div className="absolute -right-16 -bottom-4 z-0">
+              <div className="absolute -right-16 -bottom-4 z-0 hidden md:block">
                 <img
                   src={books[(activeSlide + 2) % books.length].image}
                   alt={books[(activeSlide + 2) % books.length].title}
@@ -97,7 +101,7 @@ const HeroBanner = () => {
         </div>
 
         {/* Dots for slider */}
-        <div className="flex justify-center mt-6">
+        <div className="flex justify-center pt-6">
           {books.map((_, index) => (
             <button
               key={index}
