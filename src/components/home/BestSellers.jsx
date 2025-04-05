@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { Star, ArrowRight, ArrowLeft } from "lucide-react";
 
 const bestSellers = [
@@ -28,36 +28,74 @@ const bestSellers = [
     price: "$21.99",
     oldPrice: "$25",
   },
+  {
+    title: "Story of Everest",
+    author: "Henry Martopo",
+    img: "/images/book3.jpg",
+    category: "Adventure",
+    rating: 4.7,
+    price: "$21.99",
+    oldPrice: "$25",
+  },
+  {
+    title: "Lost of Everest",
+    author: "Henry Martopo",
+    img: "/images/book3.jpg",
+    category: "Adventure",
+    rating: 4.7,
+    price: "$21.99",
+    oldPrice: "$25",
+  },
 ];
 
 export default function BestSellers() {
   const scrollRef = useRef(null);
+  const intervalRef = useRef(null);
 
   const scroll = (direction) => {
     if (scrollRef.current) {
-      const { scrollLeft } = scrollRef.current;
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
       const offset = 250;
+
+      let newScrollLeft =
+        direction === "left" ? scrollLeft - offset : scrollLeft + offset;
+
+      // Loop back to start when reaching the end
+      if (newScrollLeft + clientWidth >= scrollWidth) {
+        newScrollLeft = 0;
+      }
+
       scrollRef.current.scrollTo({
-        left: direction === "left" ? scrollLeft - offset : scrollLeft + offset,
+        left: newScrollLeft,
         behavior: "smooth",
       });
     }
   };
 
+  // Auto-scroll every 4 seconds
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      scroll("right");
+    }, 4000);
+
+    return () => clearInterval(intervalRef.current);
+  }, []);
+
   return (
-    <section className="py-10 px-5 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center">
+    <section className="py-10 px-5 lg:px-24 mx-auto">
+      {/* Header Section */}
+      <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl md:text-3xl font-semibold">Best Sellers</h2>
         <button className="text-pink-500 flex items-center gap-1 text-sm font-medium">
           View more <ArrowRight size={18} />
         </button>
       </div>
 
-      <div className="relative mt-6">
+      <div className="relative">
         {/* Left Scroll Button */}
         <button
           onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white shadow-md rounded-full p-2 text-pink-500"
+          className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white shadow-md rounded-full p-2 text-pink-500 z-10"
         >
           <ArrowLeft size={20} />
         </button>
@@ -65,19 +103,21 @@ export default function BestSellers() {
         {/* Books List */}
         <div
           ref={scrollRef}
-          className="flex gap-6 overflow-x-auto scroll-smooth hide-scrollbar"
+          className="flex gap-6 overflow-x-auto scroll-smooth hide-scrollbar px-10"
         >
           {bestSellers.map((book, index) => (
             <div
               key={index}
-              className="min-w-[220px] md:min-w-[250px] bg-white shadow-lg rounded-lg overflow-hidden relative"
+              className="min-w-[250px] bg-white shadow-lg rounded-lg overflow-hidden relative"
             >
               {/* Book Cover */}
-              <img
-                src={book.img}
-                alt={book.title}
-                className="w-full h-56 object-cover"
-              />
+              <div className="relative">
+                <img
+                  src={book.img}
+                  alt={book.title}
+                  className="w-full h-56 object-cover"
+                />
+              </div>
 
               {/* Category Badge */}
               <span className="absolute top-3 left-3 bg-pink-200 text-pink-600 text-xs px-2 py-1 rounded">
@@ -85,7 +125,7 @@ export default function BestSellers() {
               </span>
 
               {/* Book Details */}
-              <div className="p-3">
+              <div className="p-4">
                 <h3 className="text-lg font-bold">{book.title}</h3>
                 <p className="text-gray-500 text-sm">{book.author}</p>
 
@@ -111,7 +151,7 @@ export default function BestSellers() {
         {/* Right Scroll Button */}
         <button
           onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow-md rounded-full p-2 text-pink-500"
+          className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow-md rounded-full p-2 text-pink-500 z-10"
         >
           <ArrowRight size={20} />
         </button>
