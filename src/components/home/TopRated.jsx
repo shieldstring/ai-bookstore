@@ -74,6 +74,7 @@
 // export default TopRated
 
 import React, { useRef } from "react";
+import { Link } from "react-router-dom";
 
 const TopRatedBooks = () => {
   const books = [
@@ -133,12 +134,12 @@ const TopRatedBooks = () => {
     },
     {
       id: 7,
-      title: "Be Your Self & Never Surrender",
+      title: "You Never Surrender",
       author: "Robert Connor",
       rating: 4,
       price: 21.5,
-      image:  "https://placehold.co/150x200/EEE/31343C?text=Be+Yourself+%26+Never+Surrender&font=Montserrat",
-      
+      image:
+        "https://placehold.co/150x200/EEE/31343C?text=Be+Yourself+%26+Never+Surrender&font=Montserrat",
     },
     {
       id: 8,
@@ -146,8 +147,8 @@ const TopRatedBooks = () => {
       author: "Anna Carter",
       rating: 4,
       price: 19.99,
-      image: "https://placehold.co/150x200/EEE/31343C?text=What+Colors+of+the+Sky&font=Montserrat",
-      
+      image:
+        "https://placehold.co/150x200/EEE/31343C?text=What+Colors+of+the+Sky&font=Montserrat",
     },
     {
       id: 9,
@@ -156,7 +157,6 @@ const TopRatedBooks = () => {
       rating: 5,
       price: 15.0,
       image: "/api/placeholder/170/250",
-      
     },
     {
       id: 10,
@@ -244,7 +244,7 @@ const TopRatedBooks = () => {
             </svg>
           </button>
           <div
-            className="flex space-x-6 overflow-x-auto scroll-smooth py-4"
+            className="flex space-x-6 overflow-x-auto scroll-smooth scrollbar-hide py-4"
             ref={containerRef}
           >
             {books.map((book, index) => (
@@ -257,10 +257,13 @@ const TopRatedBooks = () => {
                     style={{ aspectRatio: "3 / 4" }}
                   />
                 </div>
-                <div className="mt-2">
-                  <h3 className="text-sm font-semibold text-gray-700 truncate">
+                <div className="mt-2 ">
+                  <Link
+                    to={`books/${book.title}`}
+                    className="text-sm font-semibold text-gray-700 truncate"
+                  >
                     {book.title}
-                  </h3>
+                  </Link>
                   <p className="text-xs text-gray-500 truncate">
                     {book.author}
                   </p>

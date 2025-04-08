@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { Star, ArrowRight, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const bestSellers = [
   {
@@ -103,7 +104,7 @@ export default function BestSellers() {
         {/* Books List */}
         <div
           ref={scrollRef}
-          className="flex gap-6 overflow-x-auto scroll-smooth hide-scrollbar px-10"
+          className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide py-10 px-10"
         >
           {bestSellers.map((book, index) => (
             <div
@@ -126,7 +127,7 @@ export default function BestSellers() {
 
               {/* Book Details */}
               <div className="p-4">
-                <h3 className="text-lg font-bold">{book.title}</h3>
+               <Link to={`books/${book.title}`} className="text-lg font-bold">{book.title}</Link>
                 <p className="text-gray-500 text-sm">{book.author}</p>
 
                 {/* Rating */}

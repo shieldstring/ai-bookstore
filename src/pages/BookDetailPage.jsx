@@ -1,14 +1,22 @@
-import React, { useState } from "react";
-import { Star, ChevronRight, ChevronLeft, ShoppingCart, Heart } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Star, ShoppingCart, Heart } from "lucide-react";
 import Newsletter from "../components/common/Newsletter";
 import ValueProps from "../components/common/ValueProps";
 
 function BookDetailPage() {
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
+  
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("details");
   const [activeImage, setActiveImage] = useState(0);
 
   const book = {
+    title: "Story of Everest",
     author: "Ijeoma Oluo",
     price: 15.63,
     originalPrice: 18.99,

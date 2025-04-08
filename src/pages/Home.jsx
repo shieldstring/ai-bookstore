@@ -13,6 +13,12 @@ import Testimonials from "../components/common/Testimonials";
 import Stats from "../components/common/Stats";
 
 const Home = () => {
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
   return (
     <div>
       <SEO
@@ -27,6 +33,24 @@ const Home = () => {
 
       {/* Trending Books */}
       <TrendingBooks />
+
+      <div className="my-16 px-2 lg:px-24">
+          <h2 className="text-3xl font-bold text-center mb-8">Join Our Reading Community</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold mb-3">Connect with Readers</h3>
+              <p>Join discussions, share reviews, and connect with like-minded readers in our groups.</p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold mb-3">Earn Rewards</h3>
+              <p>Participate in our MLM program and earn rewards for your reading and referrals.</p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold mb-3">Personalized Recommendations</h3>
+              <p>Our AI-powered system recommends books tailored to your preferences.</p>
+            </div>
+          </div>
+        </div>
 
       {/* Features */}
       <ValueProps />
@@ -52,6 +76,7 @@ const Home = () => {
       {/* Statistics */}
       <Stats />
       {/* Newsletter Section */}
+      
       <Newsletter />
     </div>
   );

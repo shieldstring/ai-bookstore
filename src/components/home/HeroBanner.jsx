@@ -71,7 +71,7 @@ const HeroBanner = () => {
             </div>
 
             <button onClick={handleBrowseClick} className="bg-pink-600 text-white px-6 py-3 rounded-full font-medium text-sm hover:bg-pink-700 transition">
-              Browse the Collection
+            Browse Books
             </button>
           </div>
           
