@@ -168,7 +168,7 @@ const Header = () => {
             {/* ) : ( */}
             <Link
               to="/login"
-              className="py-2 px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+              className="hidden lg:block py-2 px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700"
             >
               Sign In
             </Link>

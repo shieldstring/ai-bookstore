@@ -400,8 +400,8 @@ const BooksPage = () => {
   return (
     <div>
       {/* Breadcrumb */}
-      <div className="bg-gray-50 py-3">
-        <div className="container mx-auto px-4">
+      <div className="bg-gray-50 py-3 ">
+        <div className="container mx-auto px-4 flex justify-between">
           <div className="flex items-center text-sm">
             <a href="#" className="text-gray-600 hover:text-purple-700">
               Home
@@ -409,6 +409,15 @@ const BooksPage = () => {
             <span className="mx-2 text-gray-500">/</span>
             <span className="text-gray-900">Books</span>
           </div>
+
+          {/* Toggle Filters Button (Mobile) */}
+          <button
+            className="md:hidden flex items-center text-sm gap-x-2 border border-gray-300 rounded-md px-2 py-1.5"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <Filter className="w-4 h-4 " />
+            {showFilters ? "Hide Filters" : "Show Filters"}
+          </button>
         </div>
       </div>
 
@@ -611,18 +620,9 @@ const BooksPage = () => {
 
           {/* Main Content */}
           <div className="flex-1">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold">Books</h1>
-              <div className="flex items-center space-x-2">
-                {/* Toggle Filters Button (Mobile) */}
-                <button
-                  className="md:hidden flex items-center text-sm border border-gray-300 rounded-md px-3 py-1.5"
-                  onClick={() => setShowFilters(!showFilters)}
-                >
-                  <Filter className="w-4 h-4 mr-2" />
-                  {showFilters ? "Hide Filters" : "Show Filters"}
-                </button>
-
+            <div className="flex justify-end md:justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold hidden lg:block">Books</h1>
+              <div className="flex  items-center  space-x-2">
                 {/* Advanced Search Button */}
                 <button className="hidden md:flex items-center text-sm border border-gray-300 rounded-md px-3 py-1.5">
                   <Filter className="w-4 h-4 mr-2" />
@@ -645,7 +645,7 @@ const BooksPage = () => {
                 </div>
 
                 {/* View Toggle */}
-                <div className="flex border border-gray-300 rounded-md overflow-hidden">
+                <div className="flex border border-gray-300 rounded-md overflow-hidden ">
                   <button
                     className={`p-1.5 ${
                       viewType === "grid"
@@ -669,8 +669,6 @@ const BooksPage = () => {
                 </div>
               </div>
             </div>
-
-           
 
             {/* No Results Message */}
             {visibleBooks.length === 0 && (
@@ -888,7 +886,7 @@ const BooksPage = () => {
                 {Math.min(currentPage * itemsPerPage, filterBooks().length)} of{" "}
                 {filterBooks().length} books
               </div>
-              
+
               <div className="flex items-center">
                 <span className="mr-2">Show:</span>
                 <select

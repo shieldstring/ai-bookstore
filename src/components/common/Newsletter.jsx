@@ -22,7 +22,7 @@ const Newsletter = () => {
           </div>
           
 
-          <form onSubmit={handleSubmit} className="sm:flex">
+          <form onSubmit={handleSubmit} className="flex gap-x-2">
             <div className="flex-1 min-w-0 sm:mr-2">
               <label htmlFor="email" className="sr-only">
                 Email address
