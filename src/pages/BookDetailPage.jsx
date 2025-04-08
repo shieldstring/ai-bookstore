@@ -1,9 +1,306 @@
-import React from 'react'
+import React, { useState } from "react";
+import { Star, ChevronRight, ChevronLeft, ShoppingCart, Heart } from "lucide-react";
+import Newsletter from "../components/common/Newsletter";
+import ValueProps from "../components/common/ValueProps";
 
 function BookDetailPage() {
-  return (
-    <div>BookDetailPage</div>
-  )
-}
+  const [quantity, setQuantity] = useState(1);
+  const [activeTab, setActiveTab] = useState("details");
+  const [activeImage, setActiveImage] = useState(0);
 
+  const book = {
+    author: "Ijeoma Oluo",
+    price: 15.63,
+    originalPrice: 18.99,
+    rating: 4.7,
+    reviewCount: 57,
+    isbn: "1234567890123",
+    language: "English",
+    format: "Paperback, 450 Pages",
+    publishDate: "August 10th 2019",
+    publisher: "Wepress Inc.",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, sed nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+  };
+
+  const relatedBooks = [
+    { id: 1, title: "Such a Fun Age", price: 12.4, rating: 4.5 },
+    { id: 2, title: "Be Your Self & More", price: 12.4, rating: 4.3 },
+    { id: 3, title: "Electronic Basic", price: 12.4, rating: 4.6 },
+    { id: 4, title: "Life of White", price: 12.4, rating: 4.2 }
+  ];
+
+  const reviews = [
+    { id: 1, name: "Michelle Zudd", date: "Jan 12th 2021", rating: 4, comment: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." },
+    { id: 2, name: "Maria Margaretha", date: "May 15th 2020", rating: 3, comment: "Lorem ipsum dolor sit amet, consectetur adipiscing elit." }
+  ];
+
+  const bookImages = [
+    "/api/placeholder/300/400",
+    "/api/placeholder/300/400",
+    "/api/placeholder/300/400",
+    "/api/placeholder/300/400"
+  ];
+
+  // Rating distribution
+  const ratingDistribution = [
+    { stars: 5, percentage: 88 },
+    { stars: 4, percentage: 10 },
+    { stars: 3, percentage: 2 },
+    { stars: 2, percentage: 0 },
+    { stars: 1, percentage: 0 }
+  ];
+
+  const increaseQuantity = () => setQuantity(quantity + 1);
+  const decreaseQuantity = () => quantity > 1 && setQuantity(quantity - 1);
+
+  return (
+    <div>
+      {/* Breadcrumb */}
+      <div className="bg-gray-50 py-3 px-4 lg:px-24 mb-6">
+        <div className="flex items-center text-sm">
+          <a href="#" className="text-purple-600 hover:underline">Home</a>
+          <span className="mx-2 text-purple-600">/</span>
+          <a href="#" className="text-purple-600 hover:underline">Books</a>
+          <span className="mx-2 text-purple-600">/</span>
+          <span className="text-gray-500">{book.title}</span>
+        </div>
+      </div>
+
+    <div className="lg:px-24 mx-auto p-4 bg-white">
+      
+      {/* Product Overview Section */}
+      <div className="flex flex-col lg:flex-row gap-8 mb-10">
+        {/* Left Column - Images */}
+        <div className="lg:w-1/2 flex flex-col md:flex-row gap-4">
+          <div className="hidden md:flex flex-col gap-3">
+            {bookImages.map((img, index) => (
+              <div 
+                key={index} 
+                className={`h-16 w-16 rounded-md overflow-hidden cursor-pointer ${activeImage === index ? 'ring-2 ring-purple-500' : ''}`}
+                onClick={() => setActiveImage(index)}
+              >
+                <img src={img} alt={`Book view ${index + 1}`} className="h-full w-full object-cover" />
+              </div>
+            ))}
+          </div>
+          <div className="flex-1 rounded-lg overflow-hidden">
+            <img 
+              src={bookImages[activeImage]} 
+              alt="Book cover" 
+              className="w-full h-full object-contain"
+            />
+          </div>
+        </div>
+
+        {/* Right Column - Info */}
+        <div className="lg:w-1/2">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="flex">
+              {[...Array(5)].map((_, i) => (
+                <Star 
+                  key={i} 
+                  className={i < Math.floor(book.rating) ? "text-orange-400 fill-orange-400" : "text-gray-300"}
+                  size={18}
+                />
+              ))}
+            </div>
+            <span className="text-sm text-gray-600">{book.rating}</span>
+            <span className="text-sm text-gray-600">({book.reviewCount} Reviews)</span>
+          </div>
+
+          <h1 className="text-2xl font-bold mb-2">{book.title}</h1>
+          <p className="text-gray-600 mb-6">by {book.author}</p>
+
+          <div className="mb-6">
+            <p className="text-gray-600 mb-4">{book.description}</p>
+          </div>
+
+          <div className="flex items-center gap-2 mb-6">
+            <span className="text-purple-600 text-2xl font-bold">${book.price}</span>
+            <span className="text-gray-400 line-through">${book.originalPrice}</span>
+            <span className="bg-orange-400 text-white text-xs px-2 py-1 rounded">20% Off</span>
+          </div>
+
+          <div className="flex gap-4 mb-6">
+            <div className="flex items-center border border-gray-300 rounded-md">
+              <button 
+                className="px-3 py-2 text-gray-600 hover:bg-gray-100"
+                onClick={decreaseQuantity}
+              >
+                -
+              </button>
+              <span className="px-3 py-2">{quantity}</span>
+              <button 
+                className="px-3 py-2 text-gray-600 hover:bg-gray-100"
+                onClick={increaseQuantity}
+              >
+                +
+              </button>
+            </div>
+            <button className="flex items-center gap-2 px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">
+              <ShoppingCart size={16} />
+              BUY
+            </button>
+            <button className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-md hover:bg-gray-100">
+              <Heart size={16} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="border-b border-gray-200 mb-6">
+        <div className="flex gap-6">
+          <button 
+            className={`py-3 font-medium ${activeTab === 'details' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600'}`}
+            onClick={() => setActiveTab('details')}
+          >
+            Details
+          </button>
+          <button 
+            className={`py-3 font-medium ${activeTab === 'reviews' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600'}`}
+            onClick={() => setActiveTab('reviews')}
+          >
+            Customer Reviews
+          </button>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Main Content */}
+        <div className="lg:w-2/3">
+          {activeTab === 'details' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-800 text-white rounded-md p-4">
+                <h3 className="text-lg font-medium mb-2">Book Title</h3>
+                <p>{book.title}</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium mb-2">Author</h3>
+                <p>{book.author}</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium mb-2">ISBN</h3>
+                <p>{book.isbn}</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium mb-2">Edition Language</h3>
+                <p>{book.language}</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium mb-2">Book Format</h3>
+                <p>{book.format}</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium mb-2">Date Published</h3>
+                <p>{book.publishDate}</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium mb-2">Publisher</h3>
+                <p>{book.publisher}</p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'reviews' && (
+            <div>
+              <div className="flex items-center gap-4 mb-8  bg-[#FDF8FE] p-2 rounded-t-xl">
+                <div className="text-center">
+                  <div className="text-4xl font-bold">{book.rating}</div>
+                  <div className="text-sm text-gray-600">out of 5</div>
+                  <div className="flex mt-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star 
+                        key={i} 
+                        className={i < Math.floor(book.rating) ? "text-orange-400 fill-orange-400" : "text-gray-300"}
+                        size={16}
+                      />
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex-1">
+                  {ratingDistribution.map((item) => (
+                    <div key={item.stars} className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-1 w-12">
+                        <span>{item.stars}</span>
+                        <Star className="text-orange-400 fill-orange-400" size={14} />
+                      </div>
+                      <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-purple-600" 
+                          style={{ width: `${item.percentage}%` }}
+                        ></div>
+                      </div>
+                      <div className="w-8 text-xs text-gray-600">{item.percentage}%</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {reviews.map(review => (
+                  <div key={review.id} className="border-b border-gray-200 pb-6">
+                    <div className="flex items-center gap-4 mb-2">
+                      <div className="w-10 h-10 bg-gray-300 rounded-full overflow-hidden"></div>
+                      <div>
+                        <h4 className="font-medium">{review.name}</h4>
+                        <div className="text-xs text-gray-600">{review.date}</div>
+                      </div>
+                    </div>
+                    <div className="flex mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star 
+                          key={i} 
+                          className={i < review.rating ? "text-orange-400 fill-orange-400" : "text-gray-300"}
+                          size={16}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-gray-600">{review.comment}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Related Books */}
+        <div className="lg:w-1/3">
+          <h3 className="text-xl font-medium mb-4">Related books</h3>
+          <div className="space-y-4">
+            {relatedBooks.map(book => (
+              <div key={book.id} className="flex gap-4">
+                <div className="w-24 h-32 bg-gray-200 rounded-md overflow-hidden">
+                  <img src="/api/placeholder/96/128" alt={book.title} className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1">
+                  <div className="bg-orange-400 text-white text-xs px-2 py-1 rounded inline-block mb-1">New</div>
+                  <h4 className="font-medium mb-1">{book.title}</h4>
+                  <div className="flex mb-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star 
+                        key={i} 
+                        className={i < Math.floor(book.rating) ? "text-orange-400 fill-orange-400" : "text-gray-300"}
+                        size={14}
+                      />
+                    ))}
+                  </div>
+                  <div className="font-medium">${book.price}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Features */}
+    <ValueProps />
+    {/* Newsletter Section */}
+    <Newsletter />
+    </div>
+  );
+}
 export default BookDetailPage

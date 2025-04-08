@@ -27,7 +27,7 @@ export default function TrendingBooks() {
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt.
       </p>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-8 max-w-5xl mx-auto">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-8 lg:px-28 mx-auto">
         {trendingBooks.map((book, index) => (
           <div
             key={index}

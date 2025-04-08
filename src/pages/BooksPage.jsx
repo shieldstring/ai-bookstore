@@ -1,8 +1,25 @@
 import React, { useState } from "react";
+import {
+  Star,
+  ChevronRight,
+  Heart,
+  Grid,
+  List,
+  ChevronLeft,
+  ChevronDown,
+  Filter,
+  TrendingUp,
+  ShoppingCart,
+} from "lucide-react";
+import Newsletter from "../components/common/Newsletter";
+import ValueProps from "../components/common/ValueProps";
 
-function BooksPage() {
+const BooksPage = () => {
   const [viewType, setViewType] = useState("grid"); // grid, list
-  const [priceRange, setPriceRange] = useState([0, 100]);
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedFormat, setSelectedFormat] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showFilters, setShowFilters] = useState(true);
 
   // Sample data for books
   const books = [
@@ -154,18 +171,52 @@ function BooksPage() {
     { id: "ebook", name: "eBook" },
   ];
 
-  // Publisher options
-  const publishers = [
-    { name: 'All', count: 154 },
-    { name: 'Indie', count: 32 },
-    { name: 'Self publish', count: 12 },
-    { name: 'Corporate', count: 110 }
-  ];
-
-  const handlePriceChange = (e) => {
-    setPriceRange([0, parseInt(e.target.value)]);
+  // Render star ratings
+  const renderRating = (rating) => {
+    const stars = [];
+    for (let i = 0; i < 5; i++) {
+      stars.push(
+        <Star
+          key={i}
+          className={`w-4 h-4 ${
+            i < Math.floor(rating)
+              ? "text-yellow-400 fill-yellow-400"
+              : "text-gray-300"
+          }`}
+        />
+      );
+    }
+    return <div className="flex">{stars}</div>;
   };
-  
+
+  // Pagination handler
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Favorite toggle
+  const toggleFavorite = (id) => {
+    // Implementation would go here
+    console.log("Toggled favorite for book: ", id);
+  };
+
+  // Add to cart handler
+  const addToCart = (book) => {
+    // Implementation would go here
+    console.log("Added to cart: ", book.title);
+  };
+
+  // Format price
+  const formatPrice = (price) => {
+    return `$${price.toFixed(2)}`;
+  };
+
+  // Format discount price
+  const getDiscountPrice = (price) => {
+    // Apply 10% discount
+    return price * 0.9;
+  };
+
   return (
     <div>
       {/* Breadcrumb */}
@@ -180,185 +231,381 @@ function BooksPage() {
           </div>
         </div>
       </div>
-      <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 p-4 bg-white border-r">
-        <h2 className="text-lg font-bold mb-4">Filter</h2>
-        
-        {/* Categories */}
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="font-semibold">Categories</h3>
-            <span className="text-gray-500 text-sm">▼</span>
-          </div>
-          <ul className="space-y-2 text-sm">
-            {categories.map((category, index) => (
-              <li key={index} className="flex justify-between items-center">
-                <label className="flex items-center">
-                  <input type="checkbox" className="mr-2" />
-                  <span>{category.name}</span>
-                </label>
-                <span className="text-gray-500">({category.count})</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        
-        {/* Book Format */}
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="font-semibold">Book Format</h3>
-            <span className="text-gray-500 text-sm">▼</span>
-          </div>
-          <ul className="space-y-2 text-sm">
-            {formats.map((format, index) => (
-              <li key={index} className="flex justify-between items-center">
-                <label className="flex items-center">
-                  <input type="radio" name="format" className="mr-2" checked={index === 0} />
-                  <span>{format.name}</span>
-                </label>
-                <span className="text-gray-500">({format.count})</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        
-        {/* Publisher */}
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="font-semibold">Publisher</h3>
-            <span className="text-gray-500 text-sm">▼</span>
-          </div>
-          <ul className="space-y-2 text-sm">
-            {publishers.map((publisher, index) => (
-              <li key={index} className="flex justify-between items-center">
-                <label className="flex items-center">
-                  <input type="radio" name="publisher" className="mr-2" checked={index === 0} />
-                  <span>{publisher.name}</span>
-                </label>
-                <span className="text-gray-500">({publisher.count})</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        
-        {/* Price Range */}
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="font-semibold">Price Range</h3>
-            <span className="text-gray-500 text-sm">▼</span>
-          </div>
-          <div className="px-2">
-            <input 
-              type="range" 
-              min="0" 
-              max="100" 
-              value={priceRange[1]} 
-              onChange={handlePriceChange}
-              className="w-full mb-2"
-            />
-            <div className="flex justify-between text-xs">
-              <span>${priceRange[0]}</span>
-              <span>${priceRange[1]}</span>
-            </div>
-          </div>
-          <button className="mt-4 w-full py-2 px-4 bg-purple-100 text-purple-600 rounded-md text-sm font-medium">
-            Apply Filters
-          </button>
-          <button className="mt-2 w-full py-2 text-gray-500 text-sm">
-            Clear Filter
-          </button>
-        </div>
-      </div>
-      
-      {/* Main Content */}
-      <div className="flex-1 p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-xl font-bold">Books</h1>
-          <div className="flex items-center space-x-2">
-            <div className="relative">
-              <input 
-                type="text" 
-                placeholder="Search..." 
-                className="py-1 px-3 border border-gray-300 rounded-md text-sm"
-              />
-            </div>
-            <button className="bg-purple-600 text-white p-2 rounded-md">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
-            <button className="border border-gray-300 p-2 rounded-md">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-        </div>
-        
-        {/* Book Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {books.map((book) => (
-            <div key={book.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition">
-              <div className="relative">
-                <img 
-                  src={book.cover} 
-                  alt={book.title} 
-                  className="w-full h-64 object-cover"
-                  style={{ backgroundColor: book.id % 3 === 0 ? '#1E3A8A' : book.id % 3 === 1 ? '#9D174D' : '#065F46' }}
-                />
-                {book.tag && (
-                  <div className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
-                    {book.tag}
+
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex flex-col md:flex-row">
+          {/* Sidebar Filters - Only visible in certain views */}
+          {(viewType === "grid" || viewType === "list") && showFilters && (
+            <div className="w-full md:w-64 md:mr-8">
+              <div className="mb-8">
+                <h2 className="text-xl font-bold mb-4">Filter</h2>
+
+                {/* Categories Filter */}
+                <div className="mb-6">
+                  <h3 className="font-medium mb-3 flex items-center justify-between">
+                    <span>Categories</span>
+                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                  </h3>
+                  <ul className="space-y-2">
+                    {categories.map((category) => (
+                      <li
+                        key={category.id}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={`category-${category.id}`}
+                            className="mr-2 h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                            checked={selectedCategory === category.id}
+                            onChange={() => setSelectedCategory(category.id)}
+                          />
+                          <label
+                            htmlFor={`category-${category.id}`}
+                            className="text-sm text-gray-700"
+                          >
+                            {category.name}
+                          </label>
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          ({category.count})
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Book Format Filter */}
+                <div className="mb-6">
+                  <h3 className="font-medium mb-3 flex items-center justify-between">
+                    <span>Book Format</span>
+                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                  </h3>
+                  <ul className="space-y-2">
+                    {formats.map((format) => (
+                      <li key={format.id} className="flex items-center">
+                        <input
+                          type="radio"
+                          id={`format-${format.id}`}
+                          name="format"
+                          className="mr-2 h-4 w-4 border-gray-300 text-purple-600 focus:ring-purple-500"
+                          checked={selectedFormat === format.id}
+                          onChange={() => setSelectedFormat(format.id)}
+                        />
+                        <label
+                          htmlFor={`format-${format.id}`}
+                          className="text-sm text-gray-700"
+                        >
+                          {format.name}
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Publisher Filter */}
+                <div className="mb-6">
+                  <h3 className="font-medium mb-3 flex items-center justify-between">
+                    <span>Publisher</span>
+                    <ChevronRight className="h-4 w-4 text-gray-400" />
+                  </h3>
+                </div>
+
+                {/* Years Filter */}
+                <div className="mb-6">
+                  <h3 className="font-medium mb-3 flex items-center justify-between">
+                    <span>Years</span>
+                    <ChevronRight className="h-4 w-4 text-gray-400" />
+                  </h3>
+                </div>
+
+                {/* Price Range Filter */}
+                <div className="mb-6">
+                  <h3 className="font-medium mb-3 flex items-center justify-between">
+                    <span>Price Range</span>
+                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                  </h3>
+                  <div className="px-2">
+                    <div className="bg-purple-600 h-1 rounded-full relative my-6">
+                      <div className="absolute -top-2 -ml-2 left-1/4">
+                        <div className="h-5 w-5 bg-white border border-purple-600 rounded-full" />
+                      </div>
+                      <div className="absolute -top-2 -ml-2 left-3/4">
+                        <div className="h-5 w-5 bg-white border border-purple-600 rounded-full" />
+                      </div>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>$0</span>
+                      <span>$100</span>
+                    </div>
                   </div>
-                )}
-                <div className="absolute bottom-0 right-0 p-2 flex flex-col items-center space-y-2">
-                  <button className="bg-white rounded-full p-2 shadow-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
+                </div>
+
+                <button className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition">
+                  Apply Filters
+                </button>
+
+                <button className="w-full text-gray-700 py-2 mt-2 text-sm hover:text-purple-700 transition">
+                  Reset Filter
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Main Content */}
+          <div className="flex-1">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold">Books</h1>
+              <div className="flex items-center space-x-2">
+                {/* Advanced Search Button */}
+                <button className="flex items-center text-sm border border-gray-300 rounded-md px-3 py-1.5">
+                  <Filter className="w-4 h-4 mr-2" />
+                  Advanced Search
+                </button>
+
+                {/* Sort Dropdown */}
+                <div className="relative">
+                  <select className="bg-white border border-gray-300 text-sm rounded-md py-1.5 px-3 appearance-none pr-8">
+                    <option>Newest</option>
+                    <option>Price: Low to High</option>
+                    <option>Price: High to Low</option>
+                    <option>Best Rating</option>
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none" />
+                </div>
+
+                {/* View Toggle */}
+                <div className="flex border border-gray-300 rounded-md overflow-hidden">
+                  <button
+                    className={`p-1.5 ${
+                      viewType === "grid"
+                        ? "bg-purple-600 text-white"
+                        : "bg-white text-gray-700"
+                    }`}
+                    onClick={() => setViewType("grid")}
+                  >
+                    <Grid className="w-4 h-4" />
                   </button>
-                  <button className="bg-white rounded-full p-2 shadow-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+                  <button
+                    className={`p-1.5 ${
+                      viewType === "list"
+                        ? "bg-purple-600 text-white"
+                        : "bg-white text-gray-700"
+                    }`}
+                    onClick={() => setViewType("list")}
+                  >
+                    <List className="w-4 h-4" />
                   </button>
                 </div>
               </div>
-              <div className="p-4">
-                <div className="flex items-center mb-1">
-                  <div className="flex text-yellow-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <span className="ml-1 text-xs">{book.rating}</span>
-                  </div>
-                  <span className="text-xs text-gray-500 ml-2">({book.reviews} reviews)</span>
-                </div>
-                <h3 className="font-medium text-sm mb-1">{book.title}</h3>
-                <div className="flex items-baseline">
-                  <span className="font-bold text-sm">${book.price.toFixed(1)}</span>
-                  {book.originalPrice && (
-                    <span className="ml-2 text-xs text-gray-500 line-through">
-                      ${book.originalPrice.toFixed(1)}
-                    </span>
-                  )}
-                </div>
-              </div>
             </div>
-          ))}
-        </div>
-        
-        {/* Pagination */}
-        <div className="mt-8 flex justify-center">
-          <button className="bg-pink-100 text-pink-600 py-2 px-6 rounded-full text-sm font-medium">
-            Load More
-          </button>
+
+            {/* Book Grid View */}
+            {viewType === "grid" && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {books.map((book) => (
+                  <div key={book.id} className="group relative">
+                    <div className="relative bg-gray-100 rounded-lg overflow-hidden aspect-[2/3]">
+                      <img
+                        src={book.image}
+                        alt={book.title}
+                        className="w-full h-full object-cover"
+                      />
+                      {book.tag && (
+                        <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
+                          {book.tag}
+                        </div>
+                      )}
+
+                      <div className="absolute bottom-0 right-0 p-2 flex flex-col items-center space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => toggleFavorite(book.id)}
+                          className="bg-white rounded-full p-2 shadow-md"
+                        >
+                          <Heart className="w-5 h-5 text-gray-600 hover:text-purple-600" />
+                        </button>
+                        <button
+                          onClick={() => addToCart(book)}
+                          className="bg-white rounded-full p-2 shadow-md"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 text-gray-600 hover:text-purple-600"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <div className="flex items-center text-xs text-gray-500 mb-1">
+                        <span>{book.category}</span>
+                      </div>
+                      <h3 className="font-medium text-gray-900 mb-1">
+                        {book.title}
+                      </h3>
+                      <p className="text-gray-500 text-sm mb-1">
+                        {book.author}
+                      </p>
+                      <div className="flex items-center mb-2">
+                        {renderRating(book.rating)}
+                        <span className="text-xs text-gray-500 ml-1">
+                          ({book.rating})
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="font-medium text-gray-900">
+                          {formatPrice(book.price)}
+                        </span>
+                        <span className="text-gray-500 text-sm line-through ml-2">
+                          {formatPrice(book.price * 1.2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Book List View */}
+            {viewType === "list" && (
+              <div className="space-y-6">
+                {books.map((book) => (
+                  <div key={book.id} className="flex border-b pb-6">
+                    <div className="relative h-40 w-28 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                      <img
+                        src={book.image}
+                        alt={book.title}
+                        className="h-full w-full object-cover"
+                      />
+                      {book.tag && (
+                        <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
+                          {book.tag}
+                        </div>
+                      )}
+                    </div>
+                    <div className="ml-6 flex-1">
+                      <div className="flex justify-between">
+                        <div>
+                          <div className="flex items-center text-xs text-gray-500 mb-1">
+                            <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded mr-2">
+                              {book.category}
+                            </span>
+                            {book.tag && (
+                              <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded">
+                                {book.tag}
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="font-medium text-lg text-gray-900 mb-1">
+                            {book.title}
+                          </h3>
+                          <p className="text-gray-500 text-sm mb-2">
+                            {book.author}
+                          </p>
+                          <div className="flex items-center mb-3">
+                            {renderRating(book.rating)}
+                            <span className="text-xs text-gray-500 ml-1">
+                              ({book.rating})
+                            </span>
+                            <span className="mx-2 text-gray-400">|</span>
+                            <span className="text-xs text-gray-500">
+                              542 reviews
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing
+                            elit. Sed do eiusmod tempor incididunt ut labore et
+                            dolore magna aliqua. Ut enim ad minim veniam, quis
+                            nostrud exercitation ullamco laboris nisi ut aliquip
+                            ex ea commodo consequat.
+                          </p>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <button
+                            className="text-gray-400 hover:text-purple-600 mb-2"
+                            onClick={() => toggleFavorite(book.id)}
+                          >
+                            <Heart className="w-5 h-5" />
+                          </button>
+                          <div className="flex items-center mb-1">
+                            <span className="font-medium text-gray-900 text-lg">
+                              {formatPrice(book.price)}
+                            </span>
+                            <span className="text-gray-500 text-sm line-through ml-2">
+                              {formatPrice(book.price * 1.2)}
+                            </span>
+                          </div>
+                          <div className="text-xs text-green-600 mb-4">
+                            10% OFF
+                          </div>
+                          <button
+                            className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition flex items-center"
+                            onClick={() => addToCart(book)}
+                          >
+                            <ShoppingCart className="w-4 h-4 mr-1" />
+                            Buy
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            <div className="flex justify-center items-center mt-10">
+              <button
+                className="flex items-center justify-center h-8 w-8 rounded-full border border-gray-300 mr-2 hover:border-purple-600 hover:text-purple-600"
+                onClick={() =>
+                  currentPage > 1 && handlePageChange(currentPage - 1)
+                }
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {[1, 2, 3].map((page) => (
+                <button
+                  key={page}
+                  className={`flex items-center justify-center h-8 w-8 rounded-full mx-1 ${
+                    currentPage === page
+                      ? "bg-purple-600 text-white"
+                      : "border border-gray-300 hover:border-purple-600 hover:text-purple-600"
+                  }`}
+                  onClick={() => handlePageChange(page)}
+                >
+                  {page}
+                </button>
+              ))}
+
+              <button
+                className="flex items-center justify-center h-8 w-8 rounded-full border border-gray-300 ml-2 hover:border-purple-600 hover:text-purple-600"
+                onClick={() => handlePageChange(currentPage + 1)}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Features Section */}
+      <ValueProps />
+
+      {/* Newsletter */}
+      <Newsletter />
     </div>
   );
-}
+};
 
 export default BooksPage;

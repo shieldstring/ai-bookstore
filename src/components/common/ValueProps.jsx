@@ -57,7 +57,7 @@ const ValueProps = () => {
 
   return (
     <div className="bg-[#FDF8FE] py-12">
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="lg:px-28 mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {valueProps.map((prop, index) => (
             <ValueProp 
