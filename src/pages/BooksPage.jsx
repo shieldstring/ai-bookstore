@@ -11,6 +11,7 @@ import {
 import Newsletter from "../components/common/Newsletter";
 import ValueProps from "../components/common/ValueProps";
 import Pagination from "../components/common/Pagination";
+import { Link } from "react-router-dom";
 
 const BooksPage = () => {
   const [viewType, setViewType] = useState("grid"); // grid, list
@@ -747,9 +748,12 @@ const BooksPage = () => {
                       <div className="flex items-center text-xs text-gray-500 mb-1">
                         <span>{book.category}</span>
                       </div>
-                      <h3 className="font-medium text-gray-900 mb-1">
+                      <Link
+                        to={`books/${book.title}`}
+                        className="font-semibold text-gray-900 mb-1"
+                      >
                         {book.title}
-                      </h3>
+                      </Link>
                       <p className="text-gray-500 text-sm mb-1">
                         {book.author}
                       </p>

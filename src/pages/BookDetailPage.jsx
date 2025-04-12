@@ -352,7 +352,7 @@ function BookDetailPage() {
                     reviewText={reviewText}
                     setReviewText={setReviewText}
                     onSubmit={handleReviewSubmit}
-                    user={user || 0}
+                    user={user || "9086"}
                   />
                 {/* ) : ( */}
                   <div className="bg-blue-50 p-4 rounded-md mb-6">
