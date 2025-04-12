@@ -122,6 +122,11 @@ const Header = () => {
             <div className="relative group">
               <button className="flex items-center space-x-1 p-2 border border-purple-600 rounded ">
                 <User className="h-4 w-4" />
+                {/* <img 
+                    src={user?.avatar || '/images/avatar-placeholder.png'} 
+                    alt={user?.name}
+                    className="h-full w-full object-cover"
+                  /> */}
                 <span className="text-sm font-medium text-gray-700 hidden md:block">
                   {/* {user?.name} */} Adonir
                 </span>
@@ -350,17 +355,10 @@ const Header = () => {
                   href="#"
                   className="block py-2 text-gray-800 hover:text-purple-700"
                 >
-                  Authors
+                  Socials
                 </a>
               </li>
-              <li>
-                <a
-                  href="#"
-                  className="block py-2 text-gray-800 hover:text-purple-700"
-                >
-                  Bestsellers
-                </a>
-              </li>
+             
               <li>
                 <a
                   href="#"

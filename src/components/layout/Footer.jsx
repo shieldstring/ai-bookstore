@@ -14,9 +14,8 @@ const Footer = () => {
               </span>
             </Link>
             <p className="text-gray-600 text-sm">
-              AI-Powered Bookstore is a comprehensive system integrating
-              eCommerce, social networking, and MLM for book sales, community
-              engagement, and earning opportunities.
+            Connecting readers worldwide and rewarding your passion for books.
+              
             </p>
           </div>
 
@@ -52,7 +51,7 @@ const Footer = () => {
                   to="/terms"
                   className="text-gray-600 hover:text-purple-600 text-sm"
                 >
-                  Terms & Conditions
+               Terms of Service
                 </Link>
               </li>
               <li>
@@ -63,52 +62,61 @@ const Footer = () => {
                   Privacy Policy
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/mlm-terms"
+                  className="text-gray-600 hover:text-purple-600 text-sm"
+                >
+                  MLM Terms
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/refund"
+                  className="text-gray-600 hover:text-purple-600 text-sm"
+                >
+                  Refund Policy
+                </Link>
+              </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-gray-800 font-medium mb-4">Customer Area</h3>
+            <h3 className="text-gray-800 font-medium mb-4">Explore</h3>
             <ul className="space-y-2">
               <li>
                 <Link
-                  to="/account"
+                  to="/books"
                   className="text-gray-600 hover:text-purple-600 text-sm"
                 >
-                  My Account
+                 Books
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/orders"
+                  to="/social"
                   className="text-gray-600 hover:text-purple-600 text-sm"
                 >
-                  Orders
+                Social
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/tracking"
+                  to="/mlm"
                   className="text-gray-600 hover:text-purple-600 text-sm"
                 >
-                  Tracking
+                  Earn Rewards
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/wishlist"
+                  to="/groups"
                   className="text-gray-600 hover:text-purple-600 text-sm"
                 >
-                  Wishlist
+                  Groups
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/returns"
-                  className="text-gray-600 hover:text-purple-600 text-sm"
-                >
-                  Returns & Exchanges
-                </Link>
-              </li>
+              
             </ul>
           </div>
 
