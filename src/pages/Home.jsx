@@ -75,8 +75,8 @@ const Home = () => {
 
       {/* Statistics */}
       <Stats />
-      {/* Newsletter Section */}
       
+      {/* Newsletter Section */}
       <Newsletter />
     </div>
   );

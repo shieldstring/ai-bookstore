@@ -157,6 +157,12 @@ const Header = () => {
                 >
                   Wishlist
                 </Link>
+                <Link
+                  to="/mlm"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                >
+                  My Network
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
@@ -210,76 +216,89 @@ const Header = () => {
           <div className="container mx-auto px-4">
             <ul className="flex items-center justify-center space-x-6 py-2">
               <li>
-                <Link
-                  to="/"
-                  className="font-semibold text-gray-100 hover:text-purple-600"
-                >
+              <NavLink
+                to="/books"
+                className={({ isActive }) => 
+                  `font-semibold   ${
+                    isActive 
+                      ? ' text-[#fce7f3]' 
+                      : 'text-gray-100 hover:text-[#fce7f3]'
+                  }`
+                }
+              >
                   Home
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <Link
+                <NavLink
                   to="/books"
-                  className="font-semibold text-gray-100 hover:text-purple-600"
+                  className={({ isActive }) => 
+                    `font-semibold   ${
+                      isActive 
+                        ? ' text-[#fce7f3]' 
+                        : 'text-gray-100 hover:text-[#fce7f3]'
+                    }`
+                  }
                 >
                   Books
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <Link
+                <NavLink
                   to="/categories"
-                  className="font-semibold text-gray-100 hover:text-purple-600"
+                  className={({ isActive }) => 
+                    `font-semibold   ${
+                      isActive 
+                        ? ' text-[#fce7f3]' 
+                        : 'text-gray-100 hover:text-[#fce7f3]'
+                    }`
+                  }
                 >
                   Categories
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <Link
-                  to="/bestsellers"
-                  className="font-semibold text-gray-100 hover:text-purple-600"
+                <NavLink
+                  to="/social"
+                  className={({ isActive }) => 
+                    `font-semibold   ${
+                      isActive 
+                        ? ' text-[#fce7f3]' 
+                        : 'text-gray-100 hover:text-[#fce7f3]'
+                    }`
+                  }
                 >
-                  Bestsellers
-                </Link>
+                  Socials
+                </NavLink>
               </li>
+            
               <li>
-                <Link
-                  to="/new-releases"
-                  className="font-semibold text-gray-100 hover:text-purple-600"
-                >
-                  New Releases
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/deals"
-                  className="font-semibold text-gray-100 hover:text-purple-600"
-                >
-                  Deals
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/authors"
-                  className="font-semibold text-gray-100 hover:text-purple-600"
-                >
-                  Authors
-                </Link>
-              </li>
-              <li>
-                <Link
+                <NavLink
                   to="/recommendations"
-                  className="font-semibold text-gray-100 hover:text-purple-600"
+                  className={({ isActive }) => 
+                    `font-semibold   ${
+                      isActive 
+                        ? ' text-[#fce7f3]' 
+                        : 'text-gray-100 hover:text-[#fce7f3]'
+                    }`
+                  }
                 >
                   Recommendations
-                </Link>
-              </li>{" "}
+                </NavLink>
+              </li>
               <li>
-                <Link
+                <NavLink
                   to="/blog"
-                  className="font-semibold text-gray-100 hover:text-purple-600"
+                  className={({ isActive }) => 
+                    `font-semibold   ${
+                      isActive 
+                        ? ' text-[#fce7f3]' 
+                        : 'text-gray-100 hover:text-[#fce7f3]'
+                    }`
+                  }
                 >
                   Blog
-                </Link>
+                </NavLink>
               </li>
             </ul>
           </div>
