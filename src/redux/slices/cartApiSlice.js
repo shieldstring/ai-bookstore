@@ -1,9 +1,10 @@
-import { apiSlice } from '../../apiSlice';
+import { apiTwo } from "./apiSlice";
+
 
 export const CartApiSlice = {
   addToCart: async (productId, quantity) => {
     const response = await dispatch(
-      apiSlice.endpoints.addToCart.initiate({ productId, quantity })
+      apiTwo.endpoints.addToCart.initiate({ productId, quantity })
     );
     if ('error' in response) throw response.error;
     return response.data;
@@ -11,7 +12,7 @@ export const CartApiSlice = {
 
   updateCartItem: async (itemId, quantity) => {
     const response = await dispatch(
-      apiSlice.endpoints.updateCartItem.initiate({ itemId, quantity })
+      apiTwo.endpoints.updateCartItem.initiate({ itemId, quantity })
     );
     if ('error' in response) throw response.error;
     return response.data;
@@ -19,7 +20,7 @@ export const CartApiSlice = {
 
   removeFromCart: async (itemId) => {
     const response = await dispatch(
-      apiSlice.endpoints.removeFromCart.initiate(itemId)
+      apiTwo.endpoints.removeFromCart.initiate(itemId)
     );
     if ('error' in response) throw response.error;
     return response.data;
@@ -27,7 +28,7 @@ export const CartApiSlice = {
 
   clearCart: async () => {
     const response = await dispatch(
-      apiSlice.endpoints.clearCart.initiate()
+      apiTwo.endpoints.clearCart.initiate()
     );
     if ('error' in response) throw response.error;
     return response.data;
@@ -35,14 +36,14 @@ export const CartApiSlice = {
 
   getCart: async () => {
     const response = await dispatch(
-      apiSlice.endpoints.getCart.initiate()
+      apiTwo.endpoints.getCart.initiate()
     );
     if ('error' in response) throw response.error;
     return response.data;
   },
   applyCoupon: async (couponCode) => {
     const response = await dispatch(
-      apiSlice.endpoints.applyCoupon.initiate({ couponCode })
+      apiTwo.endpoints.applyCoupon.initiate({ couponCode })
     );
     if ('error' in response) throw response.error;
     return response.data;

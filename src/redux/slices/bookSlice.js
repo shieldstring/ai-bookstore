@@ -1,6 +1,6 @@
-import { apiSlice } from '../../apiSlice';
+import { apiOne } from "./apiSlice";
 
-export const bookApiSlice = apiSlice.injectEndpoints({
+export const bookApiSlice = apiOne.injectEndpoints({
   endpoints: (builder) => ({
     getBooks: builder.query({
       query: ({ page = 1, limit = 10, genre = '', sortBy = '', search = '' }) => 

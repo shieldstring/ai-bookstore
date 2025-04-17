@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { apiOne } from './apiSlice';
 
 const initialState = {
 	userInfo: localStorage.getItem('userInfo')
@@ -31,7 +32,7 @@ export const { setCredentials, logout } = authSlice.actions;
 export default authSlice.reducer;
 
 // RTK Query endpoints for auth
-export const authApiSlice = apiTwo.injectEndpoints({
+export const authApiSlice = apiOne.injectEndpoints({
 	endpoints: (builder) => ({
 	  login: builder.mutation({
 		query: (credentials) => ({

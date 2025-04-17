@@ -1,26 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { 
-  syncCartWithServer
-} from '../redux/slices/cartApiSlice';
-import { 
-  addToCartWithSync,
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
+import {
+  applyCouponWithSync,
   removeFromCartWithSync,
   updateCartItemWithSync,
-  clearCartWithSync,
   initializeCart,
-  applyCouponWithSync
-} from '../redux/slices/cartThunks';
-import CartItem from '../../components/cart/CartItem';
-import OrderSummary from '../../components/cart/OrderSummary';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
-import ErrorMessage from '../../components/common/ErrorMessage';
+} from "../redux/slices/cartThunks";
+import CartItem from "../components/cart/CartItem";
+import OrderSummary from "../components/cart/OrderSummary";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import ErrorMessage from "../components/common/ErrorMessage";
+import Newsletter from "../components/common/Newsletter";
 
 const CartPage = () => {
   const dispatch = useDispatch();
-  const { cart, coupon, status, error: cartError } = useSelector((state) => state.cart);
-  const [couponCode, setCouponCode] = useState('');
+  const { cart, status, error: cartError } = useSelector((state) => state.cart);
+  const [couponCode, setCouponCode] = useState("");
   const [localError, setLocalError] = useState(null);
 
   // Initialize cart on mount
@@ -29,145 +26,169 @@ const CartPage = () => {
       try {
         await dispatch(initializeCart()).unwrap();
       } catch (error) {
-        setLocalError(error.message || 'Failed to load cart');
+        setLocalError(error.message || "Failed to load cart");
       }
     };
     init();
   }, [dispatch]);
 
-  const handleAddItem = async (product) => {
-    try {
-      await dispatch(addToCartWithSync(product)).unwrap();
-    } catch (err) {
-      setLocalError(err.message || 'Failed to add item to cart');
-    }
-  };
-
   const handleRemoveItem = async (itemId) => {
     try {
       await dispatch(removeFromCartWithSync(itemId)).unwrap();
     } catch (err) {
-      setLocalError(err.message || 'Failed to remove item from cart');
+      setLocalError(err.message || "Failed to remove item from cart");
     }
   };
 
   const handleUpdateQuantity = async (itemId, newQuantity) => {
     if (newQuantity < 1) return;
-    
+
     try {
       await dispatch(updateCartItemWithSync(itemId, newQuantity)).unwrap();
     } catch (err) {
-      setLocalError(err.message || 'Failed to update quantity');
-    }
-  };
-
-  const handleClearCart = async () => {
-    try {
-      await dispatch(clearCartWithSync()).unwrap();
-    } catch (err) {
-      setLocalError(err.message || 'Failed to clear cart');
+      setLocalError(err.message || "Failed to update quantity");
     }
   };
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
-    
+
     try {
       await dispatch(applyCouponWithSync(couponCode)).unwrap();
-      setCouponCode('');
+      setCouponCode("");
     } catch (err) {
-      setLocalError(err.message || 'Failed to apply coupon');
+      // Error is already handled in the thunk
     }
   };
 
-  // Combine errors from Redux state and local component
   const error = cartError || localError;
 
-  if (status === 'loading') return <LoadingSpinner />;
+  if (status === "loading") return <LoadingSpinner />;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Your Shopping Cart</h1>
-      
-      {error && (
-        <ErrorMessage 
-          error={error} 
-          onClose={() => {
-            setLocalError(null);
-            // Clear Redux error if needed
-            if (cartError) dispatch(syncCartWithServer(cart));
-          }} 
-        />
-      )}
-
-      {cart?.items?.length === 0 ? (
-        <div className="text-center py-12">
-          <h3 className="text-xl font-semibold mb-2">Your cart is empty</h3>
-          <p className="mb-4">Browse our collection to find your next read</p>
-          <Link 
-            to="/books" 
-            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition"
-          >
-            Browse Books
-          </Link>
-        </div>
-      ) : (
-        <div className="flex flex-col md:flex-row gap-8">
-          <div className="md:w-2/3">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="divide-y">
-                {cart?.items?.map((item) => (
-                  <CartItem
-                    key={item._id}
-                    item={item}
-                    onQuantityChange={(newQuantity) => handleUpdateQuantity(item._id, newQuantity)}
-                    onRemove={() => handleRemoveItem(item._id)}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          <div className="md:w-1/3">
-            <OrderSummary 
-              subtotal={cart?.subtotal || 0}
-              discount={cart?.discount || 0}
-              total={cart?.total || 0}
-              coupon={coupon}
-            />
-            
-            <div className="bg-white rounded-lg shadow-md p-6 mt-4">
-              <h3 className="text-lg font-semibold mb-3">Apply Coupon</h3>
-              <div className="flex">
-                <input
-                  type="text"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                  placeholder="Enter coupon code"
-                  className="flex-1 border border-gray-300 rounded-l-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  onClick={handleApplyCoupon}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 transition"
-                  disabled={!couponCode.trim()}
-                >
-                  Apply
-                </button>
-              </div>
-              {coupon?.error && (
-                <p className="text-red-500 mt-2">{coupon.error}</p>
-              )}
-            </div>
-            
-            <Link
-              to="/checkout"
-              className="block w-full bg-green-600 text-white text-center py-3 rounded-md mt-6 hover:bg-green-700 transition"
+    <div>
+      {/* Breadcrumb */}
+      <div className="bg-gray-50 py-3 ">
+        <div className="container mx-auto px-4 flex justify-between">
+          <div className="flex items-center text-sm">
+            <a
+              href="#"
+              className="hover:text-gray-600 font-semibold text-purple-700"
             >
-              Proceed to Checkout
-            </Link>
+              Home
+            </a>
+            <span className="mx-2 text-gray-500">/</span>
+            <span className="text-gray-900">Cart</span>
           </div>
         </div>
-      )}
+      </div>
+      <div className="max-w-4xl mx-auto px-4 lg:py-10">
+        {error && (
+          <ErrorMessage
+            error={error}
+            onClose={() => {
+              setLocalError(null);
+              if (cartError) dispatch(syncCartWithServer(cart));
+            }}
+          />
+        )}
+
+        <div className="mb-8">
+          {cart?.items?.length === 0 ? (
+            <div className="text-center py-12">
+              <h3 className="text-xl font-semibold mb-2">Your cart is empty</h3>
+              <p className="mb-4">
+                Browse our collection to find your next read
+              </p>
+              <Link
+                to="/books"
+                className="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition"
+              >
+                Browse Books
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="bg-purple-800 text-white rounded-t-lg p-3 grid grid-cols-12 gap-4">
+                <div className="col-span-6">Item</div>
+                <div className="col-span-2 text-center">Quantity</div>
+                <div className="col-span-2 text-center">Price</div>
+                <div className="col-span-2 text-center">Total Price</div>
+              </div>
+
+              {cart.items.map((item) => (
+                <CartItem
+                  key={item._id}
+                  item={item}
+                  onRemove={handleRemoveItem}
+                  onQuantityChange={(newQuantity) =>
+                    handleUpdateQuantity(item._id, newQuantity)
+                  }
+                />
+              ))}
+            </>
+          )}
+        </div>
+
+        {cart.items.length > 0 && (
+          <div className="bg-pink-100 rounded-lg p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <h2 className="text-lg font-semibold mb-3">Shopping Summary</h2>
+              <p className="text-gray-600 text-sm mb-6">
+                Review your items and apply any promo codes before checkout.
+              </p>
+
+              <div className="mb-4">
+                <p className="mb-2">Have a coupon code?</p>
+                <div className="flex">
+                  <div className="bg-pink-200 p-2 rounded-l flex items-center justify-center">
+                    <span className="text-xs font-bold text-pink-800 px-1">
+                      %
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Enter promo code here"
+                    className="p-2 border border-pink-200 flex-grow focus:outline-none focus:ring-1 focus:ring-pink-300"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                  />
+                  <button
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 rounded-r flex items-center"
+                    onClick={handleApplyCoupon}
+                    disabled={!couponCode.trim()}
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+                {cart.coupon?.error && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {cart.coupon.error}
+                  </p>
+                )}
+                {cart.coupon?.code && !cart.coupon.error && (
+                  <p className="text-green-600 text-sm mt-1">
+                    Coupon "{cart.coupon.code}" applied! (-$
+                    {cart.discount.toFixed(2)})
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <OrderSummary
+              subtotal={cart.subtotal}
+              discount={cart.discount}
+              tax={cart.tax}
+              shipping={cart.shipping}
+              total={cart.total}
+              coupon={cart.coupon}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Newsletter Section */}
+      <Newsletter />
     </div>
   );
 };

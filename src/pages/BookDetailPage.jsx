@@ -4,11 +4,12 @@ import Newsletter from "../components/common/Newsletter";
 import ValueProps from "../components/common/ValueProps";
 import SEO from "../components/SEO";
 import ReviewList from "../components/bookDetails/ReviewList";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import ReviewForm from "../components/bookDetails/ReviewForm";
 import { useAddReviewMutation, useGetBookDetailsQuery } from "../redux/slices/bookSlice";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorMessage from "../components/common/ErrorMessage";
+import { useSelector } from "react-redux";
 
 function BookDetailPage() {
   useEffect(() => {
@@ -23,7 +24,7 @@ function BookDetailPage() {
   const [activeImage, setActiveImage] = useState(0);
 
   const { id } = useParams();
-  // const { data: book, isLoading, isError, error } = useGetBookDetailsQuery(id);
+  const { data: books, isLoading, isError, error } = useGetBookDetailsQuery(id);
   const [addReview, { isLoading: isAddingReview }] = useAddReviewMutation();
   const { userInfo } = useSelector((state) => state.auth);
   const [rating, setRating] = useState(0);
