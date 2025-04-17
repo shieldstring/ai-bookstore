@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BellIcon } from '@heroicons/react/24/outline';
+import { Bell } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchNotifications, markAsRead } from '../../features/social/socialSlice';
 import { initSocket } from '../../sockets/socket';
@@ -47,7 +47,7 @@ const NotificationDropdown = () => {
         onClick={() => setIsOpen(!isOpen)}
         className="p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 relative"
       >
-        <BellIcon className="h-6 w-6" />
+        <Bell className="h-6 w-6" />
         {unreadCount > 0 && (
           <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
             {unreadCount}

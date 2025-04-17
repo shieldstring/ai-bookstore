@@ -5,6 +5,10 @@ import ValueProps from "../components/common/ValueProps";
 import SEO from "../components/SEO";
 import ReviewList from "../components/bookDetails/ReviewList";
 import { Link } from "react-router-dom";
+import ReviewForm from "../components/bookDetails/ReviewForm";
+import { useAddReviewMutation, useGetBookDetailsQuery } from "../redux/slices/bookSlice";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import ErrorMessage from "../components/common/ErrorMessage";
 
 function BookDetailPage() {
   useEffect(() => {
@@ -19,8 +23,11 @@ function BookDetailPage() {
   const [activeImage, setActiveImage] = useState(0);
 
   const { id } = useParams();
-  // const dispatch = useDispatch();
-  // const { book, status, error } = useSelector((state) => state.books);const handleAddToCart = () => {
+  // const { data: book, isLoading, isError, error } = useGetBookDetailsQuery(id);
+  const [addReview, { isLoading: isAddingReview }] = useAddReviewMutation();
+  const { userInfo } = useSelector((state) => state.auth);
+  const [rating, setRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
 
   const book = {
     title: "Story of Everest",
@@ -90,26 +97,28 @@ function BookDetailPage() {
   //   }));
   // };
 
-  // const handleReviewSubmit = (e) => {
-  //   e.preventDefault();
-  //   if (rating === 0) {
-  //     alert('Please select a rating');
-  //     return;
-  //   }
+ 
 
-  //   dispatch(addReview({
-  //     bookId: book._id,
-  //     rating,
-  //     text: reviewText
-  //   })).unwrap()
-  //     .then(() => {
-  //       setRating(0);
-  //       setReviewText('');
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error submitting review:', error);
-  //     });
-  // };
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (rating === 0) return;
+    
+    try {
+      await addReview({ 
+        bookId: id, 
+        rating, 
+        text: reviewText 
+      }).unwrap();
+      setRating(0);
+      setReviewText('');
+    } catch (err) {
+      console.error('Failed to add review:', err);
+    }
+  };
+
+  if (isLoading) return <LoadingSpinner />;
+  if (isError) return <ErrorMessage error={error} />;
+
 
   return (
     <div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { StarIcon, BookOpenIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import { Star, BookOpen, Users } from 'lucide-react';
 
 const UserCard = ({ user, isProfile = false }) => {
   return (
@@ -23,15 +23,15 @@ const UserCard = ({ user, isProfile = false }) => {
       
       <div className="flex justify-between text-sm text-gray-600 mb-6">
         <div className="flex items-center space-x-1">
-          <BookOpenIcon className="h-4 w-4" />
+          <BookOpen className="h-4 w-4" />
           <span>{user.stats?.booksRead || 0} books</span>
         </div>
         <div className="flex items-center space-x-1">
-          <UserGroupIcon className="h-4 w-4" />
+          <UserGroup className="h-4 w-4" />
           <span>{user.stats?.groupsJoined || 0} groups</span>
         </div>
         <div className="flex items-center space-x-1">
-          <StarIcon className="h-4 w-4" />
+          <Star className="h-4 w-4" />
           <span>{user.stats?.rating?.toFixed(1) || '0.0'}</span>
         </div>
       </div>

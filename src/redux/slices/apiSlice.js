@@ -22,6 +22,8 @@ export const apiTwo = createApi({
 			return headers;
 		},
 	}),
+	
+	tagTypes: ['Book', 'User', 'Review', 'Group', 'Cart', 'MLM', 'Post', 'Notification'],
 	endpoints: (builder) => ({
 		// ...endpoints
 	}),

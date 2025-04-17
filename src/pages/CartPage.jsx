@@ -1,48 +1,105 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { 
-  fetchCart, 
-  updateCartItem, 
-  removeFromCart, 
-  applyCoupon 
-} from '../../features/cart/cartSlice';
+  syncCartWithServer
+} from '../redux/slices/cartApiSlice';
+import { 
+  addToCartWithSync,
+  removeFromCartWithSync,
+  updateCartItemWithSync,
+  clearCartWithSync,
+  initializeCart,
+  applyCouponWithSync
+} from '../redux/slices/cartThunks';
 import CartItem from '../../components/cart/CartItem';
 import OrderSummary from '../../components/cart/OrderSummary';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
-import { Link } from 'react-router-dom';
+import ErrorMessage from '../../components/common/ErrorMessage';
 
 const CartPage = () => {
   const dispatch = useDispatch();
-  const { cart, status, error, coupon } = useSelector((state) => state.cart);
+  const { cart, coupon, status, error: cartError } = useSelector((state) => state.cart);
   const [couponCode, setCouponCode] = useState('');
+  const [localError, setLocalError] = useState(null);
 
+  // Initialize cart on mount
   useEffect(() => {
-    dispatch(fetchCart());
+    const init = async () => {
+      try {
+        await dispatch(initializeCart()).unwrap();
+      } catch (error) {
+        setLocalError(error.message || 'Failed to load cart');
+      }
+    };
+    init();
   }, [dispatch]);
 
-  const handleQuantityChange = (itemId, newQuantity) => {
-    if (newQuantity > 0) {
-      dispatch(updateCartItem({ itemId, quantity: newQuantity }));
+  const handleAddItem = async (product) => {
+    try {
+      await dispatch(addToCartWithSync(product)).unwrap();
+    } catch (err) {
+      setLocalError(err.message || 'Failed to add item to cart');
     }
   };
 
-  const handleRemoveItem = (itemId) => {
-    dispatch(removeFromCart(itemId));
-  };
-
-  const handleApplyCoupon = () => {
-    if (couponCode.trim()) {
-      dispatch(applyCoupon(couponCode));
+  const handleRemoveItem = async (itemId) => {
+    try {
+      await dispatch(removeFromCartWithSync(itemId)).unwrap();
+    } catch (err) {
+      setLocalError(err.message || 'Failed to remove item from cart');
     }
   };
+
+  const handleUpdateQuantity = async (itemId, newQuantity) => {
+    if (newQuantity < 1) return;
+    
+    try {
+      await dispatch(updateCartItemWithSync(itemId, newQuantity)).unwrap();
+    } catch (err) {
+      setLocalError(err.message || 'Failed to update quantity');
+    }
+  };
+
+  const handleClearCart = async () => {
+    try {
+      await dispatch(clearCartWithSync()).unwrap();
+    } catch (err) {
+      setLocalError(err.message || 'Failed to clear cart');
+    }
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    
+    try {
+      await dispatch(applyCouponWithSync(couponCode)).unwrap();
+      setCouponCode('');
+    } catch (err) {
+      setLocalError(err.message || 'Failed to apply coupon');
+    }
+  };
+
+  // Combine errors from Redux state and local component
+  const error = cartError || localError;
 
   if (status === 'loading') return <LoadingSpinner />;
-  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Your Shopping Cart</h1>
       
+      {error && (
+        <ErrorMessage 
+          error={error} 
+          onClose={() => {
+            setLocalError(null);
+            // Clear Redux error if needed
+            if (cartError) dispatch(syncCartWithServer(cart));
+          }} 
+        />
+      )}
+
       {cart?.items?.length === 0 ? (
         <div className="text-center py-12">
           <h3 className="text-xl font-semibold mb-2">Your cart is empty</h3>
@@ -63,8 +120,8 @@ const CartPage = () => {
                   <CartItem
                     key={item._id}
                     item={item}
-                    onQuantityChange={handleQuantityChange}
-                    onRemove={handleRemoveItem}
+                    onQuantityChange={(newQuantity) => handleUpdateQuantity(item._id, newQuantity)}
+                    onRemove={() => handleRemoveItem(item._id)}
                   />
                 ))}
               </div>
@@ -92,6 +149,7 @@ const CartPage = () => {
                 <button
                   onClick={handleApplyCoupon}
                   className="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 transition"
+                  disabled={!couponCode.trim()}
                 >
                   Apply
                 </button>

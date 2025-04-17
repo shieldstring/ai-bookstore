@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchConversations, setActiveConversation } from '../../features/social/socialSlice';
 import { initSocket } from '../../sockets/socket';
-import { PaperAirplaneIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { Send, User } from 'lucide-react';
 
 const MessageList = () => {
   const dispatch = useDispatch();
@@ -84,7 +84,7 @@ const MessageList = () => {
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <UserCircleIcon className="h-full w-full text-gray-400" />
+                        <User className="h-full w-full text-gray-400" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -117,7 +117,7 @@ const MessageList = () => {
       
       <div className="p-4 border-t border-gray-200">
         <button className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-          <PaperAirplaneIcon className="h-5 w-5 mr-2" />
+          <Send className="h-5 w-5 mr-2" />
           New Message
         </button>
       </div>

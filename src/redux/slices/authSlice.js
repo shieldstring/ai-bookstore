@@ -29,3 +29,26 @@ const authSlice = createSlice({
 export const { setCredentials, logout } = authSlice.actions;
 
 export default authSlice.reducer;
+
+// RTK Query endpoints for auth
+export const authApiSlice = apiTwo.injectEndpoints({
+	endpoints: (builder) => ({
+	  login: builder.mutation({
+		query: (credentials) => ({
+		  url: '/auth/login',
+		  method: 'POST',
+		  body: credentials,
+		}),
+	  }),
+	  register: builder.mutation({
+		query: (userData) => ({
+		  url: '/auth/register',
+		  method: 'POST',
+		  body: userData,
+		}),
+	  }),
+	  // Add other auth endpoints
+	}),
+  });
+  
+  export const { useLoginMutation, useRegisterMutation } = authApiSlice;

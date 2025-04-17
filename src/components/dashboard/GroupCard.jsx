@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { UsersIcon, BookmarkIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
+import { Users, Bookmark, MessageCircle } from 'lucide-react';
 
 const GroupCard = ({ group, isMember = false }) => {
   return (
@@ -23,11 +23,11 @@ const GroupCard = ({ group, isMember = false }) => {
         
         <div className="flex justify-between text-sm text-gray-500 mb-4">
           <div className="flex items-center space-x-1">
-            <UsersIcon className="h-4 w-4" />
+            <Users className="h-4 w-4" />
             <span>{group.memberCount} members</span>
           </div>
           <div className="flex items-center space-x-1">
-            <ChatBubbleLeftRightIcon className="h-4 w-4" />
+            <MessageCircle className="h-4 w-4" />
             <span>{group.discussionCount} discussions</span>
           </div>
         </div>
