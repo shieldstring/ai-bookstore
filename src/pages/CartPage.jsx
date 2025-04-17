@@ -13,6 +13,7 @@ import OrderSummary from "../components/cart/OrderSummary";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorMessage from "../components/common/ErrorMessage";
 import Newsletter from "../components/common/Newsletter";
+import { syncCartWithServer } from "../redux/slices/cartSlice";
 
 const CartPage = () => {
   const dispatch = useDispatch();
