@@ -1,6 +1,6 @@
-import { apiSlice } from '../../apiSlice';
+import { apiTwo } from "./apiSlice";
 
-export const groupApiSlice = apiSlice.injectEndpoints({
+export const groupApiSlice = apiTwo.injectEndpoints({
   endpoints: (builder) => ({
     getGroups: builder.query({
       query: ({ page = 1, limit = 10, category = '', search = '' }) => 

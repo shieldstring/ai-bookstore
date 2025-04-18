@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserStats } from '../../features/auth/authSlice';
-import { fetchReadingProgress } from '../../features/books/bookSlice';
-import { fetchRecommendedBooks } from '../../features/social/socialSlice';
+import { fetchUserStats } from '../../redux/slices/authSlice';
+import { fetchReadingProgress } from '../../redux/slices/bookSlice';
+import { fetchRecommendedBooks } from '../../redux/slices/socialApiSlice';
 import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import StatsCard from '../../components/dashboard/StatsCard';
 import ReadingProgress from '../../components/dashboard/ReadingProgress';

@@ -10,6 +10,8 @@ import NotFoundPage from "./pages/NotFoundPage";
 import AuthRoute from "./components/AuthRoute";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import Dashboard from "./pages/dashboard/Index";
+
 
 function App() {
   return (
@@ -22,8 +24,8 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="books" element={<BooksPage />} />
           <Route path="books/:id" element={<BookDetailPage />} />
-          <Route path="profile/:userId" element={<UserProfile />} />
-          <Route path="groups/:groupId" element={<GroupPage />} />
+          <Route path="profile/:userId" element={"<UserProfile />"} />
+          <Route path="groups/:groupId" element={"<GroupPage />"} />
         </Route>
 
         {/* Auth Routes */}
@@ -42,11 +44,11 @@ function App() {
           }
         >
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="social" element={<SocialFeed />} />
-          <Route path="groups/create" element={<CreateGroup />} />
+          <Route path="social" element={"<SocialFeed />"} />
+          <Route path="groups/create" element={"<CreateGroup />"} />
           <Route path="cart" element={<CartPage />} />
-          <Route path="checkout" element={<CheckoutPage />} />
-          <Route path="mlm" element={<MLMDashboard />} />
+          <Route path="checkout" element={"<CheckoutPage />"} />
+          <Route path="mlm" element={"<MLMDashboard />"} />
         </Route>
       </Routes>
     </Router>

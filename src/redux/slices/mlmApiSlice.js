@@ -1,6 +1,6 @@
-import { apiSlice } from '../../apiSlice';
+import { apiTwo } from "./apiSlice";
 
-export const mlmApiSlice = apiSlice.injectEndpoints({
+export const mlmApiSlice = apiTwo.injectEndpoints({
   endpoints: (builder) => ({
     getMLMStats: builder.query({
       query: () => '/mlm/stats',

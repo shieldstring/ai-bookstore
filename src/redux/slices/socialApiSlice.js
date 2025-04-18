@@ -1,6 +1,6 @@
-import { apiSlice } from '../../apiSlice';
+import { apiTwo } from "./apiSlice";
 
-export const socialApiSlice = apiSlice.injectEndpoints({
+export const socialApiSlice = apiTwo.injectEndpoints({
   endpoints: (builder) => ({
     getFeedPosts: builder.query({
       query: ({ page = 1, limit = 10 }) => `/social/feed?page=${page}&limit=${limit}`,
