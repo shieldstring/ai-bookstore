@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGetUserDashboardQuery } from '../../services/api';
+import { useGetUserDashboardQuery } from '../../../services/api';
 import { 
   BookOpen, Star, Trophy, Award, ShoppingBag, Users, Bookmark, DollarSign 
 } from 'lucide-react';

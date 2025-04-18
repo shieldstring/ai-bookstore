@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGetAdminDashboardQuery } from '../../services/api';
+import { useGetAdminDashboardQuery } from '../../../services/api';
 import { 
   BarChart2, Book, ShoppingCart, Users, DollarSign, Package 
 } from 'lucide-react';

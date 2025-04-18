@@ -4,7 +4,7 @@ import { fetchFeedPosts, createPost, likePost, addComment } from '../../features
 import PostCard from '../../components/social/PostCard';
 import CreatePostForm from '../../components/social/CreatePostForm';
 import SocialSidebar from '../../components/social/SocialSidebar';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
+import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import { initSocket, socket } from '../../sockets/socket';
 
 const SocialFeed = () => {
