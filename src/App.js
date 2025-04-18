@@ -11,6 +11,8 @@ import AuthRoute from "./components/AuthRoute";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import Dashboard from "./pages/dashboard/Index";
+import DashboardLayout from "./components/layout/DashboardLayout";
+import DashboardRouter from "./pages/dashboard/DashboardRouter";
 
 
 function App() {
@@ -47,9 +49,23 @@ function App() {
           <Route path="social" element={"<SocialFeed />"} />
           <Route path="groups/create" element={"<CreateGroup />"} />
           <Route path="cart" element={<CartPage />} />
-          <Route path="checkout" element={"<CheckoutPage />"} />
+          <Route path="checkout" element={<CheckoutPage />} />
           <Route path="mlm" element={"<MLMDashboard />"} />
         </Route>
+
+         {/* Protected Routes */}
+         <Route
+          path="/dashboard"
+          element={
+            <AuthRoute>
+              <DashboardLayout />
+            </AuthRoute>
+          }
+        >
+          </Route>
+          <Route path="/" element={
+          <DashboardRouter />
+        } />
       </Routes>
     </Router>
   );
