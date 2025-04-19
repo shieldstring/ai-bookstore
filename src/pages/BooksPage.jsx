@@ -692,7 +692,7 @@ const BooksPage = () => {
 
             {/* Book Grid View */}
             {viewType === "grid" && visibleBooks.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
                 {visibleBooks.map((book) => (
                   <div key={book.id} className="group relative">
                     <div className="relative bg-gray-100 rounded-lg overflow-hidden aspect-[2/3]">
@@ -795,7 +795,7 @@ const BooksPage = () => {
                         </div>
                       )}
                     </div>
-                    <div className="ml-6 flex-1">
+                    <div className="ml-2 sm:ml-6 flex-1">
                       <div className="flex justify-between">
                         <div>
                           <div className="flex items-center text-xs text-gray-500 mb-1">
