@@ -357,12 +357,11 @@ function BookDetailPage() {
                   <ReviewForm
                     rating={rating}
                     setRating={setRating}
-                    hoverRating={hoverRating}
-                    setHoverRating={setHoverRating}
+                   
                     reviewText={reviewText}
                     setReviewText={setReviewText}
                     onSubmit={handleReviewSubmit}
-                    user={user || "9086"}
+                    user={userInfo || "9086"}
                   />
                 {/* ) : ( */}
                   <div className="bg-blue-50 p-4 rounded-md mb-6">

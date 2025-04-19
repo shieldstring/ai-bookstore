@@ -169,7 +169,7 @@ const TopRatedBooks = () => {
             </svg>
           </button>
           <div
-            className="flex space-x-6 overflow-x-auto scroll-smooth scrollbar-hide py-4"
+            className="flex space-x-6 overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-4"
             ref={containerRef}
           >
             {books.map((book, index) => (

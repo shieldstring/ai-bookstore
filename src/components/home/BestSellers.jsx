@@ -104,7 +104,7 @@ export default function BestSellers() {
         {/* Books List */}
         <div
           ref={scrollRef}
-          className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide py-10 px-10"
+          className="flex gap-6 overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-10 px-10 "
         >
           {bestSellers.map((book, index) => (
             <div

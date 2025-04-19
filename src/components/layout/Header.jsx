@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 // import { logoutUser } from '../../redux/slices/authSlice';
 import { User, Menu, X } from "lucide-react";
@@ -27,8 +27,8 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm">
-      <div className="container mx-auto px-4 py-4">
+    <header className="bg-white shadow-sm sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-4 ">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <button className="md:hidden mr-2" onClick={toggleSidebar}>
@@ -143,27 +143,27 @@ const Header = () => {
                   />
                 </svg>
               </button>
-              <div className="absolute right-0  w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-10">
+              <div className="absolute right-0  w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-[100]">
                 <Link
-                  to="/profile"
+                  to="/dashboard/account"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
                 >
                   My Profile
                 </Link>
                 <Link
-                  to="/orders"
+                  to="/dashboard/orders"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
                 >
                   My Orders
                 </Link>
                 <Link
-                  to="/wishlist"
+                  to="/dashboard/wishlist"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
                 >
                   Wishlist
                 </Link>
                 <Link
-                  to="/mlm"
+                  to="/dashboard/mlm"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
                 >
                   My Network

@@ -3,7 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, User, ShoppingBag, Heart, BookOpen, 
   Star, BarChart2, Grid, ShoppingCart, 
-  Users, PieChart, Settings, Menu, X, LogOut 
+  Users, PieChart, Settings, Menu, X, LogOut, 
+  User2Icon
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 
@@ -18,6 +19,7 @@ const DashboardLayout = ({ children }) => {
     { name: 'Dashboard', path: '/dashboard', icon: <Home className="h-5 w-5" /> },
     { name: 'My Account', path: '/dashboard/account', icon: <User className="h-5 w-5" /> },
     { name: 'My Orders', path: '/dashboard/orders', icon: <ShoppingBag className="h-5 w-5" /> },
+    { name: 'My Network', path: '/dashboard/orders', icon: <User2Icon className="h-5 w-5" /> },
     { name: 'Wishlist', path: '/dashboard/wishlist', icon: <Heart className="h-5 w-5" /> },
     { name: 'Reading Progress', path: '/dashboard/reading-progress', icon: <BookOpen className="h-5 w-5" /> },
     { name: 'Recommendations', path: '/dashboard/recommendations', icon: <Star className="h-5 w-5" /> },

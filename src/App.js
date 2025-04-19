@@ -24,6 +24,8 @@ import AdminOrders from "./pages/dashboard/admin/Orders";
 import AdminSettings from "./pages/dashboard/admin/Settings";
 import ProductsList from "./pages/dashboard/admin/ProductsList";
 import UserProfile from "./pages/UserProfile";
+import UserDashboard from "./pages/dashboard/customer/UserDashboard";
+import AdminDashboard from "./pages/dashboard/admin/AdminDashboard";
 
 function App() {
   return (
@@ -38,26 +40,31 @@ function App() {
           <Route path="books/:id" element={<BookDetailPage />} />
           <Route path="profile/:userId" element={<UserProfile />} />
           <Route path="groups/:groupId" element={"<GroupPage />"} />
-        </Route>
-
-        {/* Auth Routes */}
-        <Route path="/auth" element={<Layout />}>
-          <Route path="login" element={<Login />} />
+            {/* Protected Routes */}
+          <Route path="cart" element={ <AuthRoute>
+            <CartPage />
+            </AuthRoute>} />
+          <Route path="checkout" element={ <AuthRoute>
+            <CheckoutPage />
+            </AuthRoute>} />
+             {/* Auth Routes */}
+            <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
         </Route>
 
-        {/* Protected Routes */}
+       
+
         <Route
-          path="/"
+          path="/dashboard"
           element={
             <AuthRoute>
-              <Layout />
+              <DashboardLayout>
+                <DashboardRouter />
+              </DashboardLayout>
             </AuthRoute>
           }
-        >
-          <Route path="cart" element={<CartPage />} />
-          <Route path="checkout" element={<CheckoutPage />} />
-        </Route>
+        />
+          
 
         {/* Protected Routes */}
         <Route
@@ -68,7 +75,7 @@ function App() {
             </AuthRoute>
           }
         >
-          <Route path="/" element={<DashboardRouter />} />
+          <Route path="" element={<UserDashboard />} />
           <Route path="groups" element={<Groups />} />
           <Route path="social" element={"<SocialFeed />"} />
           <Route path="mlm" element={<MLMDashboard />} />
@@ -86,7 +93,7 @@ function App() {
             </AuthRoute>
           }
         >
-          <Route path="overview" element={<DashboardRouter />} />
+          <Route path="overview" element={<AdminDashboard />} />
           <Route path="analytics" element={<Analytics />} />
           <Route path="customers" element={<Customers />} />
           <Route path="orders" element={<AdminOrders />} />
