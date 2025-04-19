@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserProfile } from '../../features/social/socialSlice';
-import UserCard from './UserCard';
-import PostCard from '../social/PostCard';
-import LoadingSpinner from '../common/LoadingSpinner';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import UserCard from '../components/dashboard/UserCard';
+// import { fetchUserProfile } from '../../features/social/socialSlice';
+// import UserCard from './UserCard';
+// import PostCard from '../social/PostCard';
+// import LoadingSpinner from '../common/LoadingSpinner';
 
 const UserProfile = () => {
   const { userId } = useParams();
@@ -12,7 +14,7 @@ const UserProfile = () => {
   const { profile, posts, status, error } = useSelector((state) => state.social);
   
   useEffect(() => {
-    dispatch(fetchUserProfile(userId));
+    // dispatch(fetchUserProfile(userId));
   }, [dispatch, userId]);
 
   if (status === 'loading') return <LoadingSpinner />;
@@ -54,11 +56,14 @@ const UserProfile = () => {
             ) : (
               <div className="space-y-6">
                 {posts.map((post) => (
-                  <PostCard 
+                  <div>
+                    {/* <PostCard
                     key={post._id} 
                     post={post} 
                     currentUserId={profile?._id} 
-                  />
+                  />  */}
+                  post
+                  </div>
                 ))}
               </div>
             )}

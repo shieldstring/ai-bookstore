@@ -70,7 +70,7 @@ function App() {
         >
           <Route path="/" element={<DashboardRouter />} />
           <Route path="groups" element={<Groups />} />
-          <Route path="social" element={<SocialFeed />} />
+          <Route path="social" element={"<SocialFeed />"} />
           <Route path="mlm" element={<MLMDashboard />} />
           <Route path="account" element={<MyAccount />} />
           <Route path="orders" element={<MyOrders />} />

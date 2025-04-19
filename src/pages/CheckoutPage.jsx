@@ -8,8 +8,8 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorMessage from "../components/common/ErrorMessage";
-import { clearCart } from "../redux/slices/cartSlice";
 import Newsletter from "../components/common/Newsletter";
+import { clearLocalCart } from "../redux/slices/cartSlice";
 
 const CheckoutPage = () => {
   const { cart } = useSelector((state) => state.cart);
@@ -142,7 +142,7 @@ const CheckoutPage = () => {
       const res = await createOrder(orderData).unwrap();
 
       // Clear cart after successful order creation
-      dispatch(clearCart());
+      dispatch(clearLocalCart());
 
       // For PayPal or other payment methods that don't use webhooks
       if (paymentMethod !== "stripe") {

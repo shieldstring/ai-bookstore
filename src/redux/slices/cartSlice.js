@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { calculateCartTotals } from '../../utils/cartUtils';
 
 const initialState = {
   items: [],
@@ -16,7 +17,49 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    // ... existing reducers ...
+    // Client-side only actions for optimistic UI
+    addItemToCart: (state, action) => {
+      const { id, quantity = 1 } = action.payload;
+      const existingItem = state.items.find(item => item.id === id);
+      
+      if (existingItem) {
+        existingItem.quantity += quantity;
+      } else {
+        state.items.push({ ...action.payload, quantity });
+      }
+      
+      calculateCartTotals(state);
+      state.lastUpdated = Date.now();
+    },
+    removeItemFromCart: (state, action) => {
+      state.items = state.items.filter(item => item.id !== action.payload);
+      calculateCartTotals(state);
+      state.lastUpdated = Date.now();
+    },
+    updateItemQuantity: (state, action) => {
+      const { id, quantity } = action.payload;
+      const item = state.items.find(item => item.id === id);
+      
+      if (item) {
+        item.quantity = quantity;
+      }
+      
+      calculateCartTotals(state);
+      state.lastUpdated = Date.now();
+    },
+    clearLocalCart: (state) => {
+      state.items = [];
+      state.subtotal = 0;
+      state.tax = 0;
+      state.shipping = 0;
+      state.total = 0;
+      state.lastUpdated = Date.now();
+    },
+    syncCartWithServer: (state, action) => {
+      state.items = action.payload.items || [];
+      calculateCartTotals(state);
+      state.lastUpdated = Date.now();
+    },
     
     applyCoupon: (state, action) => {
       const { code, discount, error } = action.payload;

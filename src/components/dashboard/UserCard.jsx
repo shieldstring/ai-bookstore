@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Star, BookOpen, Users } from 'lucide-react';
+import { Star, BookOpen,  Users2 } from 'lucide-react';
 
 const UserCard = ({ user, isProfile = false }) => {
   return (
@@ -27,7 +27,7 @@ const UserCard = ({ user, isProfile = false }) => {
           <span>{user.stats?.booksRead || 0} books</span>
         </div>
         <div className="flex items-center space-x-1">
-          <UserGroup className="h-4 w-4" />
+          <Users2 className="h-4 w-4" />
           <span>{user.stats?.groupsJoined || 0} groups</span>
         </div>
         <div className="flex items-center space-x-1">

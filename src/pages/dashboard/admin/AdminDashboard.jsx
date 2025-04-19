@@ -1,20 +1,21 @@
 import React from 'react';
-import { useGetAdminDashboardQuery } from '../../../services/api';
+import { useGetAdminDashboardQuery } from '../../../redux/slices/authSlice';
 import { 
   BarChart2, Book, ShoppingCart, Users, DollarSign, Package 
 } from 'lucide-react';
-import StatsCard from './StatsCard';
-import SalesChart from './SalesChart';
-import RecentOrders from './RecentOrders';
-import TopProducts from './TopProducts';
-import LoadingSpinner from '../common/LoadingSpinner';
-import ErrorMessage from '../common/ErrorMessage';
+import StatsCard from '../../../components/dashboard/StatsCard';
+import TopProducts from '../../../components/dashboard/admin/TopProducts';
+import RecentOrders from '../../../components/dashboard/RecentOrders';
+import LoadingSpinner from '../../../components/common/LoadingSpinner';
+import ErrorMessage from '../../../components/common/ErrorMessage';
+import SalesChart from '../../../components/dashboard/admin/SalesChart';
+
 
 const AdminDashboard = () => {
   const { data, isLoading, error } = useGetAdminDashboardQuery();
   
   if (isLoading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage message="Failed to load dashboard data" />;
+  if (error) return <ErrorMessage error="Failed to load dashboard data" />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
@@ -28,7 +29,7 @@ const AdminDashboard = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatsCard 
+        <StatsCard
           icon={<DollarSign className="h-5 w-5" />}
           title="Total Revenue"
           value={`$${data.stats.totalRevenue.toLocaleString()}`}

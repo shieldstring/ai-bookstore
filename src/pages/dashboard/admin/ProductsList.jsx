@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Book, Plus, Edit, Trash2, Search } from 'lucide-react';
 import { useGetProductsQuery, useDeleteProductMutation } from '../../../redux/slices/productsApiSlice';
-import CreateProduct from './CreateProduct';
-import EditProduct from './EditProduct';
+// import EditProduct from '../../../components/dashboard/admin/EditProduct';
+// import CreateProduct from '../../../components/dashboard/admin/CreateProduct';
+
 
 const ProductsList = () => {
   const { data: products, isLoading, error } = useGetProductsQuery();
@@ -99,18 +100,18 @@ const ProductsList = () => {
       {/* Modals */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <CreateProduct 
+          {/* <CreateProduct
             onClose={() => setShowCreateModal(false)}
-          />
+          /> */}
         </div>
       )}
 
       {editingProductId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <EditProduct 
+          {/* <EditProduct 
             productId={editingProductId}
             onClose={() => setEditingProductId(null)}
-          />
+          /> */}
         </div>
       )}
     </div>

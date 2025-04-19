@@ -1,22 +1,23 @@
 import React from 'react';
-import { useGetUserDashboardQuery } from '../../../services/api';
+import { useGetUserDashboardQuery } from '../../../redux/slices/authSlice';
 import { 
   BookOpen, Star, Trophy, Award, ShoppingBag, Users, Bookmark, DollarSign 
 } from 'lucide-react';
-import StatsCard from './StatsCard';
-import ReadingProgressChart from './ReadingProgressChart';
-import BookRecommendations from './BookRecommendations';
-import UpcomingChallenges from './UpcomingChallenges';
-import RecentOrders from './RecentOrders';
-import UserProfileCard from './UserProfileCard';
-import LoadingSpinner from '../common/LoadingSpinner';
-import ErrorMessage from '../common/ErrorMessage';
+import LoadingSpinner from '../../../components/common/LoadingSpinner';
+import ErrorMessage from '../../../components/common/ErrorMessage';
+import StatsCard from '../../../components/dashboard/StatsCard';
+import ReadingProgressChart from '../../../components/dashboard/ReadingProgressChart';
+import BookRecommendations from '../../../components/dashboard/BookRecommendations';
+import RecentOrders from '../../../components/dashboard/RecentOrders';
+import UserProfileCard from '../../../components/dashboard/UserProfileCard';
+import UpcomingChallenges from '../../../components/dashboard/UpcomingChallenges';
+
 
 const UserDashboard = () => {
   const { data, isLoading, error } = useGetUserDashboardQuery();
   
   if (isLoading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage message="Failed to load dashboard data" />;
+  if (error) return <ErrorMessage error="Failed to load dashboard data" />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">

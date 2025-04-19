@@ -2,12 +2,12 @@ import { apiTwo } from "./apiSlice";
 
 export const productsApiSlice = apiTwo.injectEndpoints({
   endpoints: (builder) => ({
-    getBooks: builder.query({
+    getProducts: builder.query({
       query: ({ page = 1, limit = 10, genre = "", sortBy = "", search = "" }) =>
         `books?page=${page}&limit=${limit}&genre=${genre}&sort=${sortBy}&search=${search}`,
       providesTags: ["Book"],
     }),
-    getBookDetails: builder.query({
+    getProduct: builder.query({
       query: (bookId) => `books/${bookId}`,
       providesTags: (result, error, arg) => [{ type: "Book", id: arg }],
     }),
@@ -27,12 +27,21 @@ export const productsApiSlice = apiTwo.injectEndpoints({
       }),
       invalidatesTags: (result, error, { id }) => [{ type: "Book", id }],
     }),
+    deleteProduct: builder.mutation({
+      query: ({ id, ...productData }) => ({
+        url: `/products/${id}`,
+        method: "DELETE",
+        body: productData,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: "Book", id }],
+    }),
   }),
 });
 
 export const {
-  useGetBooksQuery,
-  useGetBookDetailsQuery,
+  useGetProductQuery,
+  useGetProductsQuery,
   useCreateProductMutation,
   useUpdateProductMutation,
+  useDeleteProductMutation,
 } = productsApiSlice;
