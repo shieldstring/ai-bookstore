@@ -61,3 +61,5 @@ const MyAccount = () => {
     </div>
   );
 };
+
+export default MyAccount;

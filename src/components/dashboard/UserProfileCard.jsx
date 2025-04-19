@@ -1,4 +1,4 @@
-import { User, Book, Trophy, Users, Award, Star, BookOpen } from "lucide-react";
+import { Trophy, Users, Award, Star, BookOpen } from "lucide-react";
 
 const UserProfileCard = ({ user, groups, achievements }) => {
   return (

@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAppSelector } from '../../app/hooks';
 import { 
   Home, User, ShoppingBag, Heart, BookOpen, 
   Star, BarChart2, Grid, ShoppingCart, 
   Users, PieChart, Settings, Menu, X, LogOut 
 } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 const DashboardLayout = ({ children }) => {
-  const { user } = useAppSelector(state => state.auth);
+  const { user } = useSelector(state => state.auth);
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

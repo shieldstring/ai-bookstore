@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import AdminDashboard from './admin/AdminDashboard';
-import UserDashboard from './costomer/UserDashboard';
+import UserDashboard from './customer/UserDashboard';
 
 const DashboardRouter = () => {
   // Get user role from Redux store
