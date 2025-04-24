@@ -1,55 +1,20 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Star, ArrowRight, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const bestSellers = [
-  {
-    title: "So You Want To Talk About Race",
-    author: "Ijeoma Oluo",
-    img: "/images/book1.jpg",
-    category: "Biography",
-    rating: 4.5,
-    price: "$15.63",
-    oldPrice: "$19.99",
-  },
-  {
-    title: "Life of Wilds",
-    author: "Jasmine Bello",
-    img: "/images/book2.jpg",
-    category: "Nature",
-    rating: 3.5,
-    price: "$24.99",
-  },
-  {
-    title: "Story of Everest",
-    author: "Henry Martopo",
-    img: "/images/book3.jpg",
-    category: "Adventure",
-    rating: 4.7,
-    price: "$21.99",
-    oldPrice: "$25",
-  },
-  {
-    title: "Story of Everest",
-    author: "Henry Martopo",
-    img: "/images/book3.jpg",
-    category: "Adventure",
-    rating: 4.7,
-    price: "$21.99",
-    oldPrice: "$25",
-  },
-  {
-    title: "Lost of Everest",
-    author: "Henry Martopo",
-    img: "/images/book3.jpg",
-    category: "Adventure",
-    rating: 4.7,
-    price: "$21.99",
-    oldPrice: "$25",
-  },
-];
+import { useGetBooksQuery } from "../../redux/slices/bookSlice";
+import ErrorMessage from "../common/ErrorMessage";
+import LoadingSkeleton from "../preloader/LoadingSkeleton";
 
 export default function BestSellers() {
+  const [bestSellers, setBestSellers] = useState([]);
+  const { data, isLoading, isError } = useGetBooksQuery();
+
+  useEffect(() => {
+    if (data) {
+      setBestSellers(data);
+    }
+  }, [data]);
+
   const scrollRef = useRef(null);
   const intervalRef = useRef(null);
 
@@ -82,6 +47,11 @@ export default function BestSellers() {
     return () => clearInterval(intervalRef.current);
   }, []);
 
+  // Show error state
+  if (isError) {
+    return <ErrorMessage />;
+  }
+
   return (
     <section className="py-10 px-5 lg:px-24 mx-auto">
       {/* Header Section */}
@@ -102,52 +72,54 @@ export default function BestSellers() {
         </button>
 
         {/* Books List */}
-        <div
-          ref={scrollRef}
-          className="flex gap-6 overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-10 px-10 "
-        >
-          {bestSellers.map((book, index) => (
-            <div
-              key={index}
-              className="min-w-[250px] bg-white shadow-lg rounded-lg overflow-hidden relative"
-            >
-              {/* Book Cover */}
-              <div className="relative">
-                <img
-                  src={book.img}
-                  alt={book.title}
-                  className="w-full h-56 object-cover"
-                />
-              </div>
-
-              {/* Category Badge */}
-              <span className="absolute top-3 left-3 bg-pink-200 text-pink-600 text-xs px-2 py-1 rounded">
-                {book.category}
-              </span>
-
-              {/* Book Details */}
-              <div className="p-4">
-               <Link to={`books/${book.title}`} className="text-lg font-bold">{book.title}</Link>
-                <p className="text-gray-500 text-sm">{book.author}</p>
-
-                {/* Rating */}
-                <div className="flex items-center gap-1 text-yellow-500 text-sm mt-2">
-                  <Star size={14} fill="currentColor" stroke="none" /> {book.rating}
+        {isLoading ? (
+          <div className="lg:px-28">
+            <LoadingSkeleton type={"card"} count={4} />
+          </div>
+        ) : (
+          <div
+            ref={scrollRef}
+            className="flex gap-6 overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-10 px-10 "
+          >
+            {bestSellers.map((book, index) => (
+              <div
+                key={index}
+                className="min-w-[250px] bg-white shadow-lg rounded-lg overflow-hidden relative"
+              >
+                {/* Book Cover */}
+                <div className="relative">
+                  <img
+                    src={book.image}
+                    alt={book.title}
+                    className="w-full h-56 object-cover"
+                  />
                 </div>
 
-                {/* Price */}
-                <div className="mt-2 text-lg font-bold text-pink-500 flex gap-2">
-                  {book.price}
-                  {book.oldPrice && (
-                    <span className="text-gray-400 line-through text-sm">
-                      {book.oldPrice}
-                    </span>
-                  )}
+                {/* Category Badge */}
+                <span className="absolute top-3 left-3 bg-pink-200 text-pink-600 text-xs px-2 py-1 rounded">
+                  {book.genre}
+                </span>
+
+                {/* Book Details */}
+                <div className="p-4">
+                  <Link to={`books/${book._id}`} className="text-lg font-bold">
+                    {book.title}
+                  </Link>
+                  <p className="text-gray-500 text-sm">{book.author}</p>
+
+          
+
+                  {/* Price */}
+                  <div className="mt-2 text-lg font-bold text-pink-500 flex gap-2">
+                   $ {book.price}
+
+                    
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Right Scroll Button */}
         <button

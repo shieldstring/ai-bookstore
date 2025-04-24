@@ -42,7 +42,9 @@ export default function TrendingBooks() {
       </p>
 
       {isLoading ? (
-        <LoadingSkeleton type={"card"} count={4} />
+        <div className="lg:px-28">
+          <LoadingSkeleton type={"card"} count={4} />
+        </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-8 lg:px-28 mx-auto">
           {trendingBooks.slice(0, 7).map((book, index) => (
