@@ -1,11 +1,12 @@
-import React from 'react';
-import { AlertTriangle } from 'lucide-react';
+import React from "react";
+import { AlertTriangle } from "lucide-react";
 
-const ErrorMessage = ({ error, className = '' }) => {
-  const errorMessage = error?.data?.message || 
-                      error?.error || 
-                      error?.message || 
-                      'An error occurred';
+const ErrorMessage = ({ error, className = "" }) => {
+  const errorMessage =
+    error?.data?.message ||
+    error?.error ||
+    error?.message ||
+    "An error occurred";
 
   return (
     <div className={`bg-red-50 border-l-4 border-red-500 p-4 ${className}`}>

@@ -8,7 +8,7 @@ const HeroBanner = () => {
   const [activeSlide, setActiveSlide] = useState(0);
   const navigate = useNavigate();
   const [books, setBooks] = useState([]);
-  const { data, isLoading, isError, error } = useGetBooksQuery(); 
+  const { data, isLoading, isError, error } = useGetBooksQuery();
 
   useEffect(() => {
     if (data) {
@@ -146,7 +146,7 @@ const HeroBanner = () => {
               <img
                 src={books[activeSlide].image}
                 alt={books[activeSlide].title}
-                className="rounded-lg shadow-lg relative z-10 w-[20rem] h-[30rem] mx-auto"
+                className="rounded-lg shadow-lg relative z-10 sm:w-[20rem] h-[30rem] mx-auto"
               />
               {books.length > 1 && (
                 <>
@@ -154,14 +154,14 @@ const HeroBanner = () => {
                     <img
                       src={books[(activeSlide + 1) % books.length].image}
                       alt={books[(activeSlide + 1) % books.length].title}
-                      className="rounded-lg shadow-lg transform -rotate-6 w-[20rem] h-[30rem]"
+                      className="rounded-lg shadow-lg transform -rotate-6 sm:w-[20rem] h-[30rem]"
                     />
                   </div>
                   <div className="absolute -right-16 -bottom-4 z-0 hidden md:block">
                     <img
                       src={books[(activeSlide + 2) % books.length].image}
                       alt={books[(activeSlide + 2) % books.length].title}
-                      className="rounded-lg shadow-lg transform rotate-6 w-[20rem] h-[30rem]"
+                      className="rounded-lg shadow-lg transform rotate-6 sm:w-[20rem] h-[30rem]"
                     />
                   </div>
                 </>

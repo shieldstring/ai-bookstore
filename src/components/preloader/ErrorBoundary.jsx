@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -12,7 +12,7 @@ class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
     // You can also log the error to an error reporting service
     // logErrorToMyService(error, errorInfo);
   }
@@ -22,9 +22,12 @@ class ErrorBoundary extends Component {
       return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md text-center">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">Something went wrong!</h2>
+            <h2 className="text-2xl font-bold text-red-600 mb-4">
+              Something went wrong!
+            </h2>
             <p className="text-gray-600 mb-6">
-              We're sorry for the inconvenience. Our team has been notified and we're working to fix this issue.
+              We're sorry for the inconvenience. Our team has been notified and
+              we're working to fix this issue.
             </p>
             <div className="flex justify-center space-x-4">
               <button
