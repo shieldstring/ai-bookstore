@@ -1,6 +1,6 @@
 import React from 'react';
 
-const LoadingSkeleton = ({ type = 'card', count = 1 }) => {
+const LoadingSkeleton = ({ type , count }) => {
   const skeletonItems = Array(count).fill(0);
   
   if (type === 'card') {
