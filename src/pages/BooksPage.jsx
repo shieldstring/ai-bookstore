@@ -37,24 +37,25 @@ const BooksPage = () => {
 
   useEffect(() => {
     if (data) {
-      setAllBooks(data);
+      setAllBooks(data.books);
     }
   }, [data]);
 
   // Categories list for filter
   const categories = [
-    { id: "all", name: "All Books", count: 68 },
-    { id: "arts", name: "Arts & Photography", count: 12 },
-    { id: "biographies", name: "Biographies & Memoirs", count: 15 },
-    { id: "business", name: "Business & Money", count: 8 },
-    { id: "children", name: "Children's Books", count: 14 },
-    { id: "comics", name: "Comics & Graphic Novels", count: 6 },
-    { id: "computer", name: "Computer & Technology", count: 10 },
-    { id: "cooking", name: "Cooking, Food & Wine", count: 7 },
-    { id: "education", name: "Education & Teaching", count: 9 },
-    { id: "health", name: "Health & Fitness", count: 8 },
-    { id: "love", name: "Love & Romance", count: 12 },
-    { id: "travel", name: "Travel & Tourism", count: 11 },
+    { id: "all", name: "All Books" },
+    { id: "arts", name: "Arts & Photography" },
+    { id: "fiction", name: "Fiction" },
+    { id: "memoir", name: "Biographies & Memoirs" },
+    { id: "finance", name: "Business & Money" },
+    { id: "children", name: "Children's Books" },
+    { id: "comics", name: "Comics & Graphic Novels" },
+    { id: "computer", name: "Computer & Technology" },
+    { id: "cooking", name: "Cooking, Food & Wine" },
+    { id: "education", name: "Education & Teaching" },
+    { id: "health", name: "Health & Fitness" },
+    { id: "love", name: "Love & Romance" },
+    { id: "travel", name: "Travel & Tourism" },
   ];
 
   // Formats for filter
@@ -76,17 +77,6 @@ const BooksPage = () => {
     { id: "mit", name: "MIT Press" },
     { id: "orbit", name: "Orbit" },
     { id: "kodansha", name: "Kodansha" },
-  ];
-
-  // Years for filter
-  const years = [
-    { id: "all", name: "All Years" },
-    { id: "2025", name: "2025" },
-    { id: "2024", name: "2024" },
-    { id: "2023", name: "2023" },
-    { id: "2022", name: "2022" },
-    { id: "2021", name: "2021" },
-    { id: "2020", name: "2020" },
   ];
 
   // Filter books based on selected filters
@@ -349,9 +339,7 @@ const BooksPage = () => {
                             {category.name}
                           </label>
                         </div>
-                        <span className="text-xs text-gray-500">
-                          ({category.count})
-                        </span>
+                       
                       </li>
                     ))}
                   </ul>
@@ -413,33 +401,7 @@ const BooksPage = () => {
                   </ul>
                 </div>
 
-                {/* Years Filter */}
-                <div className="mb-6">
-                  <h3 className="font-medium mb-3 flex items-center justify-between">
-                    <span>Years</span>
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
-                  </h3>
-                  <ul className="space-y-2">
-                    {years.map((year) => (
-                      <li key={year.id} className="flex items-center">
-                        <input
-                          type="radio"
-                          id={`year-${year.id}`}
-                          name="year"
-                          className="mr-2 h-4 w-4 border-gray-300 text-purple-600 focus:ring-purple-500"
-                          checked={selectedYear === year.id}
-                          onChange={() => handleYearChange(year.id)}
-                        />
-                        <label
-                          htmlFor={`year-${year.id}`}
-                          className="text-sm text-gray-700"
-                        >
-                          {year.name}
-                        </label>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+               
 
                 {/* Price Range Filter */}
                 <div className="mb-6">
@@ -711,7 +673,7 @@ const BooksPage = () => {
                             </span>
                             <span className="mx-2 text-gray-400">|</span>
                             <span className="text-xs text-gray-500">
-                              {book.reviews.length} reviews
+                              {book.reviews} reviews
                             </span>
                           </div>
                           <p className="text-sm text-gray-600 mb-4 line-clamp-2">

@@ -10,7 +10,7 @@ const TopRatedBooks = () => {
 
   useEffect(() => {
     if (data) {
-      setBooks(data);
+      setBooks(data.books);
     }
   }, [data]);
 

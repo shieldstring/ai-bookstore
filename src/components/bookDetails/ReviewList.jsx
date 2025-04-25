@@ -1,7 +1,8 @@
 import React from "react";
 import { Star } from "lucide-react";
 
-export default function ReviewList(reviews) {
+export default function ReviewList({reviews}) {
+  console.log(reviews);
   return (
     <div className="space-y-6">
       {reviews.map((review) => (

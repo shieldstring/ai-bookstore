@@ -11,7 +11,7 @@ export default function BestSellers() {
 
   useEffect(() => {
     if (data) {
-      setBestSellers(data);
+      setBestSellers(data.books);
     }
   }, [data]);
 
@@ -107,13 +107,20 @@ export default function BestSellers() {
                   </Link>
                   <p className="text-gray-500 text-sm">{book.author}</p>
 
-          
+                  {/* Rating */}
+                  <div className="flex items-center gap-1 text-yellow-500 text-sm mt-2">
+                    <Star size={14} fill="currentColor" stroke="none" />
+                    {book.rating}
+                  </div>
 
                   {/* Price */}
                   <div className="mt-2 text-lg font-bold text-pink-500 flex gap-2">
-                   $ {book.price}
-
-                    
+                    {book.price}
+                    {book.oldPrice && (
+                      <span className="text-gray-400 line-through text-sm">
+                        {book.oldPrice}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
