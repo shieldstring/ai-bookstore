@@ -97,7 +97,7 @@ export default function BestSellers() {
 
                 {/* Category Badge */}
                 <span className="absolute top-3 left-3 bg-pink-200 text-pink-600 text-xs px-2 py-1 rounded">
-                  {book.genre}
+                  {book.category}
                 </span>
 
                 {/* Book Details */}

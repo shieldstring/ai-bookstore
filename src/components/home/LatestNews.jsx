@@ -61,7 +61,7 @@ function LatestNews() {
                 </h3>
                 <div className="flex items-center">
                   <img
-                    src="/api/placeholder/24/24"
+                    src={post.image}
                     alt={post.author}
                     className="w-6 h-6 rounded-full mr-2"
                   />

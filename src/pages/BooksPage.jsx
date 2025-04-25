@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Star,
   Heart,
@@ -12,6 +12,7 @@ import Newsletter from "../components/common/Newsletter";
 import ValueProps from "../components/common/ValueProps";
 import Pagination from "../components/common/Pagination";
 import { Link } from "react-router-dom";
+import { useGetBooksQuery } from "../redux/slices/bookSlice";
 
 const BooksPage = () => {
   const [viewType, setViewType] = useState("grid"); // grid, list
@@ -31,128 +32,14 @@ const BooksPage = () => {
   const [favorites, setFavorites] = useState([]);
 
   // Full book data
-  const allBooks = [
-    {
-      id: 1,
-      title: "Be Your Self & Never Surrender",
-      author: "Robert Connor",
-      rating: 4.7,
-      price: 21.5,
-      image: "/api/placeholder/170/250",
-      category: "Fiction",
-      tag: "BEST SELLER",
-    },
-    {
-      id: 2,
-      title: "What colors of the sky",
-      author: "Anna Carter",
-      rating: 4.9,
-      price: 19.99,
-      image: "/api/placeholder/170/250",
-      category: "Arts & Photography",
-      tag: "BEST SELLER",
-    },
-    {
-      id: 3,
-      title: "Such a Fun Age",
-      author: "Kiley Reid",
-      rating: 4.5,
-      price: 18.9,
-      image: "/api/placeholder/170/250",
-      category: "Fiction",
-      tag: "BEST SELLER",
-    },
-    {
-      id: 4,
-      title: "Electronic Basic",
-      author: "David Turner",
-      rating: 4.8,
-      price: 15.0,
-      image: "/api/placeholder/170/250",
-      category: "Science",
-      tag: "",
-    },
-    {
-      id: 5,
-      title: "So you want to talk about race",
-      author: "Ijeoma Oluo",
-      rating: 4.8,
-      price: 22.3,
-      image: "/api/placeholder/170/250",
-      category: "Biography",
-      tag: "BEST SELLER",
-    },
-    {
-      id: 6,
-      title: "Life of Wilds",
-      author: "Sarah Johnson",
-      rating: 4.5,
-      price: 17.4,
-      image: "/api/placeholder/170/250",
-      category: "Animals",
-      tag: "",
-    },
-    {
-      id: 7,
-      title: "Theory is Alien Real",
-      author: "Michael Stevens",
-      rating: 4.6,
-      price: 18.5,
-      image: "/api/placeholder/170/250",
-      category: "Fiction",
-      tag: "",
-    },
-    {
-      id: 8,
-      title: "Emily and the Backbone",
-      author: "Emma Roberts",
-      rating: 4.9,
-      price: 19.5,
-      image: "/api/placeholder/170/250",
-      category: "Biography",
-      tag: "",
-    },
-    {
-      id: 9,
-      title: "Story of Everest",
-      author: "John Krakauer",
-      rating: 4.7,
-      price: 21.4,
-      image: "/api/placeholder/170/250",
-      category: "Adventure",
-      tag: "",
-    },
-    {
-      id: 10,
-      title: "SAKURA",
-      author: "Naomi Watanabe",
-      rating: 4.6,
-      price: 19.9,
-      image: "/api/placeholder/170/250",
-      category: "Fiction",
-      tag: "",
-    },
-    {
-      id: 11,
-      title: "Luster, a Novel",
-      author: "Raven Leilani",
-      rating: 4.4,
-      price: 22.5,
-      image: "/api/placeholder/170/250",
-      category: "Literature",
-      tag: "",
-    },
-    {
-      id: 12,
-      title: "Real Life",
-      author: "Brandon Taylor",
-      rating: 4.5,
-      price: 21.0,
-      image: "/api/placeholder/170/250",
-      category: "Fiction",
-      tag: "",
-    },
-  ];
+  const [allBooks, setAllBooks] = useState([]);
+  const { data, isLoading, isError } = useGetBooksQuery();
+
+  useEffect(() => {
+    if (data) {
+      setAllBooks(data);
+    }
+  }, [data]);
 
   // Categories list for filter
   const categories = [
@@ -750,7 +637,7 @@ const BooksPage = () => {
                         <span>{book.category}</span>
                       </div>
                       <Link
-                        to={`books/${book.title}`}
+                        to={`/books/${book._id}`}
                         className="font-semibold text-gray-900 mb-1"
                       >
                         {book.title}
@@ -808,9 +695,12 @@ const BooksPage = () => {
                               </span>
                             )}
                           </div>
-                          <h3 className="font-medium text-lg text-gray-900 mb-1">
+                          <Link
+                            to={`/books/${book._id}`}
+                            className="font-medium text-lg text-gray-900 mb-1"
+                          >
                             {book.title}
-                          </h3>
+                          </Link>
                           <p className="text-gray-500 text-sm mb-2">
                             {book.author}
                           </p>
@@ -821,15 +711,11 @@ const BooksPage = () => {
                             </span>
                             <span className="mx-2 text-gray-400">|</span>
                             <span className="text-xs text-gray-500">
-                              542 reviews
+                              {book.reviews.length} reviews
                             </span>
                           </div>
                           <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit. Sed do eiusmod tempor incididunt ut labore et
-                            dolore magna aliqua. Ut enim ad minim veniam, quis
-                            nostrud exercitation ullamco laboris nisi ut aliquip
-                            ex ea commodo consequat.
+                            {book.description}
                           </p>
                         </div>
                         <div className="flex flex-col items-end">
