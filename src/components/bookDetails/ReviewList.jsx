@@ -1,7 +1,8 @@
 import React from "react";
 import { Star } from "lucide-react";
+import FormattedDate from "../FormattedDate";
 
-export default function ReviewList({reviews}) {
+export default function ReviewList({ reviews }) {
   console.log(reviews);
   return (
     <div className="space-y-6">
@@ -11,7 +12,11 @@ export default function ReviewList({reviews}) {
             <div className="w-10 h-10 bg-gray-300 rounded-full overflow-hidden"></div>
             <div>
               <h4 className="font-medium">{review.name}</h4>
-              <div className="text-xs text-gray-600">{review.date}</div>
+              {review.createdAt && (
+                <div className="text-xs text-gray-600">
+                  <FormattedDate date={review.createdAt} />
+                </div>
+              )}
             </div>
           </div>
           <div className="flex mb-2">

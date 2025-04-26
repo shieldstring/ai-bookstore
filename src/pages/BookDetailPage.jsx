@@ -12,8 +12,11 @@ import {
 } from "../redux/slices/bookSlice";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorMessage from "../components/common/ErrorMessage";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import LoadingSkeleton from "../components/preloader/LoadingSkeleton";
+import FormattedDate from "../components/FormattedDate";
+import { toast } from "react-toastify";
+import { addToCartWithSync } from "../redux/slices/cartThunks";
 
 function BookDetailPage() {
   useEffect(() => {
@@ -22,11 +25,10 @@ function BookDetailPage() {
       behavior: "smooth",
     });
   }, []);
+  const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.auth);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("details");
-  const [activeImage, setActiveImage] = useState(0);
-
   const { id } = useParams();
   const [book, setBook] = useState([]);
   const { data, isLoading, isError, error } = useGetBookDetailsQuery(id);
@@ -52,14 +54,27 @@ function BookDetailPage() {
   const increaseQuantity = () => setQuantity(quantity + 1);
   const decreaseQuantity = () => quantity > 1 && setQuantity(quantity - 1);
 
-  // const [addToCart, { isLoading: isAddingToCart }] = usecart();
-  // const handleAddToCart = () => {
-  //   dispatch(addToCart({
-  //     productId: book._id,
-  //     quantity: 1,
-  //     price: book.price
-  //   }));
-  // };
+  // Add to Cart
+  const [isAdding, setIsAdding] = useState(false);
+
+  const handleAddToCart = async () => {
+    setIsAdding(true);
+    try {
+      await dispatch(
+        addToCartWithSync({
+          bookId: id,
+          quantity,
+        })
+      );
+      // Show success message or notification
+      toast.success("Sucessfully added Book Cart");
+    } catch (err) {
+      toast.error(err);
+      console.log(err);
+    } finally {
+      setIsAdding(false);
+    }
+  };
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
@@ -180,10 +195,22 @@ function BookDetailPage() {
                     +
                   </button>
                 </div>
-                <button  className="flex items-center gap-2 px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">
-                  <ShoppingCart size={16} />
-                  BUY
+
+                <button
+                  onClick={handleAddToCart}
+                  disabled={isAdding}
+                  className=" px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                >
+                  {isAdding ? (
+                    <LoadingSpinner />
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <ShoppingCart size={16} />
+                      BUY
+                    </span>
+                  )}
                 </button>
+
                 {/* <button className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-md hover:bg-gray-100">
                   <Heart size={16} />
                 </button> */}
@@ -245,10 +272,14 @@ function BookDetailPage() {
                     <h3 className="text-lg font-medium mb-2">Book Format</h3>
                     <p>{book.format}</p>
                   </div>
-                  {/* <div>
-                    <h3 className="text-lg font-medium mb-2">Date Published</h3>
-                    <p>{book.publishDate}</p>
-                  </div> */}
+                  {book.publishDate && (
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">
+                        Date Published
+                      </h3>
+                      <FormattedDate date={book?.publishDate} />
+                    </div>
+                  )}
                   <div>
                     <h3 className="text-lg font-medium mb-2">Publisher</h3>
                     <p>{book.publisher}</p>
@@ -305,27 +336,27 @@ function BookDetailPage() {
                   </div>
 
                   {userInfo ? (
-                  <ReviewForm
-                    rating={rating}
-                    setRating={setRating}
-                    reviewText={reviewText}
-                    setReviewText={setReviewText}
-                    onSubmit={handleReviewSubmit}
-                    user={userInfo || "9086"}
-                  />
+                    <ReviewForm
+                      rating={rating}
+                      setRating={setRating}
+                      reviewText={reviewText}
+                      setReviewText={setReviewText}
+                      onSubmit={handleReviewSubmit}
+                      user={userInfo || "9086"}
+                    />
                   ) : (
-                  <div className="bg-blue-50 p-4 rounded-md mb-6">
-                    <p className="text-blue-800">
-                      Please{" "}
-                      <Link
-                        to="/login"
-                        className="text-blue-600 font-medium hover:underline"
-                      >
-                        sign in
-                      </Link>{" "}
-                      to leave a review.
-                    </p>
-                  </div>
+                    <div className="bg-blue-50 p-4 rounded-md mb-6">
+                      <p className="text-blue-800">
+                        Please{" "}
+                        <Link
+                          to="/login"
+                          className="text-blue-600 font-medium hover:underline"
+                        >
+                          sign in
+                        </Link>{" "}
+                        to leave a review.
+                      </p>
+                    </div>
                   )}
 
                   <ReviewList reviews={book.reviews} />

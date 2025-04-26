@@ -26,10 +26,23 @@ import ProductsList from "./pages/dashboard/admin/ProductsList";
 import UserProfile from "./pages/UserProfile";
 import UserDashboard from "./pages/dashboard/customer/UserDashboard";
 import AdminDashboard from "./pages/dashboard/admin/AdminDashboard";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function App() {
   return (
     <Router>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Layout />}>
@@ -40,19 +53,21 @@ function App() {
           <Route path="books/:id" element={<BookDetailPage />} />
           <Route path="profile/:userId" element={<UserProfile />} />
           <Route path="groups/:groupId" element={"<GroupPage />"} />
-            {/* Protected Routes */}
-          <Route path="cart" element={ <AuthRoute>
-            <CartPage />
-            </AuthRoute>} />
-          <Route path="checkout" element={ <AuthRoute>
-            <CheckoutPage />
-            </AuthRoute>} />
-             {/* Auth Routes */}
-            <Route path="login" element={<Login />} />
+          <Route path="cart" element={<CartPage />} />
+
+          {/* Protected Routes */}        
+          <Route
+            path="checkout"
+            element={
+              <AuthRoute>
+                <CheckoutPage />
+              </AuthRoute>
+            }
+          />
+          {/* Auth Routes */}
+          <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
         </Route>
-
-       
 
         <Route
           path="/dashboard"
@@ -64,7 +79,6 @@ function App() {
             </AuthRoute>
           }
         />
-          
 
         {/* Protected Routes */}
         <Route
@@ -100,8 +114,6 @@ function App() {
           <Route path="settings" element={<AdminSettings />} />
           <Route path="products" element={<ProductsList />} />
         </Route>
-
-        
       </Routes>
     </Router>
   );

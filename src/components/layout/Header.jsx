@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-// import { logoutUser } from '../../redux/slices/authSlice';
+import { logout } from '../../redux/slices/authSlice';
 import { User, Menu, X } from "lucide-react";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  //   const { isAuthenticated, user } = useSelector(state => state.auth);
-  //   const { items } = useSelector(state => state.cart);
+  const { userInfo } = useSelector((state) => state.auth);
+    const { items } = useSelector(state => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -18,7 +18,7 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    // dispatch(logoutUser());
+    dispatch(logout());
   };
 
   // Toggle the sidebar for mobile
@@ -111,24 +111,24 @@ const Header = () => {
                   d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                 />
               </svg>
-              {/* {items.length > 0 && ( */}
+              {items.length > 0 && (
               <span className="absolute top-0 right-0 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {/* {items.length} */}
+                {items.length}
               </span>
-              {/* )} */}
+              )}
             </Link>
 
-            {/* {isAuthenticated ? ( */}
+            {userInfo ? (
             <div className="relative group">
               <button className="flex items-center space-x-1 p-2 border border-purple-600 rounded ">
                 <User className="h-4 w-4" />
-                {/* <img 
-                    src={user?.avatar || '/images/avatar-placeholder.png'} 
-                    alt={user?.name}
+                <img 
+                    src={userInfo?.avatar || '/images/avatar-placeholder.png'} 
+                    alt={userInfo?.name}
                     className="h-full w-full object-cover"
-                  /> */}
+                  />
                 <span className="text-sm font-medium text-gray-700 hidden md:block">
-                  {/* {user?.name} */} Adonir
+                  {userInfo?.name}
                 </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -176,14 +176,14 @@ const Header = () => {
                 </button>
               </div>
             </div>
-            {/* ) : ( */}
+            ) : (
             <Link
               to="/login"
               className="hidden lg:block py-2 px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700"
             >
               Sign In
             </Link>
-            {/* )} */}
+            )}
           </div>
         </div>
         <form onSubmit={handleSearch} className="flex-1 mt-3 md:hidden">

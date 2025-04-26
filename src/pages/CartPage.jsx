@@ -17,7 +17,7 @@ import { syncCartWithServer } from "../redux/slices/cartSlice";
 
 const CartPage = () => {
   const dispatch = useDispatch();
-  const { cart, status, error: cartError } = useSelector((state) => state.cart);
+  const { items:cart, status, error: cartError } = useSelector((state) => state.cart);
   const [couponCode, setCouponCode] = useState("");
   const [localError, setLocalError] = useState(null);
 
@@ -65,6 +65,8 @@ const CartPage = () => {
   const error = cartError || localError;
 
   if (status === "loading") return <LoadingSpinner />;
+
+  console.log(cart);
 
   return (
     <div>
@@ -117,7 +119,7 @@ const CartPage = () => {
                 <div className="col-span-2 text-center">Total Price</div>
               </div>
 
-              {cart.items.map((item) => (
+              {cart.map((item) => (
                 <CartItem
                   key={item._id}
                   item={item}
@@ -131,7 +133,7 @@ const CartPage = () => {
           )}
         </div>
 
-        {cart.items.length > 0 && (
+        {cart.length > 0 && (
           <div className="bg-pink-100 rounded-lg p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <h2 className="text-lg font-semibold mb-3">Shopping Summary</h2>
