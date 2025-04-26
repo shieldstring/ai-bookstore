@@ -116,9 +116,9 @@ export default function BestSellers() {
                   {/* Price */}
                   <div className="mt-2 text-lg font-bold text-pink-500 flex gap-2">
                     {book.price}
-                    {book.oldPrice && (
+                    {book.originalPrice && (
                       <span className="text-gray-400 line-through text-sm">
-                        {book.oldPrice}
+                        {book.originalPrice}
                       </span>
                     )}
                   </div>

@@ -112,13 +112,13 @@ function BookDetailPage() {
         {/* Breadcrumb */}
         <div className="bg-gray-50 py-3 px-4 lg:px-24 mb-6">
           <div className="flex items-center text-sm">
-            <a href="#" className="text-purple-600 hover:underline">
+            <Link to="/" className="text-purple-600 hover:underline">
               Home
-            </a>
+            </Link>
             <span className="mx-2 text-purple-600">/</span>
-            <a href="#" className="text-purple-600 hover:underline">
+            <Link to="/books" className="text-purple-600 hover:underline">
               Books
-            </a>
+            </Link>
             <span className="mx-2 text-purple-600">/</span>
             <span className="text-gray-500">{book.title}</span>
           </div>

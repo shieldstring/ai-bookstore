@@ -13,6 +13,9 @@ import ValueProps from "../components/common/ValueProps";
 import Pagination from "../components/common/Pagination";
 import { Link } from "react-router-dom";
 import { useGetBooksQuery } from "../redux/slices/bookSlice";
+import { toast } from "react-toastify";
+import { addToCartWithSync } from "../redux/slices/cartThunks";
+import { useDispatch } from "react-redux";
 
 const BooksPage = () => {
   const [viewType, setViewType] = useState("grid"); // grid, list
@@ -270,10 +273,26 @@ const BooksPage = () => {
     return `$${price.toFixed(2)}`;
   };
 
-  // Add to cart handler
-  const addToCart = (book) => {
-    console.log("Added to cart:", book.title);
-    // Implementation would go here
+  // Add to Cart
+  const dispatch = useDispatch();
+  const [isAdding, setIsAdding] = useState(false);
+  const addToCart = async (bookId, quantity = 1) => {
+    setIsAdding(true);
+    try {
+      await dispatch(
+        addToCartWithSync({
+          bookId,
+          quantity,
+        })
+      );
+      // Show success message or notification
+      toast.success("Sucessfully added Book Cart");
+    } catch (err) {
+      toast.error(err);
+      console.log(err);
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   return (
@@ -282,9 +301,9 @@ const BooksPage = () => {
       <div className="bg-gray-50 py-3 ">
         <div className="container mx-auto px-4 flex justify-between">
           <div className="flex items-center text-sm">
-            <a href="#" className="text-gray-600 hover:text-purple-700">
+            <Link to="/" className="text-gray-600 hover:text-purple-700">
               Home
-            </a>
+            </Link>
             <span className="mx-2 text-gray-500">/</span>
             <span className="text-gray-900">Books</span>
           </div>
@@ -317,29 +336,28 @@ const BooksPage = () => {
                   <ul className="space-y-2">
                     {categories.map((category) => (
                       <li
-                        key={category.id}
+                        key={category._id}
                         className="flex items-center justify-between"
                       >
                         <div className="flex items-center">
                           <input
                             type="checkbox"
-                            id={`category-${category.id}`}
+                            id={`category-${category._id}`}
                             className="mr-2 h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                             checked={
-                              selectedCategories.includes(category.id) ||
-                              (category.id === "all" &&
+                              selectedCategories.includes(category._id) ||
+                              (category._id === "all" &&
                                 selectedCategories.includes("all"))
                             }
-                            onChange={() => toggleCategory(category.id)}
+                            onChange={() => toggleCategory(category._id)}
                           />
                           <label
-                            htmlFor={`category-${category.id}`}
+                            htmlFor={`category-${category._id}`}
                             className="text-sm text-gray-700"
                           >
                             {category.name}
                           </label>
                         </div>
-                       
                       </li>
                     ))}
                   </ul>
@@ -353,17 +371,17 @@ const BooksPage = () => {
                   </h3>
                   <ul className="space-y-2">
                     {formats.map((format) => (
-                      <li key={format.id} className="flex items-center">
+                      <li key={format._id} className="flex items-center">
                         <input
                           type="radio"
-                          id={`format-${format.id}`}
+                          id={`format-${format._id}`}
                           name="format"
                           className="mr-2 h-4 w-4 border-gray-300 text-purple-600 focus:ring-purple-500"
-                          checked={selectedFormat === format.id}
-                          onChange={() => handleFormatChange(format.id)}
+                          checked={selectedFormat === format._id}
+                          onChange={() => handleFormatChange(format._id)}
                         />
                         <label
-                          htmlFor={`format-${format.id}`}
+                          htmlFor={`format-${format._id}`}
                           className="text-sm text-gray-700"
                         >
                           {format.name}
@@ -381,17 +399,17 @@ const BooksPage = () => {
                   </h3>
                   <ul className="space-y-2">
                     {publishers.map((publisher) => (
-                      <li key={publisher.id} className="flex items-center">
+                      <li key={publisher._id} className="flex items-center">
                         <input
                           type="radio"
-                          id={`publisher-${publisher.id}`}
+                          id={`publisher-${publisher._id}`}
                           name="publisher"
                           className="mr-2 h-4 w-4 border-gray-300 text-purple-600 focus:ring-purple-500"
-                          checked={selectedPublisher === publisher.id}
-                          onChange={() => handlePublisherChange(publisher.id)}
+                          checked={selectedPublisher === publisher._id}
+                          onChange={() => handlePublisherChange(publisher._id)}
                         />
                         <label
-                          htmlFor={`publisher-${publisher.id}`}
+                          htmlFor={`publisher-${publisher._id}`}
                           className="text-sm text-gray-700"
                         >
                           {publisher.name}
@@ -400,8 +418,6 @@ const BooksPage = () => {
                     ))}
                   </ul>
                 </div>
-
-               
 
                 {/* Price Range Filter */}
                 <div className="mb-6">
@@ -543,7 +559,7 @@ const BooksPage = () => {
             {viewType === "grid" && visibleBooks.length > 0 && (
               <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
                 {visibleBooks.map((book) => (
-                  <div key={book.id} className="group relative">
+                  <div key={book._id} className="group relative">
                     <div className="relative bg-gray-100 rounded-lg overflow-hidden aspect-[2/3]">
                       <img
                         src={book.image}
@@ -559,22 +575,24 @@ const BooksPage = () => {
                       <div className="absolute bottom-0 right-0 p-2 flex flex-col items-center space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           className={`${
-                            favorites.includes(book.id)
+                            favorites.includes(book._id)
                               ? "bg-purple-100 text-purple-600"
                               : "bg-white text-gray-500"
                           } p-1.5 rounded-full shadow-md hover:text-purple-600`}
-                          onClick={() => toggleFavorite(book.id)}
+                          onClick={() => toggleFavorite(book._id)}
                         >
                           <Heart
                             className={`w-5 h-5 ${
-                              favorites.includes(book.id)
+                              favorites.includes(book._id)
                                 ? "fill-purple-600"
                                 : ""
                             }`}
                           />
                         </button>
                         <button
-                          onClick={() => addToCart(book)}
+                          onClick={() => {
+                            addToCart(book._id);
+                          }}
                           className="bg-white rounded-full p-2 shadow-md"
                         >
                           <svg
@@ -631,7 +649,7 @@ const BooksPage = () => {
             {viewType === "list" && visibleBooks.length > 0 && (
               <div className="space-y-6">
                 {visibleBooks.map((book) => (
-                  <div key={book.id} className="flex border-b pb-6">
+                  <div key={book._id} className="flex border-b pb-6">
                     <div className="relative h-40 w-28 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                       <img
                         src={book.image}
@@ -683,15 +701,15 @@ const BooksPage = () => {
                         <div className="flex flex-col items-end">
                           <button
                             className={`${
-                              favorites.includes(book.id)
+                              favorites.includes(book._id)
                                 ? "bg-purple-100 text-purple-600"
                                 : "bg-white text-gray-500"
                             } p-1.5 rounded-full shadow-md hover:text-purple-600`}
-                            onClick={() => toggleFavorite(book.id)}
+                            onClick={() => toggleFavorite(book._id)}
                           >
                             <Heart
                               className={`w-4 h-4 ${
-                                favorites.includes(book.id)
+                                favorites.includes(book._id)
                                   ? "fill-purple-600"
                                   : ""
                               }`}

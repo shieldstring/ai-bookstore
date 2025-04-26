@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from '../../redux/slices/authSlice';
+import { logout } from "../../redux/slices/authSlice";
 import { User, Menu, X } from "lucide-react";
+import { handleLogout } from "../../redux/slices/cartThunks";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { userInfo } = useSelector((state) => state.auth);
-    const { items } = useSelector(state => state.cart);
+  const { items } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -17,8 +18,9 @@ const Header = () => {
     navigate(`/books?search=${searchQuery}`);
   };
 
-  const handleLogout = () => {
+  const handleUserLogout = () => {
     dispatch(logout());
+    dispatch(handleLogout());
   };
 
   // Toggle the sidebar for mobile
@@ -112,77 +114,77 @@ const Header = () => {
                 />
               </svg>
               {items.length > 0 && (
-              <span className="absolute top-0 right-0 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {items.length}
-              </span>
+                <span className="absolute top-0 right-0 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {items.length}
+                </span>
               )}
             </Link>
 
             {userInfo ? (
-            <div className="relative group">
-              <button className="flex items-center space-x-1 p-2 border border-purple-600 rounded ">
-                <User className="h-4 w-4" />
-                <img 
-                    src={userInfo?.avatar || '/images/avatar-placeholder.png'} 
+              <div className="relative group">
+                <button className="flex items-center space-x-1 p-2 border border-purple-600 rounded ">
+                  <User className="h-4 w-4" />
+                  <img
+                    src={userInfo?.avatar || "/images/avatar-placeholder.png"}
                     alt={userInfo?.name}
                     className="h-full w-full object-cover"
                   />
-                <span className="text-sm font-medium text-gray-700 hidden md:block">
-                  {userInfo?.name}
-                </span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 text-gray-500"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
-              <div className="absolute right-0  w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-[100]">
-                <Link
-                  to="/dashboard/account"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
-                >
-                  My Profile
-                </Link>
-                <Link
-                  to="/dashboard/orders"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
-                >
-                  My Orders
-                </Link>
-                <Link
-                  to="/dashboard/wishlist"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
-                >
-                  Wishlist
-                </Link>
-                <Link
-                  to="/dashboard/mlm"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
-                >
-                  My Network
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
-                >
-                  Sign Out
+                  <span className="text-sm font-medium text-gray-700 hidden md:block">
+                    {userInfo?.name}
+                  </span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-gray-500"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 </button>
+                <div className="absolute right-0  w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-[100]">
+                  <Link
+                    to="/dashboard/account"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                  >
+                    My Profile
+                  </Link>
+                  <Link
+                    to="/dashboard/orders"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                  >
+                    My Orders
+                  </Link>
+                  <Link
+                    to="/dashboard/wishlist"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                  >
+                    Wishlist
+                  </Link>
+                  <Link
+                    to="/dashboard/mlm"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                  >
+                    My Network
+                  </Link>
+                  <button
+                    onClick={handleUserLogout}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                  >
+                    Sign Out
+                  </button>
+                </div>
               </div>
-            </div>
             ) : (
-            <Link
-              to="/login"
-              className="hidden lg:block py-2 px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700"
-            >
-              Sign In
-            </Link>
+              <Link
+                to="/login"
+                className="hidden lg:block py-2 px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+              >
+                Sign In
+              </Link>
             )}
           </div>
         </div>
@@ -221,27 +223,27 @@ const Header = () => {
           <div className="container mx-auto px-4">
             <ul className="flex items-center justify-center space-x-6 py-2">
               <li>
-              <NavLink
-                to="/books"
-                className={({ isActive }) => 
-                  `font-semibold   ${
-                    isActive 
-                      ? ' text-[#fce7f3]' 
-                      : 'text-gray-100 hover:text-[#fce7f3]'
-                  }`
-                }
-              >
+                <NavLink
+                  to="/books"
+                  className={({ isActive }) =>
+                    `font-semibold   ${
+                      isActive
+                        ? " text-[#fce7f3]"
+                        : "text-gray-100 hover:text-[#fce7f3]"
+                    }`
+                  }
+                >
                   Home
                 </NavLink>
               </li>
               <li>
                 <NavLink
                   to="/books"
-                  className={({ isActive }) => 
+                  className={({ isActive }) =>
                     `font-semibold   ${
-                      isActive 
-                        ? ' text-[#fce7f3]' 
-                        : 'text-gray-100 hover:text-[#fce7f3]'
+                      isActive
+                        ? " text-[#fce7f3]"
+                        : "text-gray-100 hover:text-[#fce7f3]"
                     }`
                   }
                 >
@@ -251,11 +253,11 @@ const Header = () => {
               <li>
                 <NavLink
                   to="/categories"
-                  className={({ isActive }) => 
+                  className={({ isActive }) =>
                     `font-semibold   ${
-                      isActive 
-                        ? ' text-[#fce7f3]' 
-                        : 'text-gray-100 hover:text-[#fce7f3]'
+                      isActive
+                        ? " text-[#fce7f3]"
+                        : "text-gray-100 hover:text-[#fce7f3]"
                     }`
                   }
                 >
@@ -265,26 +267,26 @@ const Header = () => {
               <li>
                 <NavLink
                   to="/social"
-                  className={({ isActive }) => 
+                  className={({ isActive }) =>
                     `font-semibold   ${
-                      isActive 
-                        ? ' text-[#fce7f3]' 
-                        : 'text-gray-100 hover:text-[#fce7f3]'
+                      isActive
+                        ? " text-[#fce7f3]"
+                        : "text-gray-100 hover:text-[#fce7f3]"
                     }`
                   }
                 >
                   Socials
                 </NavLink>
               </li>
-            
+
               <li>
                 <NavLink
                   to="/recommendations"
-                  className={({ isActive }) => 
+                  className={({ isActive }) =>
                     `font-semibold   ${
-                      isActive 
-                        ? ' text-[#fce7f3]' 
-                        : 'text-gray-100 hover:text-[#fce7f3]'
+                      isActive
+                        ? " text-[#fce7f3]"
+                        : "text-gray-100 hover:text-[#fce7f3]"
                     }`
                   }
                 >
@@ -294,11 +296,11 @@ const Header = () => {
               <li>
                 <NavLink
                   to="/blog"
-                  className={({ isActive }) => 
+                  className={({ isActive }) =>
                     `font-semibold   ${
-                      isActive 
-                        ? ' text-[#fce7f3]' 
-                        : 'text-gray-100 hover:text-[#fce7f3]'
+                      isActive
+                        ? " text-[#fce7f3]"
+                        : "text-gray-100 hover:text-[#fce7f3]"
                     }`
                   }
                 >
@@ -358,7 +360,7 @@ const Header = () => {
                   Socials
                 </a>
               </li>
-             
+
               <li>
                 <a
                   href="#"
