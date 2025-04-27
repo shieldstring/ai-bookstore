@@ -3,7 +3,7 @@ import { Trash2 } from "lucide-react";
 
 const CartItem = ({ item, onRemove, onQuantityChange }) => {
   return (
-    <div className="border-b py-4 grid grid-cols-12 gap-4 items-center">
+    <div className="border-b py-4 grid grid-cols-6 sm:grid-cols-12 gap-4 items-center">
       <div className="col-span-1">
         {item.image ? (
           <img

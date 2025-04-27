@@ -16,8 +16,20 @@ import Newsletter from "../components/common/Newsletter";
 import { syncCartWithServer } from "../redux/slices/cartSlice";
 
 const CartPage = () => {
+  const BASE_URL = process.env.REACT_APP_API_URL;
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
   const dispatch = useDispatch();
-  const { items:cart, status, error: cartError } = useSelector((state) => state.cart);
+  const {
+    items: cartData, // Rename cart to cartData to avoid confusion
+    status,
+    error: cartError,
+  } = useSelector((state) => state.cart);
+  const [enrichedCart, setEnrichedCart] = useState([]);
   const [couponCode, setCouponCode] = useState("");
   const [localError, setLocalError] = useState(null);
 
@@ -32,6 +44,38 @@ const CartPage = () => {
     };
     init();
   }, [dispatch]);
+
+  // New effect to fetch book details
+  useEffect(() => {
+    const fetchBookDetails = async () => {
+      if (!cartData || cartData.length === 0) return;
+
+      try {
+        // Fetch book details for each cart item
+        const enriched = await Promise.all(
+          cartData.map(async (item) => {
+            const response = await fetch(`${BASE_URL}books/${item.bookId}`);
+            if (!response.ok) throw new Error("Failed to fetch book details");
+
+            const bookDetails = await response.json();
+            return {
+              ...item,
+              name: bookDetails.title || "Unknown Book",
+              image: bookDetails.image || "/default-book-cover.jpg",
+              price: bookDetails.price || 0,
+              author: bookDetails.author || "Unknown ",
+              // Any other book details you need
+            };
+          })
+        );
+        setEnrichedCart(enriched);
+      } catch (err) {
+        setLocalError("Failed to fetch book details");
+      }
+    };
+
+    fetchBookDetails();
+  }, [cartData]);
 
   const handleRemoveItem = async (itemId) => {
     try {
@@ -66,7 +110,7 @@ const CartPage = () => {
 
   if (status === "loading") return <LoadingSpinner />;
 
-  console.log(cart);
+  console.log(cartData);
 
   return (
     <div>
@@ -74,30 +118,31 @@ const CartPage = () => {
       <div className="bg-gray-50 py-3 ">
         <div className="container mx-auto px-4 flex justify-between">
           <div className="flex items-center text-sm">
-            <a
-              href="#"
+            <Link
+              to="/"
               className="hover:text-gray-600 font-semibold text-purple-700"
             >
               Home
-            </a>
+            </Link>
             <span className="mx-2 text-gray-500">/</span>
             <span className="text-gray-900">Cart</span>
           </div>
         </div>
       </div>
       <div className="max-w-4xl mx-auto px-4 lg:py-10">
-        {error && (
+        {/* {error && (
           <ErrorMessage
             error={error}
             onClose={() => {
               setLocalError(null);
-              if (cartError) dispatch(syncCartWithServer(cart));
+              if (cartError)
+                dispatch(syncCartWithServer(cartData?.items || []));
             }}
           />
-        )}
+        )} */}
 
         <div className="mb-8">
-          {cart?.items?.length === 0 ? (
+          {cartData?.length === 0 ? (
             <div className="text-center py-12">
               <h3 className="text-xl font-semibold mb-2">Your cart is empty</h3>
               <p className="mb-4">
@@ -119,9 +164,9 @@ const CartPage = () => {
                 <div className="col-span-2 text-center">Total Price</div>
               </div>
 
-              {cart.map((item) => (
+              {enrichedCart.map((item) => (
                 <CartItem
-                  key={item._id}
+                  key={item._id} // Use the cart item ID as the key
                   item={item}
                   onRemove={handleRemoveItem}
                   onQuantityChange={(newQuantity) =>
@@ -133,7 +178,7 @@ const CartPage = () => {
           )}
         </div>
 
-        {cart.length > 0 && (
+        {cartData?.length > 0 && (
           <div className="bg-pink-100 rounded-lg p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <h2 className="text-lg font-semibold mb-3">Shopping Summary</h2>
@@ -164,28 +209,28 @@ const CartPage = () => {
                     <ChevronRight size={16} />
                   </button>
                 </div>
-                {cart.coupon?.error && (
+                {cartData?.coupon?.error && (
                   <p className="text-red-500 text-sm mt-1">
-                    {cart.coupon.error}
+                    {cartData.coupon.error}
                   </p>
                 )}
-                {cart.coupon?.code && !cart.coupon.error && (
+                {cartData?.coupon?.code && !cartData.coupon.error && (
                   <p className="text-green-600 text-sm mt-1">
-                    Coupon "{cart.coupon.code}" applied! (-$
-                    {cart.discount.toFixed(2)})
+                    Coupon "{cartData.coupon.code}" applied! (-$
+                    {cartData.discount?.toFixed(2)})
                   </p>
                 )}
               </div>
             </div>
 
-            <OrderSummary
-              subtotal={cart.subtotal}
-              discount={cart.discount}
-              tax={cart.tax}
-              shipping={cart.shipping}
-              total={cart.total}
-              coupon={cart.coupon}
-            />
+            {/* <OrderSummary
+              subtotal={cartData?.subtotal}
+              discount={cartData?.discount}
+              tax={cartData?.tax}
+              shipping={cartData?.shipping}
+              total={cartData?.total}
+              coupon={cartData?.coupon}
+            /> */}
           </div>
         )}
       </div>
