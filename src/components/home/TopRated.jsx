@@ -95,6 +95,7 @@ const TopRatedBooks = () => {
   if (isError) {
     return <ErrorMessage />;
   }
+
   return (
     <div className="bg-[#FDF8FE] py-8 lg:py-16 lg:px-20">
       <div className="container mx-auto px-4">

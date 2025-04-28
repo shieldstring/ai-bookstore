@@ -28,6 +28,7 @@ import UserDashboard from "./pages/dashboard/customer/UserDashboard";
 import AdminDashboard from "./pages/dashboard/admin/AdminDashboard";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ForgotPassword from "./pages/auth/ForgotPassword";
 function App() {
   return (
     <Router>
@@ -67,6 +68,7 @@ function App() {
           {/* Auth Routes */}
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
         </Route>
 
         <Route

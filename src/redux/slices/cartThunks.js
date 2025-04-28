@@ -130,16 +130,28 @@ export const handleLoginSuccess = () => async (dispatch, getState) => {
   const localCart = getState().cart;
   
   try {
-    // If there are items in the local cart, sync with server
+    // If there are items in the local cart, add them to the server cart one by one
     if (localCart.items.length > 0) {
-      // You'll need to implement this API endpoint on your server
-      // It should merge the local cart items with any existing server cart
-      await CartApiSlice.syncCartOnLogin(localCart.items);
+      // First get the server cart to see what's already there
+      const serverCart = await CartApiSlice.getCart();
+      const serverItemIds = serverCart.items.map(item => item.id);
+      
+      // Add each local item to server if it's not already there
+      for (const item of localCart.items) {
+        if (!serverItemIds.includes(item.id)) {
+          await CartApiSlice.addToCart(item.bookId || item.id, item.quantity);
+        } else {
+          // If item exists, update quantity instead
+          const existingItem = serverCart.items.find(i => i.id === item.id);
+          const newQuantity = existingItem.quantity + item.quantity;
+          await CartApiSlice.updateCartItem(item.id, newQuantity);
+        }
+      }
     }
     
-    // Get the updated cart from server
-    const serverCart = await CartApiSlice.getCart();
-    dispatch(syncCartWithServer(serverCart));
+    // Finally get the updated cart from server
+    const updatedServerCart = await CartApiSlice.getCart();
+    dispatch(syncCartWithServer(updatedServerCart));
     
   } catch (error) {
     console.error("Failed to sync cart on login:", error);

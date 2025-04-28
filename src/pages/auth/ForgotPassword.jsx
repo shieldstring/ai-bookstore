@@ -1,49 +1,48 @@
 import React, { useEffect, useState } from "react";
-import { useLoginMutation } from "../../redux/slices/authSlice";
+import {
+  useForgotPasswordMutation,
+  useLoginMutation,
+} from "../../redux/slices/authSlice";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import SEO from "../../components/SEO";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
-const Login = () => {
+const ForgotPassword = () => {
   useEffect(() => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
   }, []);
-  const { userInfo } = useSelector((state) => state.auth);
+  const [modal, setModal] = useState(false);
   const navigate = useNavigate();
   const { search } = useLocation();
   const [credentials, setCredentials] = useState({
     email: "",
-    password: "",
   });
-  const [login, { isLoading, error }] = useLoginMutation();
+  const [forgotPassword, { isLoading, error }] = useForgotPasswordMutation();
 
-  const dispatch = useDispatch();
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(credentials).unwrap();
-      navigate(redirect);
+      const res = await forgotPassword(credentials);
+      toast.success(res?.data?.msg);
+      if (res.status === 200) {
+        setModal(true);
+      } else {
+        toast.error(res?.error.data?.msg);
+      }
     } catch (err) {
-      // Error is already handled by the mutation
-      console.error("Login failed:", err);
+      toast.error(err?.data?.msg || err.error);
     }
   };
 
-  const redirectInUrl = new URLSearchParams(search).get("redirect");
-  const redirect = redirectInUrl ? redirectInUrl : "/";
-  useEffect(() => {
-    if (userInfo) {
-      navigate(redirect);
-    }
-  }, [navigate, redirect, userInfo]);
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className=" flex items-center justify-center bg-gray-50 py-12 lg:py-24 px-4 sm:px-6 lg:px-8">
       <SEO
-        title="Login"
+        title="Forgot Password"
         description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
         name="AI-Powered Social-Ecommerce"
         type="description"
@@ -51,8 +50,11 @@ const Login = () => {
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Sign in to your account
+            Forgot Password
           </h2>
+          <p className="mt-2 text-sm text-[#495454] font-light ">
+            Enter your email below to recieve a password reset link.
+          </p>
         </div>
 
         {error && (
@@ -101,50 +103,6 @@ const Login = () => {
                 }
               />
             </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={credentials.password}
-                onChange={(e) =>
-                  setCredentials({ ...credentials, password: e.target.value })
-                }
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-              />
-              <label
-                htmlFor="remember-me"
-                className="ml-2 block text-sm text-gray-900"
-              >
-                Remember me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <Link
-                to="/forgot-password"
-                className="font-medium text-purple-600 hover:text-purple-500"
-              >
-                Forgot your password?
-              </Link>
-            </div>
           </div>
 
           <div>
@@ -156,22 +114,22 @@ const Login = () => {
               {isLoading ? (
                 <>
                   <LoadingSpinner size="sm" className="mr-2" />
-                  Signing in...
+                  Submiting...
                 </>
               ) : (
-                "Sign in"
+                "Send"
               )}
             </button>
           </div>
         </form>
 
         <div className="text-center text-sm mt-4">
-          <span className="text-gray-600">Don't have an account? </span>
+          <span className="text-gray-600"> Remember Now? </span>
           <Link
-            to="/register"
+            to="/login"
             className="font-medium text-purple-600 hover:text-purple-500"
           >
-            Sign up
+            Login
           </Link>
         </div>
       </div>
@@ -179,4 +137,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;

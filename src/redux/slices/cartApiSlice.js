@@ -1,9 +1,9 @@
-import { apiTwo } from "./apiSlice";
+import { cartServerSlice } from "./cartServerSlice";
 
 export const CartApiSlice = {
   addToCart: async (bookId, quantity) => {
     const response = await dispatch(
-      apiTwo.endpoints.addToCart.initiate({ bookId, quantity })
+      cartServerSlice.endpoints.addToCart.initiate({ bookId, quantity })
     );
     if ("error" in response) throw response.error;
     return response.data;
@@ -11,7 +11,7 @@ export const CartApiSlice = {
 
   updateCartItem: async (bookId, quantity) => {
     const response = await dispatch(
-      apiTwo.endpoints.updateCartItem.initiate({ bookId, quantity })
+      cartServerSlice.endpoints.updateCartItem.initiate({ bookId, quantity })
     );
     if ("error" in response) throw response.error;
     return response.data;
@@ -19,26 +19,30 @@ export const CartApiSlice = {
 
   removeFromCart: async (itemId) => {
     const response = await dispatch(
-      apiTwo.endpoints.removeFromCart.initiate(itemId)
+      cartServerSlice.endpoints.removeFromCart.initiate(itemId)
     );
     if ("error" in response) throw response.error;
     return response.data;
   },
 
   clearCart: async () => {
-    const response = await dispatch(apiTwo.endpoints.clearCart.initiate());
+    const response = await dispatch(
+      cartServerSlice.endpoints.clearCart.initiate()
+    );
     if ("error" in response) throw response.error;
     return response.data;
   },
 
   getCart: async () => {
-    const response = await dispatch(apiTwo.endpoints.getCart.initiate());
+    const response = await dispatch(
+      cartServerSlice.endpoints.getCart.initiate()
+    );
     if ("error" in response) throw response.error;
     return response.data;
   },
   applyCoupon: async (couponCode) => {
     const response = await dispatch(
-      apiTwo.endpoints.applyCoupon.initiate({ couponCode })
+      cartServerSlice.endpoints.applyCoupon.initiate({ couponCode })
     );
     if ("error" in response) throw response.error;
     return response.data;

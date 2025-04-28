@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { apiOne } from "./apiSlice";
+import { handleLoginSuccess } from "./cartThunks";
 
 const initialState = {
   userInfo: localStorage.getItem("userInfo")
@@ -14,6 +15,7 @@ const authSlice = createSlice({
     setCredentials: (state, action) => {
       state.userInfo = action.payload;
       localStorage.setItem("userInfo", JSON.stringify(action.payload));
+      handleLoginSuccess();
 
       const expirationTime = new Date().getTime() + 30 * 24 * 60 * 60 * 1000; // 30 days
       localStorage.setItem("expirationTime", expirationTime);
@@ -36,24 +38,31 @@ export const authApiSlice = apiOne.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials) => ({
-        url: "/auth/login",
+        url: "auth/login",
         method: "POST",
         body: credentials,
       }),
     }),
     register: builder.mutation({
       query: (userData) => ({
-        url: "/auth/register",
+        url: "auth/register",
         method: "POST",
         body: userData,
       }),
     }),
+    forgotPassword: builder.mutation({
+      query: (credentials) => ({
+        url: "auth/forgot-password",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
     getAdminDashboard: builder.query({
-      query: (id) => `/admin}`,
+      query: (id) => `admin}`,
       providesTags: (result, error, arg) => [{ type: "Admin", id: arg }],
     }),
     getUserDashboard: builder.query({
-      query: (id) => `/user}`,
+      query: (id) => `user}`,
       providesTags: (result, error, arg) => [{ type: "Admin", id: arg }],
     }),
   }),
@@ -63,5 +72,6 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useGetAdminDashboardQuery,
+  useForgotPasswordMutation,
   useGetUserDashboardQuery,
 } = authApiSlice;
