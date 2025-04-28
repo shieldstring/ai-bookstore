@@ -124,11 +124,11 @@ const Header = () => {
               <div className="relative group">
                 <button className="flex items-center space-x-1 p-2 border border-purple-600 rounded ">
                   <User className="h-4 w-4" />
-                  <img
+                  {/* <img
                     src={userInfo?.avatar || "/images/avatar-placeholder.png"}
-                    alt={userInfo?.name}
+                    alt={userInfo?.name .split(" ").map((i) => i.charAt(0))}
                     className="h-full w-full object-cover"
-                  />
+                  /> */}
                   <span className="text-sm font-medium text-gray-700 hidden md:block">
                     {userInfo?.name}
                   </span>

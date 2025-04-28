@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLoginMutation } from "../../redux/slices/authSlice";
+import { setCredential, useLoginMutation } from "../../redux/slices/authSlice";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import SEO from "../../components/SEO";
@@ -25,7 +25,8 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(credentials).unwrap();
+      const res = await login(credentials).unwrap();
+      dispatch(setCredential({ ...res }));
       navigate(redirect);
     } catch (err) {
       // Error is already handled by the mutation
