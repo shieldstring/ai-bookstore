@@ -10,8 +10,6 @@ const loadCartFromStorage = () => {
       : {
           items: [],
           subtotal: 0,
-          tax: 0,
-          shipping: 0,
           discount: 0,
           total: 0,
           coupon: null,
@@ -23,8 +21,6 @@ const loadCartFromStorage = () => {
     return {
       items: [],
       subtotal: 0,
-      tax: 0,
-      shipping: 0,
       discount: 0,
       total: 0,
       coupon: null,

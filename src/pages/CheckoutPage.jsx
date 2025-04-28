@@ -10,6 +10,7 @@ import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorMessage from "../components/common/ErrorMessage";
 import Newsletter from "../components/common/Newsletter";
 import { clearLocalCart } from "../redux/slices/cartSlice";
+import SEO from "../components/SEO";
 
 const CheckoutPage = () => {
   const { cart } = useSelector((state) => state.cart);
@@ -128,8 +129,6 @@ const CheckoutPage = () => {
         shippingAddress: shippingInfo,
         paymentMethod,
         itemsPrice: cart.subtotal,
-        taxPrice: cart.tax,
-        shippingPrice: cart.shipping,
         totalPrice: cart.total,
         paymentResult: {
           id: paymentId || "simulated_payment_id",
@@ -171,6 +170,12 @@ const CheckoutPage = () => {
 
   return (
     <div className="">
+      <SEO
+        title="Checkout"
+        description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
+        name="AI-Powered Social-Ecommerce"
+        type="description"
+      />
       {/* Breadcrumb */}
       <div className="bg-gray-50 py-3 ">
         <div className="container mx-auto px-4 flex justify-between">

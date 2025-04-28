@@ -54,7 +54,7 @@ const CartItem = ({ item, onRemove, onQuantityChange }) => {
       <div className="col-span-1 text-center">
         <button
           className="text-gray-500 hover:text-red-500"
-          onClick={() => onRemove(item._id)}
+          onClick={() => onRemove(item.id)}
         >
           <Trash2 size={16} />
         </button>

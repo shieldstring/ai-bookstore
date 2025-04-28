@@ -11,9 +11,8 @@ import {
 import CartItem from "../components/cart/CartItem";
 import OrderSummary from "../components/cart/OrderSummary";
 import LoadingSpinner from "../components/common/LoadingSpinner";
-import ErrorMessage from "../components/common/ErrorMessage";
 import Newsletter from "../components/common/Newsletter";
-import { syncCartWithServer } from "../redux/slices/cartSlice";
+import SEO from "../components/SEO";
 
 const CartPage = () => {
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -28,6 +27,8 @@ const CartPage = () => {
     items: cartData, // Rename cart to cartData to avoid confusion
     status,
     error: cartError,
+    discount,
+    coupon,
   } = useSelector((state) => state.cart);
   const [enrichedCart, setEnrichedCart] = useState([]);
   const [couponCode, setCouponCode] = useState("");
@@ -110,10 +111,21 @@ const CartPage = () => {
 
   if (status === "loading") return <LoadingSpinner />;
 
-  console.log(cartData);
+  // Calculate totals based on cart items
+  const subtotal = enrichedCart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+  const total = subtotal - discount;
 
   return (
     <div>
+      <SEO
+        title="Cart"
+        description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
+        name="AI-Powered Social-Ecommerce"
+        type="description"
+      />
       {/* Breadcrumb */}
       <div className="bg-gray-50 py-3 ">
         <div className="container mx-auto px-4 flex justify-between">
@@ -130,17 +142,6 @@ const CartPage = () => {
         </div>
       </div>
       <div className="max-w-4xl mx-auto px-4 lg:py-10">
-        {/* {error && (
-          <ErrorMessage
-            error={error}
-            onClose={() => {
-              setLocalError(null);
-              if (cartError)
-                dispatch(syncCartWithServer(cartData?.items || []));
-            }}
-          />
-        )} */}
-
         <div className="mb-8">
           {cartData?.length === 0 ? (
             <div className="text-center py-12">
@@ -166,11 +167,11 @@ const CartPage = () => {
 
               {enrichedCart.map((item) => (
                 <CartItem
-                  key={item._id} // Use the cart item ID as the key
+                  key={item.id} // Use the cart item ID as the key
                   item={item}
                   onRemove={handleRemoveItem}
                   onQuantityChange={(newQuantity) =>
-                    handleUpdateQuantity(item._id, newQuantity)
+                    handleUpdateQuantity(item.id, newQuantity)
                   }
                 />
               ))}
@@ -223,14 +224,12 @@ const CartPage = () => {
               </div>
             </div>
 
-            {/* <OrderSummary
-              subtotal={cartData?.subtotal}
-              discount={cartData?.discount}
-              tax={cartData?.tax}
-              shipping={cartData?.shipping}
-              total={cartData?.total}
-              coupon={cartData?.coupon}
-            /> */}
+            <OrderSummary
+              subtotal={subtotal || 0}
+              discount={discount || 0}
+              total={total || 0}
+              coupon={coupon || 0}
+            />
           </div>
         )}
       </div>

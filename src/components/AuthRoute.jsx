@@ -4,7 +4,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 
 function AuthRoute() {
     const { userInfo } = useSelector((state) => state.auth);
-    return userInfo ? <Outlet /> : <Navigate to="/" replace />;
+    return userInfo ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
 export default AuthRoute;
