@@ -4,10 +4,10 @@ import { Link } from "react-router-dom";
 const BookRecommendations = ({ books }) => {
   return (
     <div className="space-y-4">
-      {books.slice(0,5).map((book) => (
+      {books.slice(0, 5).map((book) => (
         <div
           key={book.id}
-          className="flex items-start space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors " 
+          className="flex items-start space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors "
         >
           <img
             src={book.image}
@@ -43,9 +43,12 @@ const BookRecommendations = ({ books }) => {
           </Link>
         </div>
       ))}
-      <button className="w-full mt-2 text-sm font-medium text-purple-600 hover:text-purple-700 text-center">
+      <Link
+        to={`/dashboard/recommendations`}
+        className="w-full mt-2 text-sm font-medium text-purple-600 hover:text-purple-700 text-center"
+      >
         View all recommendations
-      </button>
+      </Link>
     </div>
   );
 };

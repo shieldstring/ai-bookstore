@@ -10,7 +10,6 @@ import {
   Bookmark,
   DollarSign,
 } from "lucide-react";
-import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import ErrorMessage from "../../../components/common/ErrorMessage";
 import StatsCard from "../../../components/dashboard/StatsCard";
 import ReadingProgressChart from "../../../components/dashboard/ReadingProgressChart";
@@ -20,6 +19,7 @@ import UserProfileCard from "../../../components/dashboard/UserProfileCard";
 import UpcomingChallenges from "../../../components/dashboard/UpcomingChallenges";
 import { useGetBooksQuery } from "../../../redux/slices/bookSlice";
 import SEO from "../../../components/SEO";
+import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 
 const UserDashboard = () => {
   useEffect(() => {
@@ -38,11 +38,11 @@ const UserDashboard = () => {
     }
   }, [book]);
 
-  if (isLoading) return <LoadingSpinner />;
+  if (isLoading) return <LoadingSkeleton type={"page"} />;
   if (error) return <ErrorMessage error="Failed to load dashboard data" />;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
+    <div className="max-w-7xl mx-auto px-1 sm:px-6 md:px-8 md:py-6">
       <SEO
         title="Profile"
         description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
@@ -64,7 +64,7 @@ const UserDashboard = () => {
           </div>
 
           {/* Stats Overview */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
             <StatsCard
               icon={<BookOpen className="h-5 w-5" />}
               title="Level"

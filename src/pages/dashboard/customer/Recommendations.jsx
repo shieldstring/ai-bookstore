@@ -46,7 +46,7 @@ function Recommendations() {
       <div className="bg-white rounded-xl shadow-sm p-6">
         <h2 className="text-xl font-bold text-gray-800 ">Recommendations</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2  gap-6 py-5">
-          {books.slice(0, 5).map((book) => (
+          {books.map((book) => (
             <div
               key={book.id}
               className="flex items-start space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors shadow "

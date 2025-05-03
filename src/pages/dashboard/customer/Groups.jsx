@@ -35,7 +35,7 @@ const Groups = () => {
   ];
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6">
+    <div className="bg-white rounded-xl shadow-sm p-4 md:p-6">
       <SEO
         title="Groups"
         description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
@@ -50,11 +50,11 @@ const Groups = () => {
             <input
               type="text"
               placeholder="Search groups..."
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full md:w-64"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-44 md:w-64"
             />
           </div>
-          <button className="flex items-center bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors">
-            <Plus className="h-4 w-4 mr-2" />
+          <button className="text-xs lg:text-base flex items-center bg-purple-600 text-white py-2 px-3 lg:px-4 rounded-md hover:bg-purple-700 transition-colors">
+            <Plus className="h-4 w-4 mr-1 lg:mr-2" />
             Create Group
           </button>
         </div>

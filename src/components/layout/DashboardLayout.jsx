@@ -147,7 +147,6 @@ const DashboardLayout = () => {
   const handleUserLogout = () => {
     dispatch(logout());
     dispatch(handleLogout());
-    
   };
   return (
     <div className="h-screen flex overflow-hidden bg-gray-50">
@@ -174,10 +173,10 @@ const DashboardLayout = () => {
           <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
             <div className="flex-shrink-0 flex items-center px-4">
               <Link to="/" className="flex items-center">
-                <img src="/logo.png" alt="Clevr" className="h-8" />
-                <span className="ml-2 text-xl font-semibold text-purple-700">
-                  BookStore
-                </span>
+                <div className="font-bold text-xl text-purple-700">Book</div>
+                <div className="ml-2 px-2 py-1 bg-purple-600 text-white text-xs font-medium rounded">
+                  Store
+                </div>
               </Link>
             </div>
             <nav className="mt-5 px-2 space-y-1">
@@ -224,7 +223,7 @@ const DashboardLayout = () => {
           </button>
         </div>
         <main className="flex-1 relative overflow-y-auto bg-gray-50">
-          <div className="py-6 px-4 sm:px-6 md:px-8">
+          <div className="py-6 px-2 sm:px-6 md:px-8">
             <Outlet />
           </div>
         </main>
