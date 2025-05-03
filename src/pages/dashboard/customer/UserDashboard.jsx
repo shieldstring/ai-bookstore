@@ -1,21 +1,36 @@
-import React from 'react';
-import { useGetUserDashboardQuery } from '../../../redux/slices/authSlice';
-import { 
-  BookOpen, Star, Trophy, Award, ShoppingBag, Users, Bookmark, DollarSign 
-} from 'lucide-react';
-import LoadingSpinner from '../../../components/common/LoadingSpinner';
-import ErrorMessage from '../../../components/common/ErrorMessage';
-import StatsCard from '../../../components/dashboard/StatsCard';
-import ReadingProgressChart from '../../../components/dashboard/ReadingProgressChart';
-import BookRecommendations from '../../../components/dashboard/BookRecommendations';
-import RecentOrders from '../../../components/dashboard/RecentOrders';
-import UserProfileCard from '../../../components/dashboard/UserProfileCard';
-import UpcomingChallenges from '../../../components/dashboard/UpcomingChallenges';
-
+import React, { useEffect, useState } from "react";
+import { useGetUserDashboardQuery } from "../../../redux/slices/authSlice";
+import {
+  BookOpen,
+  Star,
+  Trophy,
+  Award,
+  ShoppingBag,
+  Users,
+  Bookmark,
+  DollarSign,
+} from "lucide-react";
+import LoadingSpinner from "../../../components/common/LoadingSpinner";
+import ErrorMessage from "../../../components/common/ErrorMessage";
+import StatsCard from "../../../components/dashboard/StatsCard";
+import ReadingProgressChart from "../../../components/dashboard/ReadingProgressChart";
+import BookRecommendations from "../../../components/dashboard/BookRecommendations";
+import RecentOrders from "../../../components/dashboard/RecentOrders";
+import UserProfileCard from "../../../components/dashboard/UserProfileCard";
+import UpcomingChallenges from "../../../components/dashboard/UpcomingChallenges";
+import { useGetBooksQuery } from "../../../redux/slices/bookSlice";
 
 const UserDashboard = () => {
   const { data, isLoading, error } = useGetUserDashboardQuery();
-  
+  const [books, setBooks] = useState([]);
+  const { data: book } = useGetBooksQuery();
+
+  useEffect(() => {
+    if (book?.books) {
+      setBooks(book.books);
+    }
+  }, [book]);
+
   if (isLoading) return <LoadingSpinner />;
   if (error) return <ErrorMessage error="Failed to load dashboard data" />;
 
@@ -26,70 +41,76 @@ const UserDashboard = () => {
         <div className="lg:col-span-3 space-y-6">
           {/* Welcome Header */}
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <h1 className="text-2xl font-bold text-gray-800">Welcome back, {data.user.name}!</h1>
+            <h1 className="text-2xl font-bold text-gray-800">
+              Welcome back, {data.name}!
+            </h1>
             <p className="text-gray-600 mt-2">
-              Here's your reading overview for {new Date().toLocaleDateString('en-US', { month: 'long' })}
+              Here's your reading overview for{" "}
+              {new Date().toLocaleDateString("en-US", { month: "long" })}
             </p>
           </div>
 
           {/* Stats Overview */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatsCard 
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+            <StatsCard
               icon={<BookOpen className="h-5 w-5" />}
-              title="Books Reading"
-              value={data.stats.booksReading}
-              change={`${data.stats.booksReadingChange} from last month`}
+              title="Level"
+              value={data.level}
+              // change={`${data.booksReadingChange} from last month`}
             />
-            <StatsCard 
+            <StatsCard
               icon={<Bookmark className="h-5 w-5" />}
-              title="Pages Read"
-              value={data.stats.pagesRead}
-              change={`${data.stats.pagesReadChange}% progress`}
+              title="Experience"
+              value={data.xp}
             />
-            <StatsCard 
-              icon={<Award className="h-5 w-5" />}
-              title="Current Streak"
-              value={`${data.stats.currentStreak} days`}
-              change={data.stats.streakChange >= 0 ? `+${data.stats.streakChange}` : data.stats.streakChange}
-            />
-            <StatsCard 
+            <StatsCard
               icon={<DollarSign className="h-5 w-5" />}
+              title="Tokens"
+              value={`${data.tokens}`}
+            />
+            <StatsCard
+              icon={<Award className="h-5 w-5" />}
               title="Reward Points"
-              value={data.stats.rewardPoints}
-              change={`Earned ${data.stats.pointsEarned} this month`}
+              value={data.earnings}
             />
           </div>
 
           {/* Reading Progress */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          {/* <div className="bg-white rounded-xl shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center">
               <BookOpen className="h-5 w-5 text-purple-500 mr-2" />
               <h2 className="text-lg font-semibold text-gray-800">Reading Progress</h2>
             </div>
             <div className="p-6">
-              <ReadingProgressChart data={data.readingProgress} />
+              <ReadingProgressChart data={data.readingProgress ||[]} />
             </div>
-          </div>
+          </div> */}
 
           {/* Recommendations and Challenges */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100 flex items-center">
                 <Star className="h-5 w-5 text-purple-500 mr-2" />
-                <h2 className="text-lg font-semibold text-gray-800">Recommended For You</h2>
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Recommended For You
+                </h2>
               </div>
               <div className="p-6">
-                <BookRecommendations books={data.recommendations} />
+                <BookRecommendations books={books} />
               </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100 flex items-center">
                 <Trophy className="h-5 w-5 text-purple-500 mr-2" />
-                <h2 className="text-lg font-semibold text-gray-800">Upcoming Challenges</h2>
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Upcoming Challenges
+                </h2>
               </div>
               <div className="p-6">
-                <UpcomingChallenges challenges={data.upcomingChallenges} />
+                <UpcomingChallenges
+                  challenges={data.upcomingChallenges || []}
+                />
               </div>
             </div>
           </div>
@@ -99,34 +120,36 @@ const UserDashboard = () => {
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
               <div className="flex items-center">
                 <ShoppingBag className="h-5 w-5 text-purple-500 mr-2" />
-                <h2 className="text-lg font-semibold text-gray-800">Recent Orders</h2>
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Recent Orders
+                </h2>
               </div>
               <button className="text-sm font-medium text-purple-600 hover:text-purple-700">
                 View all
               </button>
             </div>
             <div className="p-6">
-              <RecentOrders orders={data.recentOrders} />
+              <RecentOrders orders={data.purchaseHistory} />
             </div>
           </div>
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
-          <UserProfileCard 
-            user={data.user}
+          <UserProfileCard
+            user={data}
             groups={data.groups}
-            achievements={data.achievements}
+            achievements={data.achievements || []}
           />
-          
+
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center">
               <Users className="h-5 w-5 text-purple-500 mr-2" />
-              <h2 className="text-lg font-semibold text-gray-800">Reading Groups</h2>
+              <h2 className="text-lg font-semibold text-gray-800">
+                Reading Groups
+              </h2>
             </div>
-            <div className="p-6">
-              {/* Group membership component */}
-            </div>
+            <div className="p-6">{/* Group membership component */}</div>
           </div>
         </div>
       </div>
@@ -135,4 +158,3 @@ const UserDashboard = () => {
 };
 
 export default UserDashboard;
-

@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { apiOne } from "./apiSlice";
+import { apiOne, apiTwo } from "./apiSlice";
 import { handleLoginSuccess } from "./cartThunks";
 
 const initialState = {
@@ -57,21 +57,28 @@ export const authApiSlice = apiOne.injectEndpoints({
         body: credentials,
       }),
     }),
-    getAdminDashboard: builder.query({
-      query: (id) => `admin}`,
-      providesTags: (result, error, arg) => [{ type: "Admin", id: arg }],
-    }),
-    getUserDashboard: builder.query({
-      query: (id) => `user}`,
-      providesTags: (result, error, arg) => [{ type: "Admin", id: arg }],
-    }),
   }),
 });
 
 export const {
   useLoginMutation,
   useRegisterMutation,
-  useGetAdminDashboardQuery,
+
   useForgotPasswordMutation,
-  useGetUserDashboardQuery,
 } = authApiSlice;
+
+export const authApiAuthSlice = apiTwo.injectEndpoints({
+  endpoints: (builder) => ({
+    getAdminDashboard: builder.query({
+      query: (id) => `admin`,
+      providesTags: (result, error, arg) => [{ type: "Admin", id: arg }],
+    }),
+    getUserDashboard: builder.query({
+      query: () => `users/profile`,
+      providesTags: (result, error, arg) => [{ type: "User", id: arg }],
+    }),
+  }),
+});
+
+export const { useGetAdminDashboardQuery, useGetUserDashboardQuery } =
+  authApiAuthSlice;

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useRegisterMutation } from "../../redux/slices/authSlice";
+import {
+  setCredential,
+  useRegisterMutation,
+} from "../../redux/slices/authSlice";
 import { Link, useNavigate } from "react-router-dom";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { useDispatch } from "react-redux";
 
 const Register = () => {
   useEffect(() => {
@@ -10,6 +14,7 @@ const Register = () => {
       behavior: "smooth",
     });
   }, []);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -51,12 +56,14 @@ const Register = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const dispatch = useDispatch();
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     try {
-      await register(formData).unwrap();
+      const res = await register(formData).unwrap();
+      dispatch(setCredential({ ...res }));
       navigate("/dashboard"); // Redirect on successful registration
     } catch (err) {
       // Handle API errors

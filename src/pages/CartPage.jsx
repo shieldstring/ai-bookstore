@@ -13,6 +13,7 @@ import OrderSummary from "../components/cart/OrderSummary";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import Newsletter from "../components/common/Newsletter";
 import SEO from "../components/SEO";
+import LoadingSkeleton from "../components/preloader/LoadingSkeleton";
 
 const CartPage = () => {
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -46,6 +47,8 @@ const CartPage = () => {
     init();
   }, [dispatch]);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   // New effect to fetch book details
   useEffect(() => {
     const fetchBookDetails = async () => {
@@ -53,6 +56,7 @@ const CartPage = () => {
 
       try {
         // Fetch book details for each cart item
+        setIsLoading(true);
         const enriched = await Promise.all(
           cartData.map(async (item) => {
             const response = await fetch(`${BASE_URL}books/${item.bookId}`);
@@ -69,6 +73,7 @@ const CartPage = () => {
             };
           })
         );
+        setIsLoading(false);
         setEnrichedCart(enriched);
       } catch (err) {
         setLocalError("Failed to fetch book details");
@@ -111,6 +116,17 @@ const CartPage = () => {
 
   if (status === "loading") return <LoadingSpinner />;
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <section className="max-w-4xl mx-auto text-white py-12 lg:py-16">
+        <div className="container mx-auto px-4">
+          <LoadingSkeleton type={"list"} count={3} />
+        </div>
+      </section>
+    );
+  }
+
   // Calculate totals based on cart items
   const subtotal = enrichedCart.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -141,7 +157,7 @@ const CartPage = () => {
           </div>
         </div>
       </div>
-      <div className="max-w-4xl mx-auto px-4 lg:py-10">
+      <div className="max-w-4xl 2xl:max-w-6xl mx-auto px-4 lg:py-10">
         <div className="mb-8">
           {cartData?.length === 0 ? (
             <div className="text-center py-12">

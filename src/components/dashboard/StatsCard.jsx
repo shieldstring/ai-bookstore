@@ -1,6 +1,6 @@
 const StatsCard = ({ icon, title, value, change }) => (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-      <div className="px-4 py-5 sm:p-6">
+      <div className="p-2 sm:p-4">
         <div className="flex items-center">
           <div className="flex-shrink-0 bg-purple-100 rounded-lg p-3">
             {icon}

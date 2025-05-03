@@ -56,7 +56,7 @@ function App() {
           <Route path="groups/:groupId" element={"<GroupPage />"} />
           <Route path="cart" element={<CartPage />} />
 
-          {/* Protected Routes */}        
+          {/* Protected Routes */}
           <Route
             path="checkout"
             element={
@@ -71,7 +71,7 @@ function App() {
           <Route path="forgot-password" element={<ForgotPassword />} />
         </Route>
 
-        <Route
+        {/* <Route
           path="/dashboard"
           element={
             <AuthRoute>
@@ -80,15 +80,15 @@ function App() {
               </DashboardLayout>
             </AuthRoute>
           }
-        />
+        /> */}
 
         {/* Protected Routes */}
         <Route
-          path="/dashboard"
+          path="dashboard"
           element={
-            <AuthRoute>
-              <DashboardLayout />
-            </AuthRoute>
+            // <AuthRoute>
+            <DashboardLayout />
+            // </AuthRoute>
           }
         >
           <Route path="" element={<UserDashboard />} />
@@ -101,15 +101,15 @@ function App() {
         </Route>
 
         {/* Admin Routes */}
-        <Route
-          path="/admin"
-          element={
-            <AuthRoute>
-              <DashboardLayout />
-            </AuthRoute>
-          }
-        >
-          <Route path="overview" element={<AdminDashboard />} />
+        <Route path="admin" element={<DashboardLayout />}>
+          <Route
+            path="overview"
+            element={
+              <AuthRoute>
+                <AdminDashboard />
+              </AuthRoute>
+            }
+          />
           <Route path="analytics" element={<Analytics />} />
           <Route path="customers" element={<Customers />} />
           <Route path="orders" element={<AdminOrders />} />

@@ -1,37 +1,101 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { 
-  Home, User, ShoppingBag, Heart, BookOpen, 
-  Star, BarChart2, Grid, ShoppingCart, 
-  Users, PieChart, Settings, Menu, X, LogOut, 
-  User2Icon
-} from 'lucide-react';
-import { useSelector } from 'react-redux';
+import React, { useState } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import {
+  Home,
+  User,
+  ShoppingBag,
+  Heart,
+  BookOpen,
+  Star,
+  BarChart2,
+  Grid,
+  ShoppingCart,
+  Users,
+  PieChart,
+  Settings,
+  Menu,
+  X,
+  LogOut,
+  User2Icon,
+} from "lucide-react";
+import { useSelector } from "react-redux";
 
-const DashboardLayout = ({ children }) => {
-  const { user } = useSelector(state => state.auth);
+const DashboardLayout = () => {
+  const { userInfo } = useSelector((state) => state.auth);
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const isAdmin = user?.role === 'admin';
-  
+  const isAdmin = userInfo?.role === "admin";
+
   const userNavigation = [
-    { name: 'Dashboard', path: '/dashboard', icon: <Home className="h-5 w-5" /> },
-    { name: 'My Account', path: '/dashboard/account', icon: <User className="h-5 w-5" /> },
-    { name: 'My Orders', path: '/dashboard/orders', icon: <ShoppingBag className="h-5 w-5" /> },
-    { name: 'My Network', path: '/dashboard/orders', icon: <User2Icon className="h-5 w-5" /> },
-    { name: 'Wishlist', path: '/dashboard/wishlist', icon: <Heart className="h-5 w-5" /> },
-    { name: 'Reading Progress', path: '/dashboard/reading-progress', icon: <BookOpen className="h-5 w-5" /> },
-    { name: 'Recommendations', path: '/dashboard/recommendations', icon: <Star className="h-5 w-5" /> },
+    {
+      name: "Dashboard",
+      path: "/dashboard",
+      icon: <Home className="h-5 w-5" />,
+    },
+    {
+      name: "My Account",
+      path: "/dashboard/account",
+      icon: <User className="h-5 w-5" />,
+    },
+    {
+      name: "My Orders",
+      path: "/dashboard/orders",
+      icon: <ShoppingBag className="h-5 w-5" />,
+    },
+    {
+      name: "My Network",
+      path: "/dashboard/mlm",
+      icon: <User2Icon className="h-5 w-5" />,
+    },
+    {
+      name: "Wishlist",
+      path: "/dashboard/wishlist",
+      icon: <Heart className="h-5 w-5" />,
+    },
+    {
+      name: "Reading Progress",
+      path: "/dashboard/reading-progress",
+      icon: <BookOpen className="h-5 w-5" />,
+    },
+    {
+      name: "Recommendations",
+      path: "/dashboard/recommendations",
+      icon: <Star className="h-5 w-5" />,
+    },
   ];
 
   const adminNavigation = [
-    { name: 'Store Overview', path: '/admin/overview', icon: <BarChart2 className="h-5 w-5" /> },
-    { name: 'Products', path: '/admin/products', icon: <Grid className="h-5 w-5" /> },
-    { name: 'Orders', path: '/admin/orders', icon: <ShoppingCart className="h-5 w-5" /> },
-    { name: 'Customers', path: '/admin/customers', icon: <Users className="h-5 w-5" /> },
-    { name: 'Analytics', path: '/admin/analytics', icon: <PieChart className="h-5 w-5" /> },
-    { name: 'Settings', path: '/admin/settings', icon: <Settings className="h-5 w-5" /> },
+    {
+      name: "Store Overview",
+      path: "/admin/overview",
+      icon: <BarChart2 className="h-5 w-5" />,
+    },
+    {
+      name: "Products",
+      path: "/admin/products",
+      icon: <Grid className="h-5 w-5" />,
+    },
+    {
+      name: "Orders",
+      path: "/admin/orders",
+      icon: <ShoppingCart className="h-5 w-5" />,
+    },
+    {
+      name: "Customers",
+      path: "/admin/customers",
+      icon: <Users className="h-5 w-5" />,
+    },
+    {
+      name: "Analytics",
+      path: "/admin/analytics",
+      icon: <PieChart className="h-5 w-5" />,
+    },
+    {
+      name: "Settings",
+      path: "/admin/settings",
+      icon: <Settings className="h-5 w-5" />,
+    },
   ];
 
   const navItems = isAdmin ? adminNavigation : userNavigation;
@@ -41,13 +105,17 @@ const DashboardLayout = ({ children }) => {
       to={item.path}
       className={`${
         location.pathname === item.path
-          ? 'bg-purple-100 text-purple-900'
-          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+          ? "bg-purple-100 text-purple-900"
+          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
       } group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors`}
     >
-      <span className={`${
-        location.pathname === item.path ? 'text-purple-500' : 'text-gray-400 group-hover:text-gray-500'
-      } mr-3`}>
+      <span
+        className={`${
+          location.pathname === item.path
+            ? "text-purple-500"
+            : "text-gray-400 group-hover:text-gray-500"
+        } mr-3`}
+      >
         {item.icon}
       </span>
       {item.name}
@@ -58,14 +126,12 @@ const DashboardLayout = ({ children }) => {
     <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
       <div className="flex items-center w-full">
         <div className="h-9 w-9 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">
-          {user?.name?.charAt(0)}
+          {userInfo?.name?.charAt(0)}
         </div>
         <div className="ml-3">
-          <p className="text-sm font-medium text-gray-700">
-            {user?.name}
-          </p>
-          <Link 
-            to="/logout" 
+          <p className="text-sm font-medium text-gray-700">{userInfo?.name}</p>
+          <Link
+            to="/logout"
             className="text-xs font-medium text-gray-500 hover:text-gray-700 flex items-center mt-1"
           >
             <LogOut className="h-3 w-3 mr-1" /> Sign out
@@ -78,8 +144,15 @@ const DashboardLayout = ({ children }) => {
   return (
     <div className="h-screen flex overflow-hidden bg-gray-50">
       {/* Mobile sidebar */}
-      <div className={`${mobileMenuOpen ? 'block' : 'hidden'} md:hidden fixed inset-0 flex z-40`}>
-        <div className="fixed inset-0 bg-gray-600/75" onClick={() => setMobileMenuOpen(false)} />
+      <div
+        className={`${
+          mobileMenuOpen ? "block" : "hidden"
+        } md:hidden fixed inset-0 flex z-40`}
+      >
+        <div
+          className="fixed inset-0 bg-gray-600/75"
+          onClick={() => setMobileMenuOpen(false)}
+        />
         <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
           <div className="absolute top-0 right-0 -mr-12 pt-2">
             <button
@@ -94,7 +167,9 @@ const DashboardLayout = ({ children }) => {
             <div className="flex-shrink-0 flex items-center px-4">
               <Link to="/" className="flex items-center">
                 <img src="/logo.png" alt="Clevr" className="h-8" />
-                <span className="ml-2 text-xl font-semibold text-purple-700">Clevr</span>
+                <span className="ml-2 text-xl font-semibold text-purple-700">
+                  BookStore
+                </span>
               </Link>
             </div>
             <nav className="mt-5 px-2 space-y-1">
@@ -113,8 +188,10 @@ const DashboardLayout = ({ children }) => {
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
             <div className="flex items-center px-4 mb-5">
               <Link to="/" className="flex items-center">
-                <img src="/logo.png" alt="Clevr" className="h-8" />
-                <span className="ml-2 text-xl font-semibold text-purple-700">Clevr</span>
+                <div className="font-bold text-xl text-purple-700">Book</div>
+                <div className="ml-2 px-2 py-1 bg-purple-600 text-white text-xs font-medium rounded">
+                  Store
+                </div>
               </Link>
             </div>
             <nav className="flex-1 px-2 space-y-1">
@@ -140,7 +217,7 @@ const DashboardLayout = ({ children }) => {
         </div>
         <main className="flex-1 relative overflow-y-auto bg-gray-50">
           <div className="py-6 px-4 sm:px-6 md:px-8">
-            {children}
+            <Outlet />
           </div>
         </main>
       </div>
