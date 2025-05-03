@@ -1,6 +1,14 @@
 import { Heart, ShoppingCart, X } from "lucide-react";
+import SEO from "../../../components/SEO";
+import { useEffect } from "react";
 
 const Wishlist = () => {
+   useEffect(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }, []);
   const items = [
     {
       id: 1,
@@ -27,6 +35,12 @@ const Wishlist = () => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
+      <SEO
+        title="WishList"
+        description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
+        name="AI-Powered Social-Ecommerce"
+        type="description"
+      />
       <h2 className="text-xl font-bold text-gray-800 mb-6">My Wishlist</h2>
 
       <div className="space-y-4">

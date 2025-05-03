@@ -18,7 +18,9 @@ import {
   LogOut,
   User2Icon,
 } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../redux/slices/authSlice";
+import { handleLogout } from "../../redux/slices/cartThunks";
 
 const DashboardLayout = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -48,14 +50,14 @@ const DashboardLayout = () => {
       path: "/dashboard/mlm",
       icon: <User2Icon className="h-5 w-5" />,
     },
+    // {
+    //   name: "Wishlist",
+    //   path: "/dashboard/wishlist",
+    //   icon: <Heart className="h-5 w-5" />,
+    // },
     {
-      name: "Wishlist",
-      path: "/dashboard/wishlist",
-      icon: <Heart className="h-5 w-5" />,
-    },
-    {
-      name: "Reading Progress",
-      path: "/dashboard/reading-progress",
+      name: "Groups",
+      path: "/dashboard/groups",
       icon: <BookOpen className="h-5 w-5" />,
     },
     {
@@ -130,17 +132,23 @@ const DashboardLayout = () => {
         </div>
         <div className="ml-3">
           <p className="text-sm font-medium text-gray-700">{userInfo?.name}</p>
-          <Link
-            to="/logout"
+          <button
+            onClick={handleUserLogout}
             className="text-xs font-medium text-gray-500 hover:text-gray-700 flex items-center mt-1"
           >
             <LogOut className="h-3 w-3 mr-1" /> Sign out
-          </Link>
+          </button>
         </div>
       </div>
     </div>
   );
 
+  const dispatch = useDispatch();
+  const handleUserLogout = () => {
+    dispatch(logout());
+    dispatch(handleLogout());
+    
+  };
   return (
     <div className="h-screen flex overflow-hidden bg-gray-50">
       {/* Mobile sidebar */}

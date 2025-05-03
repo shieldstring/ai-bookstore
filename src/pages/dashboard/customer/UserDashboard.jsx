@@ -19,8 +19,15 @@ import RecentOrders from "../../../components/dashboard/RecentOrders";
 import UserProfileCard from "../../../components/dashboard/UserProfileCard";
 import UpcomingChallenges from "../../../components/dashboard/UpcomingChallenges";
 import { useGetBooksQuery } from "../../../redux/slices/bookSlice";
+import SEO from "../../../components/SEO";
 
 const UserDashboard = () => {
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
   const { data, isLoading, error } = useGetUserDashboardQuery();
   const [books, setBooks] = useState([]);
   const { data: book } = useGetBooksQuery();
@@ -36,6 +43,12 @@ const UserDashboard = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
+      <SEO
+        title="Profile"
+        description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
+        name="AI-Powered Social-Ecommerce"
+        type="description"
+      />
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-3 space-y-6">

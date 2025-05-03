@@ -1,11 +1,29 @@
-import { User, Mail, Lock, CreditCard, MapPin } from 'lucide-react';
+import { User, Mail, Lock, CreditCard, MapPin } from "lucide-react";
+import { useSelector } from "react-redux";
+import SEO from "../../../components/SEO";
+import { useEffect } from "react";
 
 const MyAccount = () => {
+  const { userInfo } = useSelector((state) => state.auth);
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
   return (
     <div className="space-y-6">
+      <SEO
+        title="Settings"
+        description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
+        name="AI-Powered Social-Ecommerce"
+        type="description"
+      />
       <div className="bg-white rounded-xl shadow-sm p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-6">Account Settings</h2>
-        
+        <h2 className="text-xl font-bold text-gray-800 mb-6">
+          Account Settings
+        </h2>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Personal Info */}
           <div className="border border-gray-200 rounded-lg p-5">
@@ -15,14 +33,22 @@ const MyAccount = () => {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                <input type="text" className="w-full rounded-md border-gray-300 shadow-sm" defaultValue="John Doe" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  className="w-full rounded-md border-gray-300 shadow-sm"
+                  defaultValue={userInfo.name}
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
                 <div className="flex items-center">
                   <Mail className="h-4 w-4 text-gray-400 mr-2" />
-                  <span className="text-gray-600">john@example.com</span>
+                  <span className="text-gray-600">{userInfo.email}</span>
                 </div>
               </div>
             </div>
