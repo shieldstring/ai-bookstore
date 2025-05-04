@@ -147,7 +147,7 @@ const Header = () => {
                 </button>
                 <div className="absolute right-0  w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-[100]">
                   <Link
-                    to="/dashboard/account"
+                    to="/dashboard"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
                   >
                     My Profile

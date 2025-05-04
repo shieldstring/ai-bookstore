@@ -1,30 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchConversations, setActiveConversation } from '../../features/social/socialSlice';
-import { initSocket } from '../../sockets/socket';
-import { Send, User } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchConversations,
+  setActiveConversation,
+} from "../../features/social/socialSlice";
+import { initSocket } from "../../sockets/socket";
+import { Send, User } from "lucide-react";
 
 const MessageList = () => {
   const dispatch = useDispatch();
-  const { conversations, activeConversation } = useSelector((state) => state.social);
+  const { conversations, activeConversation } = useSelector(
+    (state) => state.social
+  );
   const { user } = useSelector((state) => state.auth);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     dispatch(fetchConversations());
-    
+
     const socket = initSocket();
-    socket.on('newMessage', () => {
+    socket.on("newMessage", () => {
       dispatch(fetchConversations());
     });
-    
+
     return () => {
-      socket.off('newMessage');
+      socket.off("newMessage");
     };
   }, [dispatch]);
 
-  const filteredConversations = conversations.filter(conv => {
-    const otherUser = conv.participants.find(p => p._id !== user._id);
+  const filteredConversations = conversations.filter((conv) => {
+    const otherUser = conv.participants.find((p) => p._id !== user._id);
     return otherUser?.name.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
@@ -56,30 +61,35 @@ const MessageList = () => {
           </svg>
         </div>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto">
         {filteredConversations.length === 0 ? (
           <div className="p-4 text-center text-gray-500">
-            {searchQuery ? 'No matching conversations' : 'No conversations yet'}
+            {searchQuery ? "No matching conversations" : "No conversations yet"}
           </div>
         ) : (
           <ul>
             {filteredConversations.map((conversation) => {
-              const otherUser = conversation.participants.find(p => p._id !== user._id);
-              const lastMessage = conversation.messages[conversation.messages.length - 1];
+              const otherUser = conversation.participants.find(
+                (p) => p._id !== user._id
+              );
+              const lastMessage =
+                conversation.messages[conversation.messages.length - 1];
               const isActive = activeConversation?._id === conversation._id;
-              
+
               return (
-                <li 
+                <li
                   key={conversation._id}
                   onClick={() => dispatch(setActiveConversation(conversation))}
-                  className={`border-b border-gray-200 cursor-pointer ${isActive ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+                  className={`border-b border-gray-200 cursor-pointer ${
+                    isActive ? "bg-blue-50" : "hover:bg-gray-50"
+                  }`}
                 >
                   <div className="flex items-center p-4">
                     <div className="flex-shrink-0 h-12 w-12 rounded-full bg-gray-200 overflow-hidden mr-3">
                       {otherUser?.avatar ? (
-                        <img 
-                          src={otherUser.avatar} 
+                        <img
+                          src={otherUser.avatar}
                           alt={otherUser.name}
                           className="h-full w-full object-cover"
                         />
@@ -90,15 +100,22 @@ const MessageList = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between">
                         <p className="text-sm font-medium text-gray-900 truncate">
-                          {otherUser?.name || 'Unknown User'}
+                          {otherUser?.name || "Unknown User"}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {lastMessage ? new Date(lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                          {lastMessage
+                            ? new Date(
+                                lastMessage.createdAt
+                              ).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
+                            : ""}
                         </p>
                       </div>
                       <div className="flex justify-between">
                         <p className="text-sm text-gray-500 truncate">
-                          {lastMessage?.content || 'No messages yet'}
+                          {lastMessage?.content || "No messages yet"}
                         </p>
                         {conversation.unreadCount > 0 && (
                           <span className="bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -114,7 +131,7 @@ const MessageList = () => {
           </ul>
         )}
       </div>
-      
+
       <div className="p-4 border-t border-gray-200">
         <button className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
           <Send className="h-5 w-5 mr-2" />

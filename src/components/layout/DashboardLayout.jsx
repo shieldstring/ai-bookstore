@@ -17,6 +17,7 @@ import {
   X,
   LogOut,
   User2Icon,
+  MessageCircle,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slices/authSlice";
@@ -59,6 +60,11 @@ const DashboardLayout = () => {
       name: "Groups",
       path: "/dashboard/groups",
       icon: <BookOpen className="h-5 w-5" />,
+    },
+    {
+      name: "Chats",
+      path: "/dashboard/chats",
+      icon: <MessageCircle className="h-5 w-5" />,
     },
     {
       name: "Recommendations",

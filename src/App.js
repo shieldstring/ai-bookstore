@@ -30,6 +30,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import Recommendations from "./pages/dashboard/customer/Recommendations";
+import Chats from "./pages/dashboard/customer/Chats";
+import ChatLists from "./pages/dashboard/customer/ChatLists";
 function App() {
   return (
     <Router>
@@ -94,6 +96,8 @@ function App() {
         >
           <Route path="" element={<UserDashboard />} />
           <Route path="groups" element={<Groups />} />
+          <Route path="chats" element={<ChatLists />} />
+          <Route path="chats/:id" element={<Chats />} />
           <Route path="social" element={"<SocialFeed />"} />
           <Route path="mlm" element={<MLMDashboard />} />
           <Route path="account" element={<MyAccount />} />
