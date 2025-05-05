@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const Footer = () => {
   return (
     <footer className="bg-white pt-10">
-      <div className="container mx-auto px-4">
+      <div className="px-4 mx-auto lg:px-24">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10">
           <div>
             <Link to="/" className="flex items-center mb-4">
@@ -14,71 +14,75 @@ const Footer = () => {
               </span>
             </Link>
             <p className="text-gray-600 text-sm">
-            Connecting readers worldwide and rewarding your passion for books.
-              
+              Connecting readers worldwide and rewarding your passion for books.
             </p>
           </div>
 
           <div>
             <h3 className="text-gray-800 font-medium mb-4">Quick Links</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  to="/about"
-                  className="text-gray-600 hover:text-purple-600 text-sm"
-                >
-                  About us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/contact"
-                  className="text-gray-600 hover:text-purple-600 text-sm"
-                >
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/faq"
-                  className="text-gray-600 hover:text-purple-600 text-sm"
-                >
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/terms"
-                  className="text-gray-600 hover:text-purple-600 text-sm"
-                >
-               Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/privacy"
-                  className="text-gray-600 hover:text-purple-600 text-sm"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/mlm-terms"
-                  className="text-gray-600 hover:text-purple-600 text-sm"
-                >
-                  MLM Terms
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/refund"
-                  className="text-gray-600 hover:text-purple-600 text-sm"
-                >
-                  Refund Policy
-                </Link>
-              </li>
-            </ul>
+            <div className="flex gap-12">
+              <ul className="space-y-2">
+                <li>
+                  <Link
+                    to="/about"
+                    className="text-gray-600 hover:text-purple-600 text-sm"
+                  >
+                    About us
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contact"
+                    className="text-gray-600 hover:text-purple-600 text-sm"
+                  >
+                    Contact
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/faq"
+                    className="text-gray-600 hover:text-purple-600 text-sm"
+                  >
+                    FAQ
+                  </Link>
+                </li>
+              </ul>
+
+              <ul className="space-y-2">
+                <li>
+                  <Link
+                    to="/terms"
+                    className="text-gray-600 hover:text-purple-600 text-sm"
+                  >
+                    Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/privacy"
+                    className="text-gray-600 hover:text-purple-600 text-sm"
+                  >
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/mlm-terms"
+                    className="text-gray-600 hover:text-purple-600 text-sm"
+                  >
+                    MLM Terms
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/refund"
+                    className="text-gray-600 hover:text-purple-600 text-sm"
+                  >
+                    Refund Policy
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
 
           <div>
@@ -89,7 +93,7 @@ const Footer = () => {
                   to="/books"
                   className="text-gray-600 hover:text-purple-600 text-sm"
                 >
-                 Books
+                  Books
                 </Link>
               </li>
               <li>
@@ -97,7 +101,7 @@ const Footer = () => {
                   to="/social"
                   className="text-gray-600 hover:text-purple-600 text-sm"
                 >
-                Social
+                  Social
                 </Link>
               </li>
               <li>
@@ -116,7 +120,6 @@ const Footer = () => {
                   Groups
                 </Link>
               </li>
-              
             </ul>
           </div>
 

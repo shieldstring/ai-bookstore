@@ -181,7 +181,7 @@ const Header = () => {
             ) : (
               <Link
                 to="/login"
-                className="hidden lg:block py-2 px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                className="w-20 w-fit text-center py-2 px-2 sm:px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700"
               >
                 Sign In
               </Link>
