@@ -42,14 +42,14 @@ const Login = () => {
     }
   }, [navigate, redirect, userInfo]);
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className=" flex items-center justify-center bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
       <SEO
         title="Login"
         description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
         name="AI-Powered Social-Ecommerce"
         type="description"
       />
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
+      <div className="max-w-md w-full space-y-8 bg-white p-4 sm:p-8 rounded-lg shadow-md">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
             Sign in to your account
