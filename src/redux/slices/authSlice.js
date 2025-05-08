@@ -57,13 +57,20 @@ export const authApiSlice = apiOne.injectEndpoints({
         body: credentials,
       }),
     }),
+    resetPassword: builder.mutation({
+      query: (token, password) => ({
+        url: `auth/reset-password/${token}`,
+        method: "POST",
+        body: password,
+      }),
+    }),
   }),
 });
 
 export const {
   useLoginMutation,
   useRegisterMutation,
-
+  useResetPasswordMutation,
   useForgotPasswordMutation,
 } = authApiSlice;
 
