@@ -1,8 +1,13 @@
 import { Users, Plus, Search, MessageCircle } from "lucide-react";
-import GroupCard from "../../../components/dashboard/GroupCard";
 import SEO from "../../../components/SEO";
 import { useEffect, useState } from "react";
 import GroupForm from "../../../components/dashboard/GroupForm";
+import { 
+  useGetGroupsQuery, 
+  useJoinGroupMutation, 
+  useLeaveGroupMutation,
+  useCreateGroupMutation
+} from "../../../redux/slices/groupApiSlice";
 
 const Groups = () => {
   useEffect(() => {
@@ -14,56 +19,62 @@ const Groups = () => {
 
   const [modal, setModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
   
-  const allGroups = [
-    {
-      id: 1,
-      name: "Book Lovers Club",
-      members: 142,
-      discussions: 24,
-      joined: true,
-    },
-    {
-      id: 2,
-      name: "Sci-Fi Readers",
-      members: 89,
-      discussions: 15,
-      joined: false,
-    },
-    {
-      id: 3,
-      name: "Business Book Club",
-      members: 56,
-      discussions: 8,
-      joined: true,
-    },
-    {
-      id: 4,
-      name: "Fantasy Bookworms",
-      members: 78,
-      discussions: 12,
-      joined: false,
-    },
-    {
-      id: 5,
-      name: "Non-Fiction Network",
-      members: 65,
-      discussions: 9,
-      joined: true,
-    },
-    {
-      id: 6,
-      name: "Mystery & Thriller Fans",
-      members: 92,
-      discussions: 18,
-      joined: false,
-    },
-  ];
+  // Fetch groups using RTK Query
+  const { 
+    data: groups = [], 
+    isLoading, 
+    isError,
+    refetch 
+  } = useGetGroupsQuery({ 
+    page, 
+    limit, 
+    search: searchTerm 
+  });
 
-  // Filter groups based on search term
-  const filteredGroups = allGroups.filter(group =>
-    group.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Mutation hooks
+  const [joinGroup] = useJoinGroupMutation();
+  const [leaveGroup] = useLeaveGroupMutation();
+  const [createGroup] = useCreateGroupMutation();
+
+  // Handle join/leave group
+  const handleGroupAction = async (groupId, isJoined) => {
+    try {
+      if (isJoined) {
+        await leaveGroup(groupId).unwrap();
+      } else {
+        await joinGroup(groupId).unwrap();
+      }
+      refetch(); // Refresh the groups list after action
+    } catch (error) {
+      console.error('Failed to perform group action:', error);
+    }
+  };
+
+  // Filter groups based on search term (now handled by API)
+  const filteredGroups = groups.data || [];
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm p-4 md:p-6">
+        <div className="flex justify-center items-center h-64">
+          <p>Loading groups...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm p-4 md:p-6">
+        <div className="flex justify-center items-center h-64">
+          <p>Error loading groups. Please try again.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -105,7 +116,7 @@ const Groups = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredGroups.map((group) => (
               <div
-                key={group.id}
+                key={group._id}
                 className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center mb-4">
@@ -119,21 +130,22 @@ const Groups = () => {
                 <div className="flex justify-between text-sm text-gray-500 mb-4">
                   <div className="flex items-center space-x-1">
                     <Users className="h-4 w-4" />
-                    <span>{group.members} members</span>
+                    <span>{group.members?.length || 0} members</span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <MessageCircle className="h-4 w-4" />
-                    <span>{group.discussions} discussions</span>
+                    <span>{group.discussions?.length || 0} discussions</span>
                   </div>
                 </div>
                 <button
+                  onClick={() => handleGroupAction(group._id, group.isMember)}
                   className={`w-full py-2 px-4 rounded-md ${
-                    group.joined
+                    group.isMember
                       ? "bg-gray-100 text-gray-800 hover:bg-gray-200"
                       : "bg-purple-600 text-white hover:bg-purple-700"
                   } transition-colors`}
                 >
-                  {group.joined ? "Leave Group" : "Join Group"}
+                  {group.isMember ? "Leave Group" : "Join Group"}
                 </button>
               </div>
             ))}
@@ -152,7 +164,10 @@ const Groups = () => {
             </span>
 
             <div className="relative inline-block px-4 pt-5 pb-4 overflow-hidden text-center align-bottom transition-all transform bg-white rounded-2xl shadow-xl  top-20 md:top-0 sm:my-8 w-full sm:max-w-md sm:p-6 md:p-8 sm:align-middle">
-              <GroupForm setModal={setModal} />
+              <GroupForm 
+                setModal={setModal} 
+            
+              />
             </div>
           </div>
         </div>

@@ -351,7 +351,7 @@ export default function NotificationsPage() {
                   </span>
                   <ChevronDown className="ml-2 h-4 w-4 text-gray-500" />
                 </button>
-                <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10 hidden group-hover:block">
+                <div className="origin-top-right absolute right-0  w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10 hidden group-hover:block">
                   <div className="py-1" role="menu" aria-orientation="vertical">
                     <button
                       className={`block px-4 py-2 text-sm w-full text-left ${
@@ -416,7 +416,7 @@ export default function NotificationsPage() {
                   </span>
                   <ChevronDown className="ml-2 h-4 w-4 text-gray-500" />
                 </button>
-                <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10 hidden group-hover:block">
+                <div className="origin-top-right absolute right-0 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10 hidden group-hover:block">
                   <div className="py-1" role="menu" aria-orientation="vertical">
                     <button
                       className={`block px-4 py-2 text-sm w-full text-left ${
