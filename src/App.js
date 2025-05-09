@@ -30,9 +30,28 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import Recommendations from "./pages/dashboard/customer/Recommendations";
-import Chats from "./pages/dashboard/customer/Chats";
+
 import ChatLists from "./pages/dashboard/customer/ChatLists";
+import GroupChat from "./pages/dashboard/customer/GroupChat";
+import NotificationPrompt from "./components/notification/NotificationPrompt";
+import useFCM from "./services/useFCM";
+import NotificationsPage from "./pages/dashboard/NotificationsPage";
 function App() {
+  useFCM(); // Initialize FCM
+  // Register service worker
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("/firebase-messaging-sw.js")
+        .then((registration) => {
+          console.log("ServiceWorker registration successful:", registration);
+        })
+        .catch((err) => {
+          console.log("ServiceWorker registration failed:", err);
+        });
+    });
+  }
+
   return (
     <Router>
       <ToastContainer
@@ -47,6 +66,7 @@ function App() {
         pauseOnHover
         theme="light"
       />
+      <NotificationPrompt />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Layout />}>
@@ -96,14 +116,15 @@ function App() {
         >
           <Route path="" element={<UserDashboard />} />
           <Route path="groups" element={<Groups />} />
+          <Route path="groups/:groupId" element={<GroupChat />} />
           <Route path="chats" element={<ChatLists />} />
-          <Route path="chats/:id" element={<Chats />} />
           <Route path="social" element={"<SocialFeed />"} />
           <Route path="mlm" element={<MLMDashboard />} />
           <Route path="account" element={<MyAccount />} />
           <Route path="orders" element={<MyOrders />} />
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="recommendations" element={<Recommendations />} />
+          <Route path="notifications" element={<NotificationsPage />} />
         </Route>
 
         {/* Admin Routes */}

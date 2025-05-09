@@ -22,6 +22,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slices/authSlice";
 import { handleLogout } from "../../redux/slices/cartThunks";
+import NotificationCenter from "../notification/NotificationCenter";
 
 const DashboardLayout = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -199,13 +200,14 @@ const DashboardLayout = () => {
       <div className="hidden md:flex md:flex-shrink-0">
         <div className="flex flex-col w-64 border-r border-gray-200 bg-white">
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-            <div className="flex items-center px-4 mb-5">
+            <div className="flex items-center px-4 mb-5 justify-between">
               <Link to="/" className="flex items-center">
                 <div className="font-bold text-xl text-purple-700">Book</div>
                 <div className="ml-2 px-2 py-1 bg-purple-600 text-white text-xs font-medium rounded">
                   Store
                 </div>
               </Link>
+              <NotificationCenter />
             </div>
             <nav className="flex-1 px-2 space-y-1">
               {navItems.map((item) => (
@@ -219,14 +221,23 @@ const DashboardLayout = () => {
 
       {/* Main content */}
       <div className="flex flex-col flex-1 overflow-hidden">
-        <div className="md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3">
-          <button
-            className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900"
-            onClick={() => setMobileMenuOpen(true)}
-          >
-            <span className="sr-only">Open sidebar</span>
-            <Menu className="h-6 w-6" />
-          </button>
+        <div className="md:hidden p-1 sm:p-3  flex justify-between">
+          <div className="flex">
+            <button
+              className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900"
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <span className="sr-only">Open sidebar</span>
+              <Menu className="h-6 w-6" />
+            </button>
+            <Link to="/" className="flex items-center">
+              <div className="font-bold text-xl text-purple-700">Book</div>
+              <div className="ml-2 px-2 py-1 bg-purple-600 text-white text-xs font-medium rounded">
+                Store
+              </div>
+            </Link>
+          </div>
+          <NotificationCenter />
         </div>
         <main className="flex-1 relative overflow-y-auto bg-gray-50">
           <div className="py-6 px-2 sm:px-6 md:px-8">

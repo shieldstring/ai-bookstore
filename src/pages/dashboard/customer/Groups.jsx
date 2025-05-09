@@ -11,8 +11,11 @@ const Groups = () => {
       behavior: "smooth",
     });
   }, []);
+
   const [modal, setModal] = useState(false);
-  const groups = [
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  const allGroups = [
     {
       id: 1,
       name: "Book Lovers Club",
@@ -34,7 +37,33 @@ const Groups = () => {
       discussions: 8,
       joined: true,
     },
+    {
+      id: 4,
+      name: "Fantasy Bookworms",
+      members: 78,
+      discussions: 12,
+      joined: false,
+    },
+    {
+      id: 5,
+      name: "Non-Fiction Network",
+      members: 65,
+      discussions: 9,
+      joined: true,
+    },
+    {
+      id: 6,
+      name: "Mystery & Thriller Fans",
+      members: 92,
+      discussions: 18,
+      joined: false,
+    },
   ];
+
+  // Filter groups based on search term
+  const filteredGroups = allGroups.filter(group =>
+    group.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <>
@@ -54,6 +83,8 @@ const Groups = () => {
                 type="text"
                 placeholder="Search groups..."
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-44 md:w-64"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <button
@@ -66,42 +97,48 @@ const Groups = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {groups.map((group) => (
-            <div
-              key={group.id}
-              className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-center mb-4">
-                <div className="bg-purple-100 p-3 rounded-full mr-4">
-                  <Users className="h-6 w-6 text-purple-600" />
-                </div>
-                <h3 className="text-lg font-medium text-gray-900">
-                  {group.name}
-                </h3>
-              </div>
-              <div className="flex justify-between text-sm text-gray-500 mb-4">
-                <div className="flex items-center space-x-1">
-                  <Users className="h-4 w-4" />
-                  <span>{group.members} members</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <MessageCircle className="h-4 w-4" />
-                  <span>{group.discussions} discussions</span>
-                </div>
-              </div>
-              <button
-                className={`w-full py-2 px-4 rounded-md ${
-                  group.joined
-                    ? "bg-gray-100 text-gray-800 hover:bg-gray-200"
-                    : "bg-purple-600 text-white hover:bg-purple-700"
-                } transition-colors`}
+        {filteredGroups.length === 0 ? (
+          <div className="text-center py-10">
+            <p className="text-gray-500">No groups found matching your search</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredGroups.map((group) => (
+              <div
+                key={group.id}
+                className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
               >
-                {group.joined ? "Leave Group" : "Join Group"}
-              </button>
-            </div>
-          ))}
-        </div>
+                <div className="flex items-center mb-4">
+                  <div className="bg-purple-100 p-3 rounded-full mr-4">
+                    <Users className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900">
+                    {group.name}
+                  </h3>
+                </div>
+                <div className="flex justify-between text-sm text-gray-500 mb-4">
+                  <div className="flex items-center space-x-1">
+                    <Users className="h-4 w-4" />
+                    <span>{group.members} members</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <MessageCircle className="h-4 w-4" />
+                    <span>{group.discussions} discussions</span>
+                  </div>
+                </div>
+                <button
+                  className={`w-full py-2 px-4 rounded-md ${
+                    group.joined
+                      ? "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                      : "bg-purple-600 text-white hover:bg-purple-700"
+                  } transition-colors`}
+                >
+                  {group.joined ? "Leave Group" : "Join Group"}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {modal && (

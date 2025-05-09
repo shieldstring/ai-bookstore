@@ -1,39 +1,58 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
-import { Users, Bookmark, MessageCircle } from "lucide-react";
+import { Users, MessageSquare } from "lucide-react";
 
 const GroupCard = ({ group }) => {
   return (
-    <Link
-      to={`${group.id}`}
-      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transform transition-all duration-300 hover:scale-105"
+    <Link 
+      to={`/dashboard/groups/${group.id}`} 
+      className="block border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-200"
     >
-      <div className="h-40 bg-gray-100 relative">
-        {group.image && (
+      <div className="h-36 bg-gray-100 relative">
+        {group.coverImage ? (
           <img
-            src={group.image}
+            src={group.coverImage}
             alt={group.name}
-            className="h-full w-full object-cover"
+            className="w-full h-full object-cover"
           />
-        )}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-          <h3 className="text-white font-semibold text-lg">{group.name}</h3>
-        </div>
-      </div>
-
-      <div className="p-4">
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-          {group.description}
-        </p>
-
-        <div className="flex justify-between text-sm text-gray-500 mb-4">
-          <div className="flex items-center space-x-1">
-            <Users className="h-4 w-4" />
-            <span>{group.members} members</span>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-blue-50">
+            <Users className="h-12 w-12 text-blue-300" />
           </div>
-          <div className="flex items-center space-x-1">
-            <MessageCircle className="h-4 w-4" />
-            <span>{group.discussions} discussions</span>
+        )}
+      </div>
+      
+      <div className="p-4">
+        <div className="flex items-center mb-2">
+          <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden mr-3 flex-shrink-0">
+            {group.avatar ? (
+              <img
+                src={group.avatar}
+                alt={group.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white">
+                {group.name.charAt(0)}
+              </div>
+            )}
+          </div>
+          <h3 className="font-semibold text-gray-800 truncate">{group.name}</h3>
+        </div>
+        
+        {group.description && (
+          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{group.description}</p>
+        )}
+        
+        <div className="flex items-center justify-between text-sm text-gray-500">
+          <div className="flex items-center">
+            <Users className="h-4 w-4 mr-1" />
+            <span>{group.members} member{group.members !== 1 ? 's' : ''}</span>
+          </div>
+          <div className="flex items-center">
+            <MessageSquare className="h-4 w-4 mr-1" />
+            <span>{group.discussions} discussion{group.discussions !== 1 ? 's' : ''}</span>
           </div>
         </div>
       </div>
