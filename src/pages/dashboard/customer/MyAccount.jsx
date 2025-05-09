@@ -2,6 +2,7 @@ import { User, Mail, Lock, CreditCard, MapPin } from "lucide-react";
 import { useSelector } from "react-redux";
 import SEO from "../../../components/SEO";
 import { useEffect } from "react";
+import NotificationSettings from "../../../components/dashboard/NotificationSettings";
 
 const MyAccount = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -12,14 +13,14 @@ const MyAccount = () => {
     });
   }, []);
   return (
-    <div className="space-y-6">
+    <div >
       <SEO
         title="Settings"
         description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
         name="AI-Powered Social-Ecommerce"
         type="description"
       />
-      <div className="bg-white rounded-xl shadow-sm p-6">
+      <div className="bg-white rounded-xl shadow-sm p-6 space-y-6">
         <h2 className="text-xl font-bold text-gray-800 mb-6">
           Account Settings
         </h2>
@@ -83,6 +84,8 @@ const MyAccount = () => {
             {/* Address list */}
           </div>
         </div>
+
+        <NotificationSettings />
       </div>
     </div>
   );
