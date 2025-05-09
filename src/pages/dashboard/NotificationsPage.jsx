@@ -3,248 +3,165 @@ import {
   Bell,
   Check,
   Trash2,
-  Filter,
-  Settings,
   ChevronDown,
-  Calendar,
-  AlertCircle,
-  Mail,
-  User,
-  FileText,
   Search,
   CheckCircle,
   ArrowLeft,
+  Users,
+  MessageSquare,
+  Heart,
+  AtSign,
+  AlertCircle,
+  Settings,
 } from "lucide-react";
-import { notificationManager } from "../../utils/notificationUtils";
-
-// Mock data function - simulates API fetch
-const fetchAllNotifications = async () => {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
-  // Sample notification data
-  return [
-    {
-      id: "1",
-      title: "New message from Sarah",
-      body: "Hey, just wanted to check in about the project status...",
-      timestamp: new Date(
-        new Date().setHours(new Date().getHours() - 2)
-      ).toISOString(),
-      read: false,
-      category: "Messages",
-      type: "message",
-    },
-    {
-      id: "2",
-      title: "Meeting reminder",
-      body: "Your team standup meeting starts in 15 minutes",
-      timestamp: new Date(
-        new Date().setHours(new Date().getHours() - 5)
-      ).toISOString(),
-      read: true,
-      category: "Calendar",
-      type: "calendar",
-    },
-    {
-      id: "3",
-      title: "System maintenance",
-      body: "The system will undergo scheduled maintenance tonight from 2-4 AM",
-      timestamp: new Date(
-        new Date().setDate(new Date().getDate() - 1)
-      ).toISOString(),
-      read: false,
-      category: "System",
-      type: "system",
-    },
-    {
-      id: "4",
-      title: "Document shared with you",
-      body: 'Alex has shared "Q3 Marketing Strategy" with you',
-      timestamp: new Date(
-        new Date().setDate(new Date().getDate() - 2)
-      ).toISOString(),
-      read: false,
-      category: "Documents",
-      type: "document",
-    },
-    {
-      id: "5",
-      title: "New team member",
-      body: "Welcome David to the Engineering team!",
-      timestamp: new Date(
-        new Date().setDate(new Date().getDate() - 3)
-      ).toISOString(),
-      read: true,
-      category: "Team",
-      type: "user",
-    },
-    {
-      id: "6",
-      title: "Your report is ready",
-      body: "Monthly analytics report has been generated",
-      timestamp: new Date(
-        new Date().setDate(new Date().getDate() - 5)
-      ).toISOString(),
-      read: true,
-      category: "Reports",
-      type: "document",
-    },
-    {
-      id: "7",
-      title: "Password changed",
-      body: "Your account password was recently changed",
-      timestamp: new Date(
-        new Date().setDate(new Date().getDate() - 7)
-      ).toISOString(),
-      read: false,
-      category: "Security",
-      type: "system",
-    },
-    {
-      id: "8",
-      title: "Payment processed",
-      body: "Your subscription payment was successfully processed",
-      timestamp: new Date(
-        new Date().setDate(new Date().getDate() - 10)
-      ).toISOString(),
-      read: true,
-      category: "Billing",
-      type: "system",
-    },
-    {
-      id: "9",
-      title: "Task assigned to you",
-      body: 'Jennifer assigned you to "Finalize client presentation"',
-      timestamp: new Date(
-        new Date().setDate(new Date().getDate() - 12)
-      ).toISOString(),
-      read: true,
-      category: "Tasks",
-      type: "document",
-    },
-    {
-      id: "10",
-      title: "Weekly summary",
-      body: "Check out your productivity metrics for last week",
-      timestamp: new Date(
-        new Date().setDate(new Date().getDate() - 14)
-      ).toISOString(),
-      read: false,
-      category: "Reports",
-      type: "document",
-    },
-  ];
-};
+import {
+  useGetNotificationsQuery,
+  useMarkNotificationsAsReadMutation,
+  useDeleteNotificationMutation,
+  useMarkAllNotificationsAsReadMutation,
+  useDeleteAllNotificationsMutation,
+} from "../../redux/slices/notificationSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setSelectedNotifications,
+  toggleBulkSelect,
+  setActiveFilter,
+  setTimeRange,
+  setSearchTerm,
+  resetNotificationFilters,
+} from "../../redux/slices/notificationSlice";
+import SEO from "../../components/SEO";
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [timeRange, setTimeRange] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedNotifications, setSelectedNotifications] = useState([]);
-  const [bulkSelectActive, setBulkSelectActive] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const dispatch = useDispatch();
+  const {
+    selectedNotifications,
+    bulkSelectActive,
+    activeFilter,
+    timeRange,
+    searchTerm,
+  } = useSelector((state) => state.notification);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        // In a real app, you would fetch from an API
-        const data = await fetchAllNotifications();
-        setNotifications(data);
+  const { data: notifications = [], isLoading } = useGetNotificationsQuery();
+  const [markAsRead] = useMarkNotificationsAsReadMutation();
+  const [markAllAsRead] = useMarkAllNotificationsAsReadMutation();
+  const [deleteNotification] = useDeleteNotificationMutation();
+  const [deleteAllNotifications] = useDeleteAllNotificationsMutation();
 
-        // Extract unique categories
-        const uniqueCategories = [...new Set(data.map((n) => n.category))];
-        setCategories(uniqueCategories);
-      } catch (error) {
-        console.error("Failed to load notifications:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Extract unique notification types
+  const categories = [...new Set(notifications.map((n) => n.type))];
 
-    fetchData();
-
-    // Listen for new notifications
-    const unsubscribe = notificationManager.addListener((notification) => {
-      setNotifications((prev) => [notification, ...prev]);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  const handleMarkAsRead = (id) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+  const handleMarkAsRead = async (id) => {
+    try {
+      await markAsRead([id]);
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
   };
 
-  const handleDelete = (id) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-    setSelectedNotifications((prev) => prev.filter((itemId) => itemId !== id));
+  const handleDelete = async (id) => {
+    try {
+      await deleteNotification(id);
+      dispatch(
+        setSelectedNotifications(
+          selectedNotifications.filter((itemId) => itemId !== id)
+        )
+      );
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+    }
   };
 
   const handleSelectNotification = (id) => {
     if (bulkSelectActive) {
-      setSelectedNotifications((prev) =>
-        prev.includes(id)
-          ? prev.filter((itemId) => itemId !== id)
-          : [...prev, id]
-      );
+      const newSelected = selectedNotifications.includes(id)
+        ? selectedNotifications.filter((itemId) => itemId !== id)
+        : [...selectedNotifications, id];
+      dispatch(setSelectedNotifications(newSelected));
     }
   };
 
-  const handleMarkAllAsRead = () => {
-    if (selectedNotifications.length > 0) {
-      setNotifications((prev) =>
-        prev.map((n) =>
-          selectedNotifications.includes(n.id) ? { ...n, read: true } : n
-        )
-      );
-    } else {
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    }
-    setSelectedNotifications([]);
-  };
-
-  const handleDeleteSelected = () => {
-    setNotifications((prev) =>
-      prev.filter((n) => !selectedNotifications.includes(n.id))
-    );
-    setSelectedNotifications([]);
-  };
-
-  const toggleBulkSelect = () => {
-    setBulkSelectActive(!bulkSelectActive);
-    if (bulkSelectActive) {
-      setSelectedNotifications([]);
+  const handleMarkAllAsRead = async () => {
+    try {
+      if (selectedNotifications.length > 0) {
+        await markAsRead(selectedNotifications);
+      } else {
+        await markAllAsRead();
+      }
+      dispatch(setSelectedNotifications([]));
+    } catch (error) {
+      console.error("Error marking notifications as read:", error);
     }
   };
+
+  const handleDeleteSelected = async () => {
+    try {
+      if (selectedNotifications.length > 0) {
+        await deleteAllNotifications(selectedNotifications);
+      }
+      dispatch(setSelectedNotifications([]));
+    } catch (error) {
+      console.error("Error deleting notifications:", error);
+    }
+  };
+
+  //   const toggleBulkSelect = () => {
+  //     setBulkSelectActive(!bulkSelectActive);
+  //     if (bulkSelectActive) {
+  //       setSelectedNotifications([]);
+  //     }
+  //   };
 
   const selectAll = () => {
     if (selectedNotifications.length === filteredNotifications.length) {
       setSelectedNotifications([]);
     } else {
-      setSelectedNotifications(filteredNotifications.map((n) => n.id));
+      setSelectedNotifications(filteredNotifications.map((n) => n._id));
     }
   };
 
   const getNotificationIcon = (type) => {
     switch (type) {
-      case "message":
-        return <Mail size={16} className="text-blue-500" />;
+      case "groupInvite":
+        return <Users size={16} className="text-blue-500" />;
+      case "newDiscussion":
+      case "discussionComment":
+        return <MessageSquare size={16} className="text-green-500" />;
+      case "commentMention":
+        return <AtSign size={16} className="text-purple-500" />;
+      case "discussionLike":
+        return <Heart size={16} className="text-red-500" />;
+      case "groupActivity":
+        return <Users size={16} className="text-orange-500" />;
       case "system":
-        return <AlertCircle size={16} className="text-purple-500" />;
-      case "calendar":
-        return <Calendar size={16} className="text-green-500" />;
-      case "user":
-        return <User size={16} className="text-orange-500" />;
-      case "document":
-        return <FileText size={16} className="text-indigo-500" />;
+        return <AlertCircle size={16} className="text-yellow-500" />;
       default:
         return <Bell size={16} className="text-gray-500" />;
+    }
+  };
+
+  const getNotificationTitle = (notification) => {
+    switch (notification.type) {
+      case "groupInvite":
+        return `${notification.sender?.name || "Someone"} invited you to join ${
+          notification.group?.name || "a group"
+        }`;
+      case "newDiscussion":
+        return `New discussion in ${notification.group?.name || "a group"}`;
+      case "commentMention":
+        return `${notification.sender?.name || "Someone"} mentioned you`;
+      case "discussionLike":
+        return `${notification.sender?.name || "Someone"} liked your post`;
+      case "discussionComment":
+        return `${
+          notification.sender?.name || "Someone"
+        } commented on your post`;
+      case "groupActivity":
+        return `New activity in ${notification.group?.name || "a group"}`;
+      case "system":
+        return "System notification";
+      default:
+        return notification.message;
     }
   };
 
@@ -281,17 +198,17 @@ export default function NotificationsPage() {
     if (activeFilter === "unread" && notification.read) return false;
     if (activeFilter === "read" && !notification.read) return false;
 
-    // Filter by category
+    // Filter by type
     if (
       activeFilter !== "all" &&
       activeFilter !== "read" &&
       activeFilter !== "unread" &&
-      notification.category !== activeFilter
+      notification.type !== activeFilter
     )
       return false;
 
     // Filter by time range
-    const notificationTime = new Date(notification.timestamp);
+    const notificationTime = new Date(notification.createdAt);
     const now = new Date();
     if (timeRange === "today") {
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -310,8 +227,11 @@ export default function NotificationsPage() {
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       return (
-        notification.title.toLowerCase().includes(searchLower) ||
-        notification.body.toLowerCase().includes(searchLower)
+        notification.message.toLowerCase().includes(searchLower) ||
+        (notification.sender?.name &&
+          notification.sender.name.toLowerCase().includes(searchLower)) ||
+        (notification.group?.name &&
+          notification.group.name.toLowerCase().includes(searchLower))
       );
     }
 
@@ -321,7 +241,7 @@ export default function NotificationsPage() {
   // Group notifications by date
   const groupedNotifications = filteredNotifications.reduce(
     (groups, notification) => {
-      const date = new Date(notification.timestamp);
+      const date = new Date(notification.createdAt);
       const dateString = date.toDateString();
 
       if (!groups[dateString]) {
@@ -361,6 +281,12 @@ export default function NotificationsPage() {
 
   return (
     <div className="bg-gray-50 min-h-screen">
+      <SEO
+        title="Notifications"
+        description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
+        name="AI-Powered Social-Ecommerce"
+        type="description"
+      />
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
@@ -458,17 +384,17 @@ export default function NotificationsPage() {
                       Read notifications
                     </button>
                     <div className="border-t border-gray-100 my-1"></div>
-                    {categories.map((category) => (
+                    {categories.map((type) => (
                       <button
-                        key={category}
+                        key={type}
                         className={`block px-4 py-2 text-sm w-full text-left ${
-                          activeFilter === category
+                          activeFilter === type
                             ? "bg-gray-100 text-gray-900"
                             : "text-gray-700"
                         } hover:bg-gray-100`}
-                        onClick={() => setActiveFilter(category)}
+                        onClick={() => setActiveFilter(type)}
                       >
-                        {category} notifications
+                        {type} notifications
                       </button>
                     ))}
                   </div>
@@ -597,13 +523,13 @@ export default function NotificationsPage() {
                 notifications.filter((n) => {
                   const weekAgo = new Date();
                   weekAgo.setDate(weekAgo.getDate() - 7);
-                  return new Date(n.timestamp) >= weekAgo;
+                  return new Date(n.createdAt) >= weekAgo;
                 }).length
               }
             </div>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-            <div className="text-sm font-medium text-gray-500">Categories</div>
+            <div className="text-sm font-medium text-gray-500">Types</div>
             <div className="mt-1 text-2xl font-semibold">
               {categories.length}
             </div>
@@ -612,7 +538,7 @@ export default function NotificationsPage() {
 
         {/* Notification List */}
         <div className="space-y-8">
-          {loading ? (
+          {isLoading ? (
             <div className="flex justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
             </div>
@@ -642,9 +568,9 @@ export default function NotificationsPage() {
                   {groupedNotifications[dateString].map(
                     (notification, index) => (
                       <div
-                        key={notification.id}
+                        key={notification._id}
                         onClick={() =>
-                          handleSelectNotification(notification.id)
+                          handleSelectNotification(notification._id)
                         }
                         className={`
                         flex px-4 py-3 border-b last:border-b-0 border-gray-100
@@ -654,7 +580,7 @@ export default function NotificationsPage() {
                             : ""
                         }
                         ${
-                          selectedNotifications.includes(notification.id)
+                          selectedNotifications.includes(notification._id)
                             ? "bg-blue-50"
                             : ""
                         }
@@ -667,14 +593,14 @@ export default function NotificationsPage() {
                               className={`
                             w-5 h-5 rounded border flex items-center justify-center
                             ${
-                              selectedNotifications.includes(notification.id)
+                              selectedNotifications.includes(notification._id)
                                 ? "bg-blue-500 border-blue-500"
                                 : "border-gray-300"
                             }
                           `}
                             >
                               {selectedNotifications.includes(
-                                notification.id
+                                notification._id
                               ) && <Check size={12} className="text-white" />}
                             </div>
                           </div>
@@ -695,27 +621,27 @@ export default function NotificationsPage() {
                                   : "text-gray-600"
                               }`}
                             >
-                              {notification.title}
+                              {getNotificationTitle(notification)}
                             </p>
                             <div className="ml-2 flex-shrink-0 flex">
                               <p className="text-xs text-gray-400">
-                                {formatDate(notification.timestamp)}
+                                {formatDate(notification.createdAt)}
                               </p>
                             </div>
                           </div>
                           <p className="text-sm text-gray-500 mt-1 truncate">
-                            {notification.body}
+                            {notification.message}
                           </p>
                           <div className="mt-2 flex items-center">
                             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                              {notification.category}
+                              {notification.type}
                             </span>
                             <div className="ml-auto flex space-x-2">
                               {!notification.read && (
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleMarkAsRead(notification.id);
+                                    handleMarkAsRead(notification._id);
                                   }}
                                   className="text-xs text-blue-600 hover:text-blue-800 flex items-center"
                                 >
@@ -726,7 +652,7 @@ export default function NotificationsPage() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleDelete(notification.id);
+                                  handleDelete(notification._id);
                                 }}
                                 className="text-xs text-gray-500 hover:text-gray-700 flex items-center"
                               >
@@ -746,7 +672,7 @@ export default function NotificationsPage() {
         </div>
 
         {/* Empty state footer */}
-        {!loading &&
+        {!isLoading &&
           notifications.length > 0 &&
           filteredNotifications.length === 0 && (
             <div className="mt-6 flex justify-center">

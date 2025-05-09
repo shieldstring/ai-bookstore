@@ -18,17 +18,19 @@ import {
   LogOut,
   User2Icon,
   MessageCircle,
+  Bell,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slices/authSlice";
 import { handleLogout } from "../../redux/slices/cartThunks";
 import NotificationCenter from "../notification/NotificationCenter";
+import { useGetUnreadCountQuery } from "../../redux/slices/notificationSlice";
 
 const DashboardLayout = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  const { data: unreadCount = 0 } = useGetUnreadCountQuery();
   const isAdmin = userInfo?.role === "admin";
 
   const userNavigation = [
@@ -72,6 +74,17 @@ const DashboardLayout = () => {
       path: "/dashboard/recommendations",
       icon: <Star className="h-5 w-5" />,
     },
+    {
+      name: "Notifications",
+      path: "/dashboard/notifications",
+      icon: <Bell className="h-5 w-5" />,
+      count:
+        unreadCount > 0 ? (
+          <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+            {unreadCount > 9 ? "9+" : unreadCount}
+          </span>
+        ) : null,
+    },
   ];
 
   const adminNavigation = [
@@ -105,6 +118,17 @@ const DashboardLayout = () => {
       path: "/admin/settings",
       icon: <Settings className="h-5 w-5" />,
     },
+    {
+      name: "Notifications",
+      path: "/admin/notifications",
+      icon: <Bell className="h-5 w-5" />,
+      count:
+        unreadCount > 0 ? (
+          <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+            {unreadCount > 9 ? "9+" : unreadCount}
+          </span>
+        ) : null,
+    },
   ];
 
   const navItems = isAdmin ? adminNavigation : userNavigation;
@@ -128,6 +152,7 @@ const DashboardLayout = () => {
         {item.icon}
       </span>
       {item.name}
+      {item.count}
     </Link>
   );
 
@@ -207,7 +232,6 @@ const DashboardLayout = () => {
                   Store
                 </div>
               </Link>
-              <NotificationCenter />
             </div>
             <nav className="flex-1 px-2 space-y-1">
               {navItems.map((item) => (

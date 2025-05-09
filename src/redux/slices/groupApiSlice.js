@@ -1,6 +1,4 @@
 import { apiTwo } from "./apiSlice";
-import { createSlice } from "@reduxjs/toolkit";
-
 
 export const groupApiSlice = apiTwo.injectEndpoints({
   endpoints: (builder) => ({
@@ -85,18 +83,6 @@ export const groupApiSlice = apiTwo.injectEndpoints({
       }),
       invalidatesTags: ['Post'],
     }),
-    // Notification endpoints
-    getNotifications: builder.query({
-      query: () => `/notifications`,
-      providesTags: ['Notification'],
-    }),
-    markNotificationsRead: builder.mutation({
-      query: () => ({
-        url: `/notifications/mark-read`,
-        method: 'POST',
-      }),
-      invalidatesTags: ['Notification'],
-    }),
   }),
 });
 
@@ -113,6 +99,4 @@ export const {
   useAddDiscussionMutation,
   useDeleteDiscussionMutation,
   useCreateGroupPostMutation,
-  useGetNotificationsQuery,
-  useMarkNotificationsReadMutation,
 } = groupApiSlice;

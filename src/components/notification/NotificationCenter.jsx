@@ -1,63 +1,62 @@
 import { useState, useEffect } from "react";
-import { Bell, Check, Settings, X, Trash2, Calendar, AlertCircle, Mail, User, FileText } from "lucide-react";
-import { notificationManager } from "../../utils/notificationUtils";
+import {
+  Bell,
+  Check,
+  Settings,
+  X,
+  Trash2,
+  Users,
+  MessageSquare,
+  Heart,
+  AtSign,
+  AlertCircle,
+} from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  useGetNotificationsQuery,
+  useMarkNotificationsAsReadMutation,
+  useDeleteNotificationMutation,
+  useMarkAllNotificationsAsReadMutation,
+  useGetUnreadCountQuery,
+} from "../../redux/slices/notificationSlice";
 
 const NotificationCenter = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    const unsubscribe = notificationManager.addListener((notification) => {
-      setNotifications((prev) => [notification, ...prev]);
-      setUnreadCount((prev) => prev + 1);
-    });
+  // Redux state and API hooks
+  const { data: notifications = [], isLoading } = useGetNotificationsQuery();
+  const { data: unreadCount = 0 } = useGetUnreadCountQuery();
+  const [markAsRead] = useMarkNotificationsAsReadMutation();
+  const [markAllAsRead] = useMarkAllNotificationsAsReadMutation();
+  const [deleteNotification] = useDeleteNotificationMutation();
 
-    // Initial load
-    const loadNotifications = async () => {
-      setLoading(true);
-      try {
-        // Simulate API call
-        const mockNotifications = await fetchNotifications();
-        setNotifications(mockNotifications);
-        setUnreadCount(mockNotifications.filter((n) => !n.read).length);
-      } catch (error) {
-        console.error("Failed to load notifications:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadNotifications();
-
-    return unsubscribe;
-  }, []);
-
-  const markAsRead = (id, event) => {
-    event.stopPropagation();
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
-    setUnreadCount((prev) => Math.max(0, prev - 1));
-  };
-
-  const deleteNotification = (id, event) => {
-    event.stopPropagation();
-    const notification = notifications.find((n) => n.id === id);
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-    if (notification && !notification.read) {
-      setUnreadCount((prev) => Math.max(0, prev - 1));
+  const handleMarkAsRead = async (id, event) => {
+    event?.stopPropagation();
+    try {
+      await markAsRead([id]);
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
     }
   };
 
-  const markAllAsRead = () => {
-    setNotifications((prev) =>
-      prev.map((n) => ({ ...n, read: true }))
-    );
-    setUnreadCount(0);
+  const handleDelete = async (id, event) => {
+    event?.stopPropagation();
+    try {
+      await deleteNotification(id);
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllAsRead();
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+    }
   };
 
   const viewAllNotifications = () => {
@@ -67,16 +66,19 @@ const NotificationCenter = () => {
 
   const getNotificationIcon = (type) => {
     switch (type) {
-      case "message":
-        return <Mail className="w-4 h-4 text-blue-500" />;
+      case "groupInvite":
+        return <Users className="w-4 h-4 text-blue-500" />;
+      case "newDiscussion":
+      case "discussionComment":
+        return <MessageSquare className="w-4 h-4 text-green-500" />;
+      case "commentMention":
+        return <AtSign className="w-4 h-4 text-purple-500" />;
+      case "discussionLike":
+        return <Heart className="w-4 h-4 text-red-500" />;
+      case "groupActivity":
+        return <Users className="w-4 h-4 text-orange-500" />;
       case "system":
-        return <AlertCircle className="w-4 h-4 text-purple-500" />;
-      case "calendar":
-        return <Calendar className="w-4 h-4 text-green-500" />;
-      case "user":
-        return <User className="w-4 h-4 text-orange-500" />;
-      case "document":
-        return <FileText className="w-4 h-4 text-indigo-500" />;
+        return <AlertCircle className="w-4 h-4 text-yellow-500" />;
       default:
         return <Bell className="w-4 h-4 text-gray-500" />;
     }
@@ -85,31 +87,64 @@ const NotificationCenter = () => {
   const handleNotificationClick = (notification) => {
     // If notification isn't read, mark it as read
     if (!notification.read) {
-      markAsRead(notification.id, { stopPropagation: () => {} });
+      handleMarkAsRead(notification._id, { stopPropagation: () => {} });
     }
-    
+
     // Navigate to relevant page based on notification type
-    if (notification.link) {
-      navigate(notification.link);
-      setIsOpen(false);
+    if (notification.type === "groupInvite" && notification.group?._id) {
+      navigate(`/groups/${notification.group._id}`);
+    } else if (
+      notification.type === "discussionComment" &&
+      notification.discussion?._id
+    ) {
+      navigate(`/discussions/${notification.discussion._id}`);
     }
+    // Add more navigation cases as needed
+
+    setIsOpen(false);
   };
 
   const formatTimestamp = (timestamp) => {
     const date = new Date(timestamp);
     const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);
-    
+
     if (diffInSeconds < 60) {
       return "Just now";
     } else if (diffInSeconds < 3600) {
       return `${Math.floor(diffInSeconds / 60)}m ago`;
     } else if (diffInSeconds < 86400) {
       return `${Math.floor(diffInSeconds / 3600)}h ago`;
-    } else if (diffInSeconds < 604800) { // 7 days
+    } else if (diffInSeconds < 604800) {
+      // 7 days
       return `${Math.floor(diffInSeconds / 86400)}d ago`;
     } else {
       return date.toLocaleDateString();
+    }
+  };
+
+  const getNotificationTitle = (notification) => {
+    switch (notification.type) {
+      case "groupInvite":
+        return `${notification.sender?.name || "Someone"} invited you to join ${
+          notification.group?.name || "a group"
+        }`;
+      case "newDiscussion":
+        return `New discussion in ${notification.group?.name || "a group"}`;
+      case "commentMention":
+        return `${notification.sender?.name || "Someone"} mentioned you`;
+      case "discussionLike":
+        return `${notification.sender?.name || "Someone"} liked your post`;
+      case "discussionComment":
+        return `${
+          notification.sender?.name || "Someone"
+        } commented on your post`;
+      case "groupActivity":
+        return `New activity in ${notification.group?.name || "a group"}`;
+      case "system":
+        return "System notification";
+      default:
+        return notification.message;
     }
   };
 
@@ -129,18 +164,18 @@ const NotificationCenter = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+        <div className="absolute right-0 lg:right-auto lg:left-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-[9999]">
           <div className="p-3 border-b border-gray-200 flex justify-between items-center bg-gray-50 rounded-t-lg">
             <h3 className="font-medium text-gray-800">Notifications</h3>
             <div className="flex space-x-2">
-              <button 
-                onClick={markAllAsRead}
+              <button
+                onClick={handleMarkAllAsRead}
                 className="text-xs text-blue-600 hover:text-blue-800 px-2 py-1"
                 disabled={unreadCount === 0}
               >
                 Mark all read
               </button>
-              <button 
+              <button
                 className="text-gray-500 hover:text-gray-700"
                 title="Settings"
               >
@@ -157,7 +192,7 @@ const NotificationCenter = () => {
           </div>
 
           <div className="max-h-96 overflow-y-auto">
-            {loading ? (
+            {isLoading ? (
               <div className="p-4 text-center text-gray-500">
                 <div className="animate-spin inline-block w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full mb-2"></div>
                 <p>Loading notifications...</p>
@@ -171,7 +206,7 @@ const NotificationCenter = () => {
               <ul className="divide-y divide-gray-200">
                 {notifications.slice(0, 5).map((notification) => (
                   <li
-                    key={notification.id}
+                    key={notification._id}
                     onClick={() => handleNotificationClick(notification)}
                     className={`p-3 hover:bg-gray-50 cursor-pointer transition-colors ${
                       !notification.read ? "bg-blue-50" : ""
@@ -184,25 +219,27 @@ const NotificationCenter = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between">
                           <p className="text-sm font-medium text-gray-900 truncate">
-                            {notification.title}
+                            {getNotificationTitle(notification)}
                           </p>
                           <span className="text-xs text-gray-400 ml-2 whitespace-nowrap">
-                            {formatTimestamp(notification.timestamp)}
+                            {formatTimestamp(notification.createdAt)}
                           </span>
                         </div>
                         <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                          {notification.body}
+                          {notification.message}
                         </p>
-                        {notification.category && (
+                        {notification.type && (
                           <span className="inline-block text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full mt-1">
-                            {notification.category}
+                            {notification.type}
                           </span>
                         )}
                       </div>
                       <div className="flex flex-col ml-2 space-y-1">
                         {!notification.read && (
                           <button
-                            onClick={(e) => markAsRead(notification.id, e)}
+                            onClick={(e) =>
+                              handleMarkAsRead(notification._id, e)
+                            }
                             className="p-1 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-full"
                             title="Mark as read"
                           >
@@ -210,7 +247,7 @@ const NotificationCenter = () => {
                           </button>
                         )}
                         <button
-                          onClick={(e) => deleteNotification(notification.id, e)}
+                          onClick={(e) => handleDelete(notification._id, e)}
                           className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full"
                           title="Delete"
                         >
@@ -225,7 +262,7 @@ const NotificationCenter = () => {
           </div>
 
           <div className="p-3 border-t border-gray-200 text-center bg-gray-50 rounded-b-lg">
-            <button 
+            <button
               onClick={viewAllNotifications}
               className="w-full py-2 px-4 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-md text-sm font-medium transition-colors"
             >
@@ -237,61 +274,5 @@ const NotificationCenter = () => {
     </div>
   );
 };
-
-async function fetchNotifications() {
-  // Replace with actual API call
-  return [
-    {
-      id: "1",
-      title: "New Message",
-      body: "You have a new message from John about the project proposal.",
-      timestamp: new Date().toISOString(),
-      read: false,
-      type: "message",
-      category: "Messages",
-      link: "/dashboard/messages/1"
-    },
-    {
-      id: "2",
-      title: "System Update",
-      body: "New features available in v2.0. Check out the improved dashboard and notification system.",
-      timestamp: new Date(Date.now() - 3600000).toISOString(),
-      read: true,
-      type: "system",
-      category: "Updates",
-      link: "/dashboard/updates"
-    },
-    {
-      id: "3",
-      title: "Meeting Reminder",
-      body: "Team standup meeting in 30 minutes. Don't forget to prepare your weekly report.",
-      timestamp: new Date(Date.now() - 7200000).toISOString(),
-      read: false,
-      type: "calendar",
-      category: "Calendar",
-      link: "/dashboard/calendar"
-    },
-    {
-      id: "4",
-      title: "New Document Shared",
-      body: "Sarah shared 'Q2 Marketing Plan' with you. Review required by Friday.",
-      timestamp: new Date(Date.now() - 86400000).toISOString(),
-      read: false,
-      type: "document",
-      category: "Documents",
-      link: "/dashboard/documents/42"
-    },
-    {
-      id: "5",
-      title: "Profile Update Required",
-      body: "Please update your profile information to comply with new security policies.",
-      timestamp: new Date(Date.now() - 172800000).toISOString(),
-      read: true,
-      type: "user",
-      category: "Account",
-      link: "/dashboard/profile"
-    }
-  ];
-}
 
 export default NotificationCenter;
