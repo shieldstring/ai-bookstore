@@ -11,11 +11,67 @@ import ErrorMessage from "../components/common/ErrorMessage";
 import Newsletter from "../components/common/Newsletter";
 import { clearLocalCart } from "../redux/slices/cartSlice";
 import SEO from "../components/SEO";
+import LoadingSkeleton from "../components/preloader/LoadingSkeleton";
+import { initializeCart } from "../redux/slices/cartThunks";
 
 const CheckoutPage = () => {
-  const { cart } = useSelector((state) => state.cart);
-  const { userInfo } = useSelector((state) => state.auth);
+  const BASE_URL = process.env.REACT_APP_API_URL;
   const dispatch = useDispatch();
+  const { items: cartData, error: cartError } = useSelector(
+    (state) => state.cart
+  );
+  const [enrichedCart, setEnrichedCart] = useState([]);
+  const [localError, setLocalError] = useState(null);
+  // Initialize cart on mount
+  useEffect(() => {
+    const init = async () => {
+      try {
+        await dispatch(initializeCart()).unwrap();
+      } catch (error) {
+        setLocalError(error.message || "Failed to load cart");
+      }
+    };
+    init();
+  }, [dispatch]);
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  // New effect to fetch book details
+  useEffect(() => {
+    const fetchBookDetails = async () => {
+      if (!cartData || cartData.length === 0) return;
+
+      try {
+        // Fetch book details for each cart item
+        setIsLoading(true);
+        const enriched = await Promise.all(
+          cartData.map(async (item) => {
+            const response = await fetch(`${BASE_URL}books/${item.bookId}`);
+            if (!response.ok) throw new Error("Failed to fetch book details");
+
+            const bookDetails = await response.json();
+            return {
+              ...item,
+              name: bookDetails.title || "Unknown Book",
+              image: bookDetails.image || "/default-book-cover.jpg",
+              price: bookDetails.price || 0,
+              author: bookDetails.author || "Unknown ",
+              // Any other book details you need
+            };
+          })
+        );
+        setIsLoading(false);
+        setEnrichedCart(enriched);
+      } catch (err) {
+        setLocalError("Failed to fetch book details");
+      }
+    };
+
+    fetchBookDetails();
+  }, [cartData]);
+
+  const { userInfo } = useSelector((state) => state.auth);
+
   const [createPaymentIntent, { isLoading: loadingPaymentIntent }] =
     useCreatePaymentIntentMutation();
   const [createOrder, { isLoading: loadingOrder, error }] =
@@ -34,36 +90,45 @@ const CheckoutPage = () => {
   const [paymentError, setPaymentError] = useState("");
   const [paymentId, setPaymentId] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
+  const [orderId, setOrderId] = useState(null);
+
+  // Check if cart is empty and redirect if neede=
+  useEffect(() => {
+    if (!cartData || cartData.length === 0) {
+      navigate("/cart");
+    }
+  }, [cartData, navigate]);
 
   // Query payment status if we have a paymentId
   const { data: paymentStatusData, refetch: refetchPaymentStatus } =
     useVerifyPaymentStatusQuery(paymentId, { skip: !paymentId });
 
-  // Create payment intent when cart changes
+  // Create payment intent when cart changes or payment method changes
   useEffect(() => {
-    if (cart.items.length > 0 && paymentMethod === "stripe") {
+    if (cartData.length > 0 && paymentMethod === "stripe") {
       const createStripePaymentIntent = async () => {
         try {
-          const { clientSecret, paymentIntentId } = await createPaymentIntent({
-            amount: Math.round(cart.total * 100), // Convert to cents
+          const res = await createPaymentIntent({
+            amount: Math.round(total * 100), // Convert to cents
           }).unwrap();
-          setClientSecret(clientSecret);
-          setPaymentId(paymentIntentId);
+
+          setClientSecret(res.clientSecret);
+          setPaymentId(res.paymentIntentId);
         } catch (err) {
+          console.error("Payment intent error:", err);
           setPaymentError(err.data?.message || "Failed to initialize payment");
         }
       };
       createStripePaymentIntent();
     }
-  }, [cart, paymentMethod, createPaymentIntent]);
+  }, [cartData, paymentMethod, createPaymentIntent]);
 
   // Listen for payment status updates
   useEffect(() => {
     if (paymentStatusData) {
       setPaymentStatus(paymentStatusData.status);
 
-      // If payment is successful but we're still on checkout page,
-      // it means the webhook confirmed the payment but redirect didn't happen
+      // If payment succeeded and we have an orderId, navigate to order confirmation
       if (
         paymentStatusData.status === "succeeded" &&
         paymentStatusData.orderId
@@ -92,6 +157,26 @@ const CheckoutPage = () => {
     };
   }, [paymentId, paymentStatus, refetchPaymentStatus]);
 
+  // If we have an orderId but no paymentStatusData orderId, and we're still on checkout page,
+  // navigate to the order page after a delay
+  useEffect(() => {
+    let timeoutId;
+
+    if (
+      orderId &&
+      !paymentStatusData?.orderId &&
+      paymentStatus === "processing"
+    ) {
+      timeoutId = setTimeout(() => {
+        navigate(`/order/${orderId}`);
+      }, 5000);
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [orderId, paymentStatusData, paymentStatus, navigate]);
+
   const handleShippingChange = (e) => {
     setShippingInfo({
       ...shippingInfo,
@@ -104,32 +189,17 @@ const CheckoutPage = () => {
     setPaymentError("");
 
     try {
-      // For Stripe payment
+      // For Stripe payment - in a real implementation this would use Stripe Elements
       if (paymentMethod === "stripe") {
-        // In a real implementation with Stripe Elements:
-        // const { error } = await stripe.confirmPayment({
-        //   elements,
-        //   confirmParams: {
-        //     return_url: `${window.location.origin}/payment/callback`,
-        //   },
-        // });
-
-        // if (error) {
-        //   setPaymentError(error.message);
-        //   return;
-        // }
-
-        // Since we're not using real Stripe Elements, just simulate payment
-        console.log("Processing payment with ID:", paymentId);
+        console.log("Processing payment with Stripe ID:", paymentId);
       }
 
       // Create the order
       const orderData = {
-        orderItems: cart.items,
+        orderItems: cartData,
         shippingAddress: shippingInfo,
         paymentMethod,
-        itemsPrice: cart.subtotal,
-        totalPrice: cart.total,
+        totalPrice: total,
         paymentResult: {
           id: paymentId || "simulated_payment_id",
           status: "pending",
@@ -139,24 +209,20 @@ const CheckoutPage = () => {
       };
 
       const res = await createOrder(orderData).unwrap();
+      setOrderId(res._id);
 
       // Clear cart after successful order creation
       dispatch(clearLocalCart());
 
-      // For PayPal or other payment methods that don't use webhooks
+      // For PayPal, navigate immediately
       if (paymentMethod !== "stripe") {
         navigate(`/order/${res._id}`);
       } else {
-        // For Stripe, let's set up a loading state and wait for webhook
+        // For Stripe, set up processing state and wait for webhook or timeout
         setPaymentStatus("processing");
-        // If the webhook hasn't come back after 5 seconds, navigate anyway
-        // The payment status will be updated later via the webhook
-        setTimeout(() => {
-          navigate(`/order/${res._id}`);
-        }, 5000);
       }
     } catch (err) {
-      console.error(err);
+      console.error("Order creation error:", err);
       setPaymentError(err.data?.message || "Failed to place order");
     }
   };
@@ -167,6 +233,23 @@ const CheckoutPage = () => {
     shippingInfo.city &&
     shippingInfo.postalCode &&
     shippingInfo.country;
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <section className="max-w-6xl mx-auto text-white py-12 lg:py-16">
+        <div className="container mx-auto px-4">
+          <LoadingSkeleton type={"list"} count={3} />
+        </div>
+      </section>
+    );
+  }
+
+  // Calculate totals based on cart items
+  const total = enrichedCart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   return (
     <div className="">
@@ -188,7 +271,7 @@ const CheckoutPage = () => {
             </Link>
             <span className="mx-2 text-gray-500">/</span>
             <Link
-              to="cart"
+              to="/cart"
               className="hover:text-gray-600 font-semibold text-purple-700"
             >
               Cart
@@ -204,15 +287,15 @@ const CheckoutPage = () => {
       )}
 
       {paymentStatus === "processing" && (
-        <div className="bg-blue-50 text-blue-700 p-4 mb-6 rounded-md flex items-center">
+        <div className="bg-blue-50 text-purple-700 p-4 mb-6 rounded-md flex items-center">
           <LoadingSpinner size="sm" className="mr-2" />
           <span>Processing payment... Please wait.</span>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="p-2 lg:px-28 lg:pb-28 grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Shipping and Payment Info */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className=" space-y-6">
           {/* Shipping Address */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4">Shipping Address</h2>
@@ -305,7 +388,7 @@ const CheckoutPage = () => {
                   value="stripe"
                   checked={paymentMethod === "stripe"}
                   onChange={() => setPaymentMethod("stripe")}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                  className="h-4 w-4 text-purple-600 focus:ring-blue-500"
                 />
                 <label
                   htmlFor="stripe"
@@ -323,7 +406,7 @@ const CheckoutPage = () => {
                   value="paypal"
                   checked={paymentMethod === "paypal"}
                   onChange={() => setPaymentMethod("paypal")}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                  className="h-4 w-4 text-purple-600 focus:ring-blue-500"
                 />
                 <label
                   htmlFor="paypal"
@@ -365,11 +448,11 @@ const CheckoutPage = () => {
         </div>
 
         {/* Order Summary */}
-        <div className="bg-white rounded-lg shadow-md p-6 h-fit">
+        <div className=" bg-white rounded-lg shadow-md p-6 h-fit">
           <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
 
           <div className="space-y-4 mb-6">
-            {cart.items.map((item) => (
+            {enrichedCart?.map((item) => (
               <div
                 key={item._id}
                 className="flex justify-between items-center border-b pb-4"
@@ -395,27 +478,9 @@ const CheckoutPage = () => {
           </div>
 
           <div className="space-y-2 mb-6">
-            <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span>${cart.subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Shipping</span>
-              <span>${cart.shipping.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Tax</span>
-              <span>${cart.tax.toFixed(2)}</span>
-            </div>
-            {cart.discount > 0 && (
-              <div className="flex justify-between text-green-600">
-                <span>Discount</span>
-                <span>-${cart.discount.toFixed(2)}</span>
-              </div>
-            )}
-            <div className="border-t border-gray-200 pt-2 flex justify-between font-bold">
+            <div className="pt-2 flex justify-between font-bold">
               <span>Total</span>
-              <span>${cart.total.toFixed(2)}</span>
+              <span>${total.toFixed(2)}</span>
             </div>
           </div>
 
@@ -424,12 +489,12 @@ const CheckoutPage = () => {
             disabled={
               loadingOrder ||
               loadingPaymentIntent ||
-              cart.items.length === 0 ||
+              cartData.length === 0 ||
               (paymentMethod === "stripe" && !clientSecret) ||
               !isFormValid ||
               paymentStatus === "processing"
             }
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loadingOrder ||
             loadingPaymentIntent ||
@@ -444,12 +509,12 @@ const CheckoutPage = () => {
           </button>
 
           <p className="mt-3 text-xs text-gray-500">
-            By placing your order, you agree to our{" "}
-            <a href="/terms" className="text-blue-600 hover:underline">
+            By placing your order, you agree to our
+            <a href="/terms" className="text-purple-600 hover:underline">
               Terms of Service
-            </a>{" "}
-            and{" "}
-            <a href="/privacy" className="text-blue-600 hover:underline">
+            </a>
+            and
+            <a href="/privacy" className="text-purple-600 hover:underline">
               Privacy Policy
             </a>
             .

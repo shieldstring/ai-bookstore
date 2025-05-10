@@ -4,21 +4,21 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
   endpoints: (builder) => ({
     createPaymentIntent: builder.mutation({
       query: (amount) => ({
-        url: "/payment/create-payment-intent",
+        url: "payment/create-payment-intent",
         method: "POST",
-        body: { amount },
+        body: amount,
       }),
     }),
     createOrder: builder.mutation({
       query: (orderData) => ({
-        url: "/orders",
+        url: "orders",
         method: "POST",
         body: orderData,
       }),
       invalidatesTags: ["Order"],
     }),
     getOrders: builder.query({
-      query: () => "/orders",
+      query: () => "orders",
       providesTags: ["Order"],
       transformResponse: (response) => ({
         data: response,
@@ -26,16 +26,16 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
       }),
     }),
     getOrderById: builder.query({
-      query: (orderId) => `/orders/${orderId}`,
+      query: (orderId) => `orders/${orderId}`,
       providesTags: (result, error, arg) => [{ type: "Order", id: arg }],
     }),
     getAllOrders: builder.query({
-      query: () => "/orders/admin/all",
+      query: () => "orders/admin/all",
       providesTags: ["Order"],
     }),
     updateOrderStatus: builder.mutation({
       query: ({ orderId, status }) => ({
-        url: `/orders/${orderId}/status`,
+        url: `orders/${orderId}/status`,
         method: "PUT",
         body: { status },
       }),
@@ -43,35 +43,32 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
     }),
     cancelOrder: builder.mutation({
       query: (orderId) => ({
-        url: `/orders/${orderId}/cancel`,
+        url: `orders/${orderId}/cancel`,
         method: "PUT",
       }),
       invalidatesTags: ["Order"],
     }),
     deleteOrder: builder.mutation({
       query: (orderId) => ({
-        url: `/orders/${orderId}`,
+        url: `orders/${orderId}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Order"],
     }),
     handlePaymentWebhook: builder.mutation({
       query: (webhookData) => ({
-        url: "/payment/webhook",
+        url: "payment/webhook",
         method: "POST",
         body: webhookData,
       }),
     }),
     verifyPaymentStatus: builder.query({
-      query: (paymentId) => ({
-        url: `/payment/status/${paymentId}`,
-        method: "GET",
-      }),
+      query: (paymentId) => `payment/status/${paymentId}`,
       providesTags: ["Payment"],
     }),
     updateOrderPaymentStatus: builder.mutation({
       query: ({ orderId, paymentData }) => ({
-        url: `/orders/${orderId}/payment-status`,
+        url: `orders/${orderId}/payment-status`,
         method: "PATCH",
         body: { paymentData },
       }),

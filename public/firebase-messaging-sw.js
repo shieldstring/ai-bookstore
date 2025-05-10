@@ -29,7 +29,7 @@ messaging.onBackgroundMessage((payload) => {
   const notificationTitle = payload.notification?.title || "New notification";
   const notificationOptions = {
     body: payload.notification?.body || "",
-    icon: payload.notification?.icon || "/logo192.png",
+    icon: payload.notification?.icon || "/favicon.png",
     data: payload.data || {}, // Preserve payload data
   };
 
