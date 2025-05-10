@@ -5,7 +5,7 @@ const LoadingSkeleton = ({ type, count }) => {
 
   if (type === "card") {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {skeletonItems.map((_, index) => (
           <div
             key={index}
@@ -27,6 +27,26 @@ const LoadingSkeleton = ({ type, count }) => {
                 <div className="h-6 bg-gray-200 rounded animate-pulse w-1/4"></div>
                 <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse"></div>
               </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (type === "card2") {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {skeletonItems.map((_, index) => (
+          <div
+            key={index}
+            className="bg-white rounded-lg shadow-md overflow-hidden"
+          >
+            <div className="h-48 bg-gray-200 animate-pulse"></div>
+            <div className="p-4">
+              <div className="h-6 bg-gray-200 rounded animate-pulse mb-2 w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded animate-pulse mb-3 w-1/2"></div>
+              
             </div>
           </div>
         ))}

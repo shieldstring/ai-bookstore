@@ -77,15 +77,19 @@ export const {
 export const authApiAuthSlice = apiTwo.injectEndpoints({
   endpoints: (builder) => ({
     getAdminDashboard: builder.query({
-      query: (id) => `admin`,
+      query: () => `admin`,
       providesTags: (result, error, arg) => [{ type: "Admin", id: arg }],
     }),
     getUserDashboard: builder.query({
       query: () => `users/profile`,
       providesTags: (result, error, arg) => [{ type: "User", id: arg }],
     }),
+    getReferralStats: builder.query({
+      query: () => `referral-stats`,
+      providesTags: (arg) => [{ type: "User", id: arg }],
+    }),
   }),
 });
 
-export const { useGetAdminDashboardQuery, useGetUserDashboardQuery } =
+export const { useGetAdminDashboardQuery, useGetUserDashboardQuery, useGetReferralStatsQuery } =
   authApiAuthSlice;

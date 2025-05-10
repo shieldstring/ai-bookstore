@@ -2,12 +2,14 @@ import { Users, Plus, Search, MessageCircle } from "lucide-react";
 import SEO from "../../../components/SEO";
 import { useEffect, useState } from "react";
 import GroupForm from "../../../components/dashboard/GroupForm";
-import { 
-  useGetGroupsQuery, 
-  useJoinGroupMutation, 
+import {
+  useGetGroupsQuery,
+  useJoinGroupMutation,
   useLeaveGroupMutation,
-  useCreateGroupMutation
+  useCreateGroupMutation,
 } from "../../../redux/slices/groupApiSlice";
+import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
+import ErrorMessage from "../../../components/common/ErrorMessage";
 
 const Groups = () => {
   useEffect(() => {
@@ -21,17 +23,17 @@ const Groups = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
-  
+
   // Fetch groups using RTK Query
-  const { 
-    data: groups = [], 
-    isLoading, 
+  const {
+    data: groups = [],
+    isLoading,
     isError,
-    refetch 
-  } = useGetGroupsQuery({ 
-    page, 
-    limit, 
-    search: searchTerm 
+    refetch,
+  } = useGetGroupsQuery({
+    page,
+    limit,
+    search: searchTerm,
   });
 
   // Mutation hooks
@@ -49,7 +51,7 @@ const Groups = () => {
       }
       refetch(); // Refresh the groups list after action
     } catch (error) {
-      console.error('Failed to perform group action:', error);
+      console.error("Failed to perform group action:", error);
     }
   };
 
@@ -58,22 +60,15 @@ const Groups = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm p-4 md:p-6">
-        <div className="flex justify-center items-center h-64">
-          <p>Loading groups...</p>
-        </div>
+      <div className="space-y-4">
+        <LoadingSkeleton type={"list"} count={2} />
+        <LoadingSkeleton type={"card2"} count={4} />
       </div>
     );
   }
 
   if (isError) {
-    return (
-      <div className="bg-white rounded-xl shadow-sm p-4 md:p-6">
-        <div className="flex justify-center items-center h-64">
-          <p>Error loading groups. Please try again.</p>
-        </div>
-      </div>
-    );
+    return <ErrorMessage error={"Error loading groups. Please try again."} />;
   }
 
   return (
@@ -110,7 +105,9 @@ const Groups = () => {
 
         {filteredGroups.length === 0 ? (
           <div className="text-center py-10">
-            <p className="text-gray-500">No groups found matching your search</p>
+            <p className="text-gray-500">
+              No groups found matching your search
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -164,10 +161,7 @@ const Groups = () => {
             </span>
 
             <div className="relative inline-block px-4 pt-5 pb-4 overflow-hidden text-center align-bottom transition-all transform bg-white rounded-2xl shadow-xl  top-20 md:top-0 sm:my-8 w-full sm:max-w-md sm:p-6 md:p-8 sm:align-middle">
-              <GroupForm 
-                setModal={setModal} 
-            
-              />
+              <GroupForm setModal={setModal} />
             </div>
           </div>
         </div>
