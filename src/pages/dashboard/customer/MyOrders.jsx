@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import OrderDetailsModal from "../../../components/dashboard/OrderDetailsModal";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import { useGetOrdersQuery } from "../../../redux/slices/ordersApiSlice";
+import ErrorMessage from "../../../components/common/ErrorMessage";
 
 const statusIcons = {
   pending: <Clock className="h-4 w-4 text-yellow-500" />,
@@ -49,26 +50,18 @@ const MyOrders = () => {
   }
 
   if (isError) {
-    return (
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <div className="flex justify-center items-center h-64">
-          <p className="text-red-500">
-            Error loading orders. Please try again.
-          </p>
-        </div>
-      </div>
-    );
+    return <ErrorMessage error={"Error loading orders. Please try again."} />;
   }
 
   return (
     <>
+      <SEO
+        title="My Orders"
+        description="Your order history"
+        name="BookStore"
+        type="ecommerce"
+      />
       <div className="bg-white rounded-xl shadow-sm p-6">
-        <SEO
-          title="My Orders"
-          description="Your order history"
-          name="BookStore"
-          type="ecommerce"
-        />
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-800">My Orders</h2>
           <div className="relative mt-4 md:mt-0">

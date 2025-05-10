@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import {
   Bell,
   Check,
@@ -13,6 +13,7 @@ import {
   AtSign,
   AlertCircle,
   Settings,
+  X,
 } from "lucide-react";
 import {
   useGetNotificationsQuery,
@@ -50,6 +51,80 @@ export default function NotificationsPage() {
 
   // Extract unique notification types
   const categories = [...new Set(notifications.map((n) => n.type))];
+
+  // Memoized filtered notifications
+  const filteredNotifications = useMemo(() => {
+    return notifications.filter((notification) => {
+      // Filter by read/unread status
+      if (activeFilter === "unread" && notification.read) return false;
+      if (activeFilter === "read" && !notification.read) return false;
+
+      // Filter by type
+      if (
+        activeFilter !== "all" &&
+        activeFilter !== "read" &&
+        activeFilter !== "unread" &&
+        notification.type !== activeFilter
+      )
+        return false;
+
+      // Filter by time range
+      const notificationTime = new Date(notification.createdAt);
+      const now = new Date();
+      if (timeRange === "today") {
+        const today = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate()
+        );
+        if (notificationTime < today) return false;
+      } else if (timeRange === "week") {
+        const weekAgo = new Date(now);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        if (notificationTime < weekAgo) return false;
+      } else if (timeRange === "month") {
+        const monthAgo = new Date(now);
+        monthAgo.setMonth(monthAgo.getMonth() - 1);
+        if (notificationTime < monthAgo) return false;
+      }
+
+      // Filter by search term
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        return (
+          notification.message.toLowerCase().includes(searchLower) ||
+          (notification.sender?.name &&
+            notification.sender.name.toLowerCase().includes(searchLower)) ||
+          (notification.group?.name &&
+            notification.group.name.toLowerCase().includes(searchLower))
+        );
+      }
+
+      return true;
+    });
+  }, [notifications, activeFilter, timeRange, searchTerm]);
+
+  // Group notifications by date
+  const groupedNotifications = useMemo(() => {
+    return filteredNotifications.reduce((groups, notification) => {
+      const date = new Date(notification.createdAt);
+      const dateString = date.toDateString();
+
+      if (!groups[dateString]) {
+        groups[dateString] = [];
+      }
+
+      groups[dateString].push(notification);
+      return groups;
+    }, {});
+  }, [filteredNotifications]);
+
+  // Sort dates in descending order
+  const sortedDates = useMemo(() => {
+    return Object.keys(groupedNotifications).sort(
+      (a, b) => new Date(b) - new Date(a)
+    );
+  }, [groupedNotifications]);
 
   const handleMarkAsRead = async (id) => {
     try {
@@ -105,25 +180,28 @@ export default function NotificationsPage() {
     }
   };
 
-  //   const toggleBulkSelect = () => {
-  //     setBulkSelectActive(!bulkSelectActive);
-  //     if (bulkSelectActive) {
-  //       setSelectedNotifications([]);
-  //     }
-  //   };
-
   const selectAll = () => {
     if (selectedNotifications.length === filteredNotifications.length) {
-      setSelectedNotifications([]);
+      dispatch(setSelectedNotifications([]));
     } else {
-      setSelectedNotifications(filteredNotifications.map((n) => n._id));
+      dispatch(
+        setSelectedNotifications(filteredNotifications.map((n) => n._id))
+      );
     }
   };
+
+  // Reset all filters
+  const handleResetFilters = () => {
+    dispatch(resetNotificationFilters());
+  };
+
+  const hasActiveFilters =
+    activeFilter !== "all" || timeRange !== "all" || searchTerm !== "";
 
   const getNotificationIcon = (type) => {
     switch (type) {
       case "groupInvite":
-        return <Users size={16} className="text-blue-500" />;
+        return <Users size={16} className="text-purple-500" />;
       case "newDiscussion":
       case "discussionComment":
         return <MessageSquare size={16} className="text-green-500" />;
@@ -192,74 +270,6 @@ export default function NotificationsPage() {
     }
   };
 
-  // Filter notifications based on current filters and search
-  const filteredNotifications = notifications.filter((notification) => {
-    // Filter by read/unread status
-    if (activeFilter === "unread" && notification.read) return false;
-    if (activeFilter === "read" && !notification.read) return false;
-
-    // Filter by type
-    if (
-      activeFilter !== "all" &&
-      activeFilter !== "read" &&
-      activeFilter !== "unread" &&
-      notification.type !== activeFilter
-    )
-      return false;
-
-    // Filter by time range
-    const notificationTime = new Date(notification.createdAt);
-    const now = new Date();
-    if (timeRange === "today") {
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      if (notificationTime < today) return false;
-    } else if (timeRange === "week") {
-      const weekAgo = new Date(now);
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      if (notificationTime < weekAgo) return false;
-    } else if (timeRange === "month") {
-      const monthAgo = new Date(now);
-      monthAgo.setMonth(monthAgo.getMonth() - 1);
-      if (notificationTime < monthAgo) return false;
-    }
-
-    // Filter by search term
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        notification.message.toLowerCase().includes(searchLower) ||
-        (notification.sender?.name &&
-          notification.sender.name.toLowerCase().includes(searchLower)) ||
-        (notification.group?.name &&
-          notification.group.name.toLowerCase().includes(searchLower))
-      );
-    }
-
-    return true;
-  });
-
-  // Group notifications by date
-  const groupedNotifications = filteredNotifications.reduce(
-    (groups, notification) => {
-      const date = new Date(notification.createdAt);
-      const dateString = date.toDateString();
-
-      if (!groups[dateString]) {
-        groups[dateString] = [];
-      }
-
-      groups[dateString].push(notification);
-      return groups;
-    },
-    {}
-  );
-
-  // Sort dates in descending order
-  const sortedDates = Object.keys(groupedNotifications).sort(
-    (a, b) => new Date(b) - new Date(a)
-  );
-
-  // Get human-readable date header
   const getDateHeader = (dateString) => {
     const date = new Date(dateString);
     const today = new Date();
@@ -296,16 +306,16 @@ export default function NotificationsPage() {
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <h1 className="text-lg font-semibold text-gray-900 flex items-center">
-                <Bell className="mr-2 text-blue-600 w-5 h-5" />
+                <Bell className="mr-2 text-purple-600 w-5 h-5" />
                 Notifications
               </h1>
             </div>
             <div className="flex space-x-4">
               <button
-                onClick={toggleBulkSelect}
+                onClick={() => dispatch(toggleBulkSelect())}
                 className={`px-3 py-1 text-sm rounded-md ${
                   bulkSelectActive
-                    ? "bg-blue-100 text-blue-700"
+                    ? "bg-blue-100 text-purple-700"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -330,16 +340,24 @@ export default function NotificationsPage() {
             <input
               type="text"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => dispatch(setSearchTerm(e.target.value))}
               placeholder="Search notifications..."
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
             />
+            {searchTerm && (
+              <button
+                onClick={() => dispatch(setSearchTerm(""))}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              >
+                <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+              </button>
+            )}
           </div>
 
           <div className="flex space-x-2">
             <div className="relative inline-block text-left flex-1">
               <div className="group">
-                <button className="inline-flex justify-between w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button className="inline-flex justify-between w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500">
                   <span>
                     {activeFilter === "all"
                       ? "All notifications"
@@ -351,7 +369,7 @@ export default function NotificationsPage() {
                   </span>
                   <ChevronDown className="ml-2 h-4 w-4 text-gray-500" />
                 </button>
-                <div className="origin-top-right absolute right-0  w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10 hidden group-hover:block">
+                <div className="origin-top-right absolute right-0 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10 hidden group-hover:block">
                   <div className="py-1" role="menu" aria-orientation="vertical">
                     <button
                       className={`block px-4 py-2 text-sm w-full text-left ${
@@ -359,7 +377,7 @@ export default function NotificationsPage() {
                           ? "bg-gray-100 text-gray-900"
                           : "text-gray-700"
                       } hover:bg-gray-100`}
-                      onClick={() => setActiveFilter("all")}
+                      onClick={() => dispatch(setActiveFilter("all"))}
                     >
                       All notifications
                     </button>
@@ -369,7 +387,7 @@ export default function NotificationsPage() {
                           ? "bg-gray-100 text-gray-900"
                           : "text-gray-700"
                       } hover:bg-gray-100`}
-                      onClick={() => setActiveFilter("unread")}
+                      onClick={() => dispatch(setActiveFilter("unread"))}
                     >
                       Unread notifications
                     </button>
@@ -379,7 +397,7 @@ export default function NotificationsPage() {
                           ? "bg-gray-100 text-gray-900"
                           : "text-gray-700"
                       } hover:bg-gray-100`}
-                      onClick={() => setActiveFilter("read")}
+                      onClick={() => dispatch(setActiveFilter("read"))}
                     >
                       Read notifications
                     </button>
@@ -392,7 +410,7 @@ export default function NotificationsPage() {
                             ? "bg-gray-100 text-gray-900"
                             : "text-gray-700"
                         } hover:bg-gray-100`}
-                        onClick={() => setActiveFilter(type)}
+                        onClick={() => dispatch(setActiveFilter(type))}
                       >
                         {type} notifications
                       </button>
@@ -404,7 +422,7 @@ export default function NotificationsPage() {
 
             <div className="relative inline-block text-left flex-1">
               <div className="group">
-                <button className="inline-flex justify-between w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button className="inline-flex justify-between w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500">
                   <span>
                     {timeRange === "all"
                       ? "All time"
@@ -424,7 +442,7 @@ export default function NotificationsPage() {
                           ? "bg-gray-100 text-gray-900"
                           : "text-gray-700"
                       } hover:bg-gray-100`}
-                      onClick={() => setTimeRange("all")}
+                      onClick={() => dispatch(setTimeRange("all"))}
                     >
                       All time
                     </button>
@@ -434,7 +452,7 @@ export default function NotificationsPage() {
                           ? "bg-gray-100 text-gray-900"
                           : "text-gray-700"
                       } hover:bg-gray-100`}
-                      onClick={() => setTimeRange("today")}
+                      onClick={() => dispatch(setTimeRange("today"))}
                     >
                       Today
                     </button>
@@ -444,7 +462,7 @@ export default function NotificationsPage() {
                           ? "bg-gray-100 text-gray-900"
                           : "text-gray-700"
                       } hover:bg-gray-100`}
-                      onClick={() => setTimeRange("week")}
+                      onClick={() => dispatch(setTimeRange("week"))}
                     >
                       Last 7 days
                     </button>
@@ -454,7 +472,7 @@ export default function NotificationsPage() {
                           ? "bg-gray-100 text-gray-900"
                           : "text-gray-700"
                       } hover:bg-gray-100`}
-                      onClick={() => setTimeRange("month")}
+                      onClick={() => dispatch(setTimeRange("month"))}
                     >
                       Last 30 days
                     </button>
@@ -465,6 +483,16 @@ export default function NotificationsPage() {
           </div>
 
           <div className="flex justify-end space-x-2">
+            {hasActiveFilters && (
+              <button
+                onClick={handleResetFilters}
+                className="px-3 py-1 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md flex items-center"
+              >
+                <X className="w-4 h-4 mr-1" />
+                Reset filters
+              </button>
+            )}
+
             {bulkSelectActive && (
               <>
                 <button
@@ -481,7 +509,7 @@ export default function NotificationsPage() {
                   className={`px-3 py-1 text-sm rounded-md ${
                     selectedNotifications.length === 0
                       ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                      : "bg-blue-100 text-purple-700 hover:bg-blue-200"
                   }`}
                 >
                   Mark Read
@@ -512,7 +540,7 @@ export default function NotificationsPage() {
           </div>
           <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
             <div className="text-sm font-medium text-gray-500">Unread</div>
-            <div className="mt-1 text-2xl font-semibold text-blue-600">
+            <div className="mt-1 text-2xl font-semibold text-purple-600">
               {notifications.filter((n) => !n.read).length}
             </div>
           </div>
@@ -540,7 +568,7 @@ export default function NotificationsPage() {
         <div className="space-y-8">
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
             </div>
           ) : filteredNotifications.length === 0 ? (
             <div className="bg-white rounded-lg shadow-sm p-8 text-center">
@@ -557,6 +585,14 @@ export default function NotificationsPage() {
                   ? `No ${activeFilter.toLowerCase()} notifications found.`
                   : "You don't have any notifications yet."}
               </p>
+              {hasActiveFilters && (
+                <button
+                  onClick={handleResetFilters}
+                  className="mt-4 px-4 py-2 bg-blue-50 text-purple-600 rounded-md text-sm hover:bg-blue-100"
+                >
+                  Clear all filters
+                </button>
+              )}
             </div>
           ) : (
             sortedDates.map((dateString) => (
@@ -594,7 +630,7 @@ export default function NotificationsPage() {
                             w-5 h-5 rounded border flex items-center justify-center
                             ${
                               selectedNotifications.includes(notification._id)
-                                ? "bg-blue-500 border-blue-500"
+                                ? "bg-purple-500 border-purple-500"
                                 : "border-gray-300"
                             }
                           `}
@@ -643,7 +679,7 @@ export default function NotificationsPage() {
                                     e.stopPropagation();
                                     handleMarkAsRead(notification._id);
                                   }}
-                                  className="text-xs text-blue-600 hover:text-blue-800 flex items-center"
+                                  className="text-xs text-purple-600 hover:text-blue-800 flex items-center"
                                 >
                                   <CheckCircle size={14} className="mr-1" />
                                   Mark as read
@@ -671,24 +707,6 @@ export default function NotificationsPage() {
           )}
         </div>
 
-        {/* Empty state footer */}
-        {!isLoading &&
-          notifications.length > 0 &&
-          filteredNotifications.length === 0 && (
-            <div className="mt-6 flex justify-center">
-              <button
-                onClick={() => {
-                  setActiveFilter("all");
-                  setTimeRange("all");
-                  setSearchTerm("");
-                }}
-                className="px-4 py-2 bg-blue-50 text-blue-600 rounded-md text-sm hover:bg-blue-100"
-              >
-                Clear all filters
-              </button>
-            </div>
-          )}
-
         {/* Pagination */}
         {filteredNotifications.length > 10 && (
           <div className="mt-8 flex justify-center">
@@ -700,7 +718,7 @@ export default function NotificationsPage() {
                 <span className="sr-only">Previous</span>
                 <ArrowLeft className="h-5 w-5" aria-hidden="true" />
               </button>
-              <button className="z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+              <button className="z-10 bg-blue-50 border-purple-500 text-purple-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
                 1
               </button>
               <button className="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">

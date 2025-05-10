@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Bell,
   Check,
@@ -11,8 +11,7 @@ import {
   AtSign,
   AlertCircle,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   useGetNotificationsQuery,
   useMarkNotificationsAsReadMutation,
@@ -24,7 +23,6 @@ import {
 const NotificationCenter = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   // Redux state and API hooks
   const { data: notifications = [], isLoading } = useGetNotificationsQuery();

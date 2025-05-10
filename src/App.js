@@ -11,12 +11,10 @@ import AuthRoute from "./components/AuthRoute";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import DashboardLayout from "./components/layout/DashboardLayout";
-import DashboardRouter from "./pages/dashboard/DashboardRouter";
 import Wishlist from "./pages/dashboard/customer/Wishlist";
 import MyOrders from "./pages/dashboard/customer/MyOrders";
 import MyAccount from "./pages/dashboard/customer/MyAccount";
 import MLMDashboard from "./pages/dashboard/customer/MLMDashboard";
-import SocialFeed from "./pages/dashboard/customer/SocialFeed";
 import Groups from "./pages/dashboard/customer/Groups";
 import Analytics from "./pages/dashboard/admin/Analytics";
 import Customers from "./pages/dashboard/admin/Customers";
@@ -36,6 +34,7 @@ import GroupChat from "./pages/dashboard/customer/GroupChat";
 import NotificationPrompt from "./components/notification/NotificationPrompt";
 import useFCM from "./services/useFCM";
 import NotificationsPage from "./pages/dashboard/NotificationsPage";
+import OAuthCallback from "./components/OAuthCallback";
 function App() {
   useFCM(); // Initialize FCM
   // Register service worker
@@ -90,6 +89,7 @@ function App() {
           />
           {/* Auth Routes */}
           <Route path="login" element={<Login />} />
+          <Route path="/oauth-callback" element={<OAuthCallback />} />
           <Route path="register" element={<Register />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
         </Route>

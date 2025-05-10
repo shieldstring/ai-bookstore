@@ -90,7 +90,7 @@ export const authApiAuthSlice = apiTwo.injectEndpoints({
       providesTags: [{ type: "User", id: "CURRENT" }],
     }),
     getReferralStats: builder.query({
-      query: () => `auth/referral-stats`,
+      query: () => `users/referral-stats`,
       providesTags: (arg) => [{ type: "User", id: arg }],
     }),
     updateProfile: builder.mutation({

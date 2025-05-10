@@ -42,7 +42,7 @@ const Login = () => {
 
     // Redirect to the Google OAuth endpoint
     const baseUrl = process.env.REACT_APP_API_URL || "";
-    window.location.href = `${baseUrl}/api/auth/google`;
+    window.location.href = `${baseUrl}auth/google`;
   };
 
   const redirectInUrl = new URLSearchParams(search).get("redirect");

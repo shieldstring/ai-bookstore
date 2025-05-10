@@ -10,7 +10,7 @@ const useFCM = () => {
         const permission = await Notification.requestPermission();
         if (permission === "granted") {
           const token = await getToken(messaging, {
-            vapidKey: "YOUR_VAPID_KEY",
+            vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
           });
 
           if (token) {

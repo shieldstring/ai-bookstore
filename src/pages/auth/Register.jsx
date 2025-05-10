@@ -3,24 +3,41 @@ import {
   setCredential,
   useRegisterMutation,
 } from "../../redux/slices/authSlice";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { useDispatch } from "react-redux";
 import SEO from "../../components/SEO";
 
 const Register = () => {
+  const location = useLocation();
+
+  // Function to extract referral code from URL
+  const extractReferralCode = () => {
+    const searchParams = new URLSearchParams(location.search);
+    return searchParams.get("ref") || "";
+  };
+
   useEffect(() => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
-  }, []);
+
+    // Set the referral code from URL if it exists
+    const refCode = extractReferralCode();
+    if (refCode) {
+      setFormData((prev) => ({
+        ...prev,
+        referralCode: refCode,
+      }));
+    }
+  }, [location]);
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    referralCode: "",
+    referralCode: extractReferralCode(), // Initialize with referral code from URL
   });
   const [errors, setErrors] = useState({});
   const [register, { isLoading }] = useRegisterMutation();
@@ -92,7 +109,7 @@ const Register = () => {
         name="AI-Powered Social-Ecommerce"
         type="description"
       />
-      
+
       <div className="flex items-center justify-center bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8 bg-white p-4 sm:p-8 rounded-lg shadow-md">
           <div className="text-center">
@@ -204,14 +221,18 @@ const Register = () => {
                   id="referralCode"
                   name="referralCode"
                   type="text"
-                  className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
+                  className={`appearance-none relative block w-full px-3 py-2 border ${
+                    formData.referralCode
+                      ? "border-green-300 bg-green-50"
+                      : "border-gray-300"
+                  } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm`}
                   placeholder="Referral Code (Optional)"
                   value={formData.referralCode}
                   onChange={handleChange}
                 />
-                {errors.referralCode && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.referralCode}
+                {formData.referralCode && (
+                  <p className="mt-1 text-sm text-green-600">
+                    Referral code applied!
                   </p>
                 )}
               </div>

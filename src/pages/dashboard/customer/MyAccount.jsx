@@ -20,6 +20,7 @@ import {
 } from "../../../redux/slices/authSlice";
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
+import ErrorMessage from "../../../components/common/ErrorMessage";
 
 const MyAccount = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -139,7 +140,10 @@ const MyAccount = () => {
         <LoadingSkeleton type={"line"} count={2} />
       </div>
     );
-  if (isUserError) return <div>Error loading user data</div>;
+
+  if (isUserError) {
+    return <ErrorMessage error={"Error loading user data"} />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 ">
