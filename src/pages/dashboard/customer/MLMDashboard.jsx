@@ -7,12 +7,12 @@ import {
   ChevronDown,
   ChevronUp,
   Copy,
-  AlertCircle,
   TrendingUp,
 } from "lucide-react";
 import { useGetReferralStatsQuery } from "../../../redux/slices/authSlice";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import ErrorMessage from "../../../components/common/ErrorMessage";
+import SEO from "../../../components/SEO";
 
 const MLMDashboard = () => {
   const { data: referralData, isLoading, isError } = useGetReferralStatsQuery();
@@ -92,6 +92,12 @@ const MLMDashboard = () => {
 
   return (
     <div className="space-y-6">
+      <SEO
+        title="Your MLM Progress"
+        description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
+        name="AI-Powered Social-Ecommerce"
+        type="description"
+      />
       {/* MLM Progress */}
       {referralData.nextTier && (
         <div className="bg-white rounded-xl shadow-sm p-6">

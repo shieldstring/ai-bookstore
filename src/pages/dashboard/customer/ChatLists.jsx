@@ -4,6 +4,8 @@ import { Search, Plus } from "lucide-react";
 import GroupCard from "../../../components/dashboard/GroupCard";
 import { Link } from "react-router-dom";
 import { useGetUserGroupsQuery } from "../../../redux/slices/groupApiSlice";
+import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
+import ErrorMessage from "../../../components/common/ErrorMessage";
 
 function ChatLists() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,11 +54,11 @@ function ChatLists() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-8">Loading your groups...</div>
-      ) : isError ? (
-        <div className="text-center py-8 text-red-500">
-          Error loading groups. Please try again later.
+        <div className="space-y-4">
+          <LoadingSkeleton type={"card2"} count={4} />
         </div>
+      ) : isError ? (
+        <ErrorMessage error={"Error loading groups. Please try again."} />
       ) : filteredGroups.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           {searchQuery

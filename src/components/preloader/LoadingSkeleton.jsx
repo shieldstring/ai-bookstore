@@ -42,7 +42,7 @@ const LoadingSkeleton = ({ type, count }) => {
             key={index}
             className="bg-white rounded-lg shadow-md overflow-hidden"
           >
-            <div className="h-48 bg-gray-200 animate-pulse"></div>
+            <div className="h-28 bg-gray-200 animate-pulse"></div>
             <div className="p-4">
               <div className="h-6 bg-gray-200 rounded animate-pulse mb-2 w-3/4"></div>
               <div className="h-4 bg-gray-200 rounded animate-pulse mb-3 w-1/2"></div>

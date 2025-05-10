@@ -38,7 +38,13 @@ const UserDashboard = () => {
     }
   }, [book]);
 
-  if (isLoading) return <LoadingSkeleton type={"page"} />;
+  if (isLoading)
+    return (
+      <div className="space-y-4">
+        <LoadingSkeleton type={"page"} />
+        <LoadingSkeleton type={"card2"} count={4} />
+      </div>
+    );
   if (error) return <ErrorMessage error="Failed to load dashboard data" />;
 
   return (
