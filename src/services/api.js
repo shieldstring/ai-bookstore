@@ -9,39 +9,43 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor for token
+// Get token from localStorage instead of using undefined getState()
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  // Get the token from localStorage
+  const userInfoStr = localStorage.getItem('userInfo');
+  if (userInfoStr) {
+    try {
+      const userInfo = JSON.parse(userInfoStr);
+      if (userInfo && userInfo.token) {
+        config.headers.Authorization = `Bearer ${userInfo.token}`;
+      }
+    } catch (error) {
+      console.error('Error parsing user info from localStorage:', error);
+    }
   }
   return config;
 });
 
 export const notificationAPI = {
   registerToken: (token, deviceInfo) =>
-    api.post("/fcm-tokens", { token, deviceInfo }),
-
-  unregisterToken: (token) => api.delete("/fcm-tokens", { data: { token } }),
-
-  getTokens: () => api.get("/fcm-tokens"),
-
+    api.post("users/fcm-tokens", { token, deviceInfo }),
+  unregisterToken: (token) => 
+    api.delete("users/fcm-tokens", { data: { token } }),
+  getTokens: () => 
+    api.get("users/fcm-tokens"),
   updatePreferences: (preferences) =>
-    api.put("/notification-preferences", preferences),
-
-  getPreferences: () => api.get("/notification-preferences"),
+    api.put("users/notification-preferences", preferences),
+  getPreferences: () => 
+    api.get("users/notification-preferences"),
 };
 
 export default api;
 
 export const getRecommendations = async (userId) => {
   try {
-    const response = await axios.get(
-      "http://localhost:5000/api/recommendations",
-      {
-        params: { userId },
-      }
-    );
+    const response = await axios.get(`${API_URL}/recommendations`, {
+      params: { userId },
+    });
     return response.data.recommendations;
   } catch (error) {
     console.error("Error fetching recommendations:", error);

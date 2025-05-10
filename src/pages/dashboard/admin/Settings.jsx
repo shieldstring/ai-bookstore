@@ -1,4 +1,5 @@
 import { Settings, Mail, Lock, CreditCard, Globe } from 'lucide-react';
+import NotificationSettings from '../../../components/dashboard/NotificationSettings';
 
 const AdminSettings = () => {
   const settingsSections = [
@@ -52,6 +53,8 @@ const AdminSettings = () => {
           </div>
         ))}
       </div>
+
+      <NotificationSettings />
     </div>
   );
 };

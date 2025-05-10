@@ -79,7 +79,7 @@ class NotificationManager {
         screen: `${window.screen.width}x${window.screen.height}`
       };
       
-      await axios.post(`${API_URL}/fcm-tokens`, { 
+      await axios.post(`${API_URL}/users/fcm-tokens`, { 
         token, 
         deviceInfo 
       }, {
@@ -101,7 +101,7 @@ class NotificationManager {
       await deleteToken(this.messaging);
       
       // Remove from server
-      await axios.delete(`${API_URL}/fcm-tokens`, {
+      await axios.delete(`${API_URL}/users/fcm-tokens`, {
         data: { token: this.currentToken },
         withCredentials: true
       });
