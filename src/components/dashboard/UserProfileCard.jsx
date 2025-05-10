@@ -77,7 +77,7 @@ const UserProfileCard = ({ user, groups, achievements }) => {
       </div>
 
       <div className="border-t border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
+        {/* <div className="flex items-center justify-between">
           <div className="flex items-center text-sm text-gray-500">
             <BookOpen className="mr-2 h-4 w-4" />
             <span>Books read</span>
@@ -85,7 +85,7 @@ const UserProfileCard = ({ user, groups, achievements }) => {
           <span className="text-sm font-medium text-gray-900">
             {user.level}
           </span>
-        </div>
+        </div> */}
         <div className="flex items-center justify-between mt-2">
           <div className="flex items-center text-sm text-gray-500">
             <Trophy className="mr-2 h-4 w-4" />
