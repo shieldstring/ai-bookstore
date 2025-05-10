@@ -43,6 +43,10 @@ export const authApiSlice = apiOne.injectEndpoints({
         body: credentials,
       }),
     }),
+    // Add endpoint for checking Google OAuth authentication status
+    checkGoogleAuthStatus: builder.query({
+      query: () => "auth/check-google-auth-status",
+    }),
     register: builder.mutation({
       query: (userData) => ({
         url: "auth/register",
@@ -72,6 +76,7 @@ export const {
   useRegisterMutation,
   useResetPasswordMutation,
   useForgotPasswordMutation,
+  useCheckGoogleAuthStatusQuery,
 } = authApiSlice;
 
 export const authApiAuthSlice = apiTwo.injectEndpoints({
@@ -82,14 +87,26 @@ export const authApiAuthSlice = apiTwo.injectEndpoints({
     }),
     getUserDashboard: builder.query({
       query: () => `users/profile`,
-      providesTags: (result, error, arg) => [{ type: "User", id: arg }],
+      providesTags: [{ type: "User", id: "CURRENT" }],
     }),
     getReferralStats: builder.query({
       query: () => `auth/referral-stats`,
       providesTags: (arg) => [{ type: "User", id: arg }],
     }),
+    updateProfile: builder.mutation({
+      query: (profileData) => ({
+        url: "profile",
+        method: "PUT",
+        body: profileData,
+      }),
+      invalidatesTags: [{ type: "User", id: "CURRENT" }], // This will auto-refresh getUserDashboard
+    }),
   }),
 });
 
-export const { useGetAdminDashboardQuery, useGetUserDashboardQuery, useGetReferralStatsQuery } =
-  authApiAuthSlice;
+export const {
+  useGetAdminDashboardQuery,
+  useGetUserDashboardQuery,
+  useGetReferralStatsQuery,
+  useUpdateProfileMutation,
+} = authApiAuthSlice;
