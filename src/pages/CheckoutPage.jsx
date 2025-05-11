@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
-  useCreatePaymentIntentMutation,
+  useCreateCheckoutSessionMutation,
   useCreateOrderMutation,
-  useVerifyPaymentStatusQuery,
+  useVerifyCheckoutStatusQuery,
 } from "../redux/slices/ordersApiSlice";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorMessage from "../components/common/ErrorMessage";
 import Newsletter from "../components/common/Newsletter";
@@ -17,11 +17,19 @@ import { initializeCart } from "../redux/slices/cartThunks";
 const CheckoutPage = () => {
   const BASE_URL = process.env.REACT_APP_API_URL;
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Parse URL query parameters
+  const queryParams = new URLSearchParams(location.search);
+  const sessionId = queryParams.get("session_id");
+  
   const { items: cartData, error: cartError } = useSelector(
     (state) => state.cart
   );
   const [enrichedCart, setEnrichedCart] = useState([]);
   const [localError, setLocalError] = useState(null);
+  
   // Initialize cart on mount
   useEffect(() => {
     const init = async () => {
@@ -64,19 +72,19 @@ const CheckoutPage = () => {
         setEnrichedCart(enriched);
       } catch (err) {
         setLocalError("Failed to fetch book details");
+        setIsLoading(false);
       }
     };
 
     fetchBookDetails();
-  }, [cartData]);
+  }, [cartData, BASE_URL]);
 
   const { userInfo } = useSelector((state) => state.auth);
 
-  const [createPaymentIntent, { isLoading: loadingPaymentIntent }] =
-    useCreatePaymentIntentMutation();
+  const [createCheckoutSession, { isLoading: loadingCheckoutSession }] =
+    useCreateCheckoutSessionMutation();
   const [createOrder, { isLoading: loadingOrder, error }] =
     useCreateOrderMutation();
-  const navigate = useNavigate();
 
   // Form state
   const [shippingInfo, setShippingInfo] = useState({
@@ -86,96 +94,43 @@ const CheckoutPage = () => {
     country: userInfo?.country || "",
   });
   const [paymentMethod, setPaymentMethod] = useState("stripe");
-  const [clientSecret, setClientSecret] = useState("");
   const [paymentError, setPaymentError] = useState("");
-  const [paymentId, setPaymentId] = useState("");
-  const [paymentStatus, setPaymentStatus] = useState("");
+  const [checkoutSessionId, setCheckoutSessionId] = useState(sessionId || "");
   const [orderId, setOrderId] = useState(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
-  // Check if cart is empty and redirect if neede=
+  // Check if cart is empty and redirect if needed
   useEffect(() => {
-    if (!cartData || cartData.length === 0) {
+    if (!isLoading && !cartData?.length && !sessionId) {
       navigate("/cart");
     }
-  }, [cartData, navigate]);
+  }, [cartData, navigate, isLoading, sessionId]);
 
-  // Query payment status if we have a paymentId
-  const { data: paymentStatusData, refetch: refetchPaymentStatus } =
-    useVerifyPaymentStatusQuery(paymentId, { skip: !paymentId });
+  // Query checkout status if we have a sessionId
+  const { data: checkoutStatusData, refetch: refetchCheckoutStatus } =
+    useVerifyCheckoutStatusQuery(checkoutSessionId, { skip: !checkoutSessionId });
 
-  // Create payment intent when cart changes or payment method changes
+  // Check session status when returning from Stripe
   useEffect(() => {
-    if (cartData.length > 0 && paymentMethod === "stripe") {
-      const createStripePaymentIntent = async () => {
-        try {
-          const res = await createPaymentIntent({
-            amount: Math.round(total * 100), // Convert to cents
-          }).unwrap();
-
-          setClientSecret(res.clientSecret);
-          setPaymentId(res.paymentIntentId);
-        } catch (err) {
-          console.error("Payment intent error:", err);
-          setPaymentError(err.data?.message || "Failed to initialize payment");
-        }
-      };
-      createStripePaymentIntent();
+    if (sessionId && !orderId) {
+      // If we have a session ID from URL, check its status
+      refetchCheckoutStatus();
     }
-  }, [cartData, paymentMethod, createPaymentIntent]);
+  }, [sessionId, refetchCheckoutStatus, orderId]);
 
-  // Listen for payment status updates
+  // Process checkout status data
   useEffect(() => {
-    if (paymentStatusData) {
-      setPaymentStatus(paymentStatusData.status);
-
-      // If payment succeeded and we have an orderId, navigate to order confirmation
+    if (checkoutStatusData) {
+      // If payment is complete and we have an orderId, navigate to order confirmation
       if (
-        paymentStatusData.status === "succeeded" &&
-        paymentStatusData.orderId
+        checkoutStatusData.status === "paid" &&
+        checkoutStatusData.orderId
       ) {
-        navigate(`/order/${paymentStatusData.orderId}`);
+        dispatch(clearLocalCart());
+        navigate(`/order/${checkoutStatusData.orderId}`);
       }
     }
-  }, [paymentStatusData, navigate]);
-
-  // Set up payment status polling
-  useEffect(() => {
-    let intervalId;
-
-    if (
-      paymentId &&
-      paymentStatus !== "succeeded" &&
-      paymentStatus !== "failed"
-    ) {
-      intervalId = setInterval(() => {
-        refetchPaymentStatus();
-      }, 3000); // Check every 3 seconds
-    }
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [paymentId, paymentStatus, refetchPaymentStatus]);
-
-  // If we have an orderId but no paymentStatusData orderId, and we're still on checkout page,
-  // navigate to the order page after a delay
-  useEffect(() => {
-    let timeoutId;
-
-    if (
-      orderId &&
-      !paymentStatusData?.orderId &&
-      paymentStatus === "processing"
-    ) {
-      timeoutId = setTimeout(() => {
-        navigate(`/order/${orderId}`);
-      }, 5000);
-    }
-
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [orderId, paymentStatusData, paymentStatus, navigate]);
+  }, [checkoutStatusData, navigate, dispatch]);
 
   const handleShippingChange = (e) => {
     setShippingInfo({
@@ -189,41 +144,84 @@ const CheckoutPage = () => {
     setPaymentError("");
 
     try {
-      // For Stripe payment - in a real implementation this would use Stripe Elements
       if (paymentMethod === "stripe") {
-        console.log("Processing payment with Stripe ID:", paymentId);
-      }
+        setIsRedirecting(true);
+        
+        // Format line items for Stripe Checkout
+        const items = enrichedCart.map(item => ({
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: item.name,
+              description: item.author ? `by ${item.author}` : undefined,
+              images: item.image ? [item.image] : undefined,
+            },
+            unit_amount: Math.round(item.price * 100), // Convert to cents
+          },
+          quantity: item.quantity,
+        }));
 
-      // Create the order
-      const orderData = {
-        orderItems: cartData,
-        shippingAddress: shippingInfo,
-        paymentMethod,
-        totalPrice: total,
-        paymentResult: {
-          id: paymentId || "simulated_payment_id",
-          status: "pending",
-          update_time: new Date().toISOString(),
-          email_address: userInfo.email,
-        },
-      };
+        // Create a checkout session
+        const checkoutResult = await createCheckoutSession({
+          amount: Math.round(total * 100), // Total in cents
+          items,
+          // Dynamic success/cancel URLs based on current URL
+          successUrl: `${window.location.origin}/checkout?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${window.location.origin}/cart`,
+        }).unwrap();
 
-      const res = await createOrder(orderData).unwrap();
-      setOrderId(res._id);
+        // Store the checkout session ID
+        setCheckoutSessionId(checkoutResult.sessionId);
+        
+        // Create order first to associate with payment
+        const orderData = {
+          orderItems: cartData,
+          shippingAddress: shippingInfo,
+          paymentMethod,
+          totalPrice: total,
+          paymentResult: {
+            id: checkoutResult.sessionId,
+            status: "pending",
+            update_time: new Date().toISOString(),
+            email_address: userInfo.email,
+          },
+          checkoutSessionId: checkoutResult.sessionId,
+        };
 
-      // Clear cart after successful order creation
-      dispatch(clearLocalCart());
+        const orderResult = await createOrder(orderData).unwrap();
+        setOrderId(orderResult._id);
+        
+        // Redirect to Stripe Checkout
+        window.location.href = checkoutResult.url;
+        
+      } else if (paymentMethod === "paypal") {
+        // Create the order for PayPal payment
+        const orderData = {
+          orderItems: cartData,
+          shippingAddress: shippingInfo,
+          paymentMethod,
+          totalPrice: total,
+          paymentResult: {
+            id: "paypal_pending",
+            status: "pending",
+            update_time: new Date().toISOString(),
+            email_address: userInfo.email,
+          },
+        };
 
-      // For PayPal, navigate immediately
-      if (paymentMethod !== "stripe") {
+        const res = await createOrder(orderData).unwrap();
+        setOrderId(res._id);
+        
+        // Clear cart after successful order creation
+        dispatch(clearLocalCart());
+        
+        // For PayPal, navigate to order page (you'd implement PayPal button there)
         navigate(`/order/${res._id}`);
-      } else {
-        // For Stripe, set up processing state and wait for webhook or timeout
-        setPaymentStatus("processing");
       }
     } catch (err) {
       console.error("Order creation error:", err);
       setPaymentError(err.data?.message || "Failed to place order");
+      setIsRedirecting(false);
     }
   };
 
@@ -237,7 +235,7 @@ const CheckoutPage = () => {
   // Show loading state
   if (isLoading) {
     return (
-      <section className="max-w-6xl mx-auto text-white py-12 lg:py-16">
+      <section className="max-w-xl mx-auto text-white py-12 lg:py-16">
         <div className="container mx-auto px-4">
           <LoadingSkeleton type={"list"} count={3} />
         </div>
@@ -250,6 +248,19 @@ const CheckoutPage = () => {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
+  // Show processing state when returning from Stripe with session_id
+  if (sessionId && !checkoutStatusData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center p-8">
+          <LoadingSpinner size="lg" className="mx-auto mb-4" />
+          <h2 className="text-2xl font-semibold mb-2">Processing Your Order</h2>
+          <p className="text-gray-600">Please wait while we confirm your payment...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="">
@@ -271,7 +282,7 @@ const CheckoutPage = () => {
             </Link>
             <span className="mx-2 text-gray-500">/</span>
             <Link
-              to="/cart"
+              to="cart"
               className="hover:text-gray-600 font-semibold text-purple-700"
             >
               Cart
@@ -286,10 +297,10 @@ const CheckoutPage = () => {
         <ErrorMessage error={error || paymentError} />
       )}
 
-      {paymentStatus === "processing" && (
+      {isRedirecting && (
         <div className="bg-blue-50 text-purple-700 p-4 mb-6 rounded-md flex items-center">
           <LoadingSpinner size="sm" className="mr-2" />
-          <span>Processing payment... Please wait.</span>
+          <span>Preparing checkout... You'll be redirected to complete payment.</span>
         </div>
       )}
 
@@ -394,7 +405,7 @@ const CheckoutPage = () => {
                   htmlFor="stripe"
                   className="ml-2 block text-sm text-gray-900"
                 >
-                  Credit/Debit Card (Stripe)
+                  Stripe
                 </label>
               </div>
 
@@ -418,29 +429,17 @@ const CheckoutPage = () => {
 
               {paymentMethod === "stripe" && (
                 <div className="mt-4 p-4 bg-gray-50 rounded-md">
-                  <h3 className="text-sm font-medium mb-2">Card Details</h3>
-                  {loadingPaymentIntent ? (
-                    <div className="h-12 flex items-center justify-center">
-                      <LoadingSpinner size="sm" />
+                  <h3 className="text-sm font-medium mb-2">Secure Checkout</h3>
+                  <div className="p-4 bg-gray-200 rounded-md">
+                    <p className="text-xs text-center text-gray-600">
+                      You'll be redirected to Stripe's secure payment page after clicking "Place Order"
+                    </p>
+                    <div className="flex justify-center mt-3 space-x-2">
+                      <img src="/visa.png" alt="Visa" className="h-6" />
+                      <img src="/master.png" alt="Mastercard" className="h-6" />
+                      <img src="/amex.png" alt="American Express" className="h-6" />
                     </div>
-                  ) : clientSecret ? (
-                    <div className="p-4 bg-gray-200 rounded-md">
-                      {/* In a real implementation, you would inject Stripe Elements here */}
-                      {/* <Elements stripe={stripePromise} options={{ clientSecret }}>
-                        <CheckoutForm />
-                      </Elements> */}
-                      <p className="text-center text-gray-600">
-                        Stripe Payment Ready (Payment ID: {paymentId})
-                      </p>
-                      <p className="text-center text-gray-500 text-xs mt-2">
-                        (Webhooks will confirm this payment once completed)
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="text-red-500 text-sm">
-                      Payment initialization failed
-                    </div>
-                  )}
+                  </div>
                 </div>
               )}
             </div>
@@ -488,17 +487,16 @@ const CheckoutPage = () => {
             onClick={handleSubmit}
             disabled={
               loadingOrder ||
-              loadingPaymentIntent ||
-              cartData.length === 0 ||
-              (paymentMethod === "stripe" && !clientSecret) ||
+              loadingCheckoutSession ||
+              cartData?.length === 0 ||
               !isFormValid ||
-              paymentStatus === "processing"
+              isRedirecting
             }
             className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loadingOrder ||
-            loadingPaymentIntent ||
-            paymentStatus === "processing" ? (
+            loadingCheckoutSession ||
+            isRedirecting ? (
               <div className="flex items-center justify-center">
                 <LoadingSpinner size="sm" className="mr-2" />
                 Processing...
@@ -509,11 +507,11 @@ const CheckoutPage = () => {
           </button>
 
           <p className="mt-3 text-xs text-gray-500">
-            By placing your order, you agree to our
+            By placing your order, you agree to our{" "}
             <a href="/terms" className="text-purple-600 hover:underline">
               Terms of Service
-            </a>
-            and
+            </a>{" "}
+            and{" "}
             <a href="/privacy" className="text-purple-600 hover:underline">
               Privacy Policy
             </a>
