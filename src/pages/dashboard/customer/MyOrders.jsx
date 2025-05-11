@@ -18,7 +18,7 @@ const statusIcons = {
 
 const MyOrders = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const { data: ordersData, isLoading, isError, refetch } = useGetOrdersQuery();
+  const { data, isLoading, isError, refetch } = useGetOrdersQuery();
   const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   useEffect(() => {
@@ -33,13 +33,15 @@ const MyOrders = () => {
     return format(new Date(dateString), "MMM dd, yyyy");
   };
 
-  const filteredOrders =
-    ordersData?.data?.filter(
-      (order) =>
-        order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.totalPrice.toString().includes(searchTerm)
-    ) || [];
+  // Properly accessing the orders array from the response
+  const orders = data?.data || [];
+
+  const filteredOrders = orders.filter(
+    (order) =>
+      order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.totalPrice.toString().includes(searchTerm)
+  );
 
   if (isLoading) {
     return (
@@ -123,7 +125,7 @@ const MyOrders = () => {
                       {formatDate(order.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {order.items.reduce(
+                      {order.orderItems.reduce(
                         (total, item) => total + item.quantity,
                         0
                       )}
@@ -140,12 +142,12 @@ const MyOrders = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <Link
-                        to={`/dashboard/orders/${order._id}`}
-                        className="text-purple-600 hover:text-purple-900"
+                      <button
+                        onClick={() => setSelectedOrderId(order._id)}
+                        className="text-purple-600 hover:text-purple-900 cursor-pointer bg-transparent border-none p-0 text-sm font-medium"
                       >
                         View Details
-                      </Link>
+                      </button>
                     </td>
                   </tr>
                 ))}

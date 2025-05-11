@@ -96,7 +96,11 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
                 <h4 className="text-sm font-medium text-gray-900 mb-2">
                   Shipping Address
                 </h4>
-                <p className="text-sm text-gray-600">{order.shippingAddress}</p>
+                <p className="text-sm text-gray-600">
+                  {order.shippingAddress.address}, {order.shippingAddress.city},{" "}
+                  {order.shippingAddress.postalCode},
+                  {order.shippingAddress.country}
+                </p>
               </div>
 
               {/* Order Items */}
@@ -105,7 +109,7 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
                   Order Items
                 </h4>
                 <div className="space-y-4">
-                  {order.items.map((item) => (
+                  {order.orderItems.map((item) => (
                     <div key={item.book._id} className="flex justify-between">
                       <div className="flex">
                         <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">

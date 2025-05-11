@@ -21,14 +21,15 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
     }),
 
     getOrders: builder.query({
-      query: ({ page = 1, limit = 10 } = {}) => `orders?page=${page}&limit=${limit}`,
-      providesTags: (result) => 
-        result 
+      query: ({ page = 1, limit = 10 } = {}) =>
+        `orders?page=${page}&limit=${limit}`,
+      providesTags: (result) =>
+        result
           ? [
-              ...result.data.map(({ _id }) => ({ type: 'Order', id: _id })),
-              { type: 'Order', id: 'LIST' },
+              ...result.data.map(({ _id }) => ({ type: "Order", id: _id })),
+              { type: "Order", id: "LIST" },
             ]
-          : [{ type: 'Order', id: 'LIST' }],
+          : [{ type: "Order", id: "LIST" }],
       transformResponse: (response) => ({
         data: response.orders,
         totalPages: response.totalPages,
@@ -43,24 +44,24 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
     }),
 
     getAllOrders: builder.query({
-      query: ({ 
-        page = 1, 
-        limit = 10, 
-        status, 
-        sortField = 'createdAt', 
-        sortOrder = 'desc' 
+      query: ({
+        page = 1,
+        limit = 10,
+        status,
+        sortField = "createdAt",
+        sortOrder = "desc",
       } = {}) => {
         let url = `orders/admin/all?page=${page}&limit=${limit}&sortField=${sortField}&sortOrder=${sortOrder}`;
         if (status) url += `&status=${status}`;
         return url;
       },
-      providesTags: (result) => 
-        result 
+      providesTags: (result) =>
+        result
           ? [
-              ...result.data.map(({ _id }) => ({ type: 'Order', id: _id })),
-              { type: 'Order', id: 'ADMIN_LIST' },
+              ...result.data.map(({ _id }) => ({ type: "Order", id: _id })),
+              { type: "Order", id: "ADMIN_LIST" },
             ]
-          : [{ type: 'Order', id: 'ADMIN_LIST' }],
+          : [{ type: "Order", id: "ADMIN_LIST" }],
       transformResponse: (response) => ({
         data: response.orders,
         totalPages: response.totalPages,
@@ -75,7 +76,9 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
         method: "PUT",
         body: { status },
       }),
-      invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg.orderId }],
+      invalidatesTags: (result, error, arg) => [
+        { type: "Order", id: arg.orderId },
+      ],
     }),
 
     cancelOrder: builder.mutation({
@@ -84,8 +87,8 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
         method: "PUT",
       }),
       invalidatesTags: (result, error, arg) => [
-        { type: 'Order', id: arg },
-        { type: 'Book', id: 'LIST' },
+        { type: "Order", id: arg },
+        { type: "Book", id: "LIST" },
       ],
     }),
 
@@ -94,7 +97,7 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
         url: `orders/${orderId}`,
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, arg) => [{ type: 'Order', id: arg }],
+      invalidatesTags: (result, error, arg) => [{ type: "Order", id: arg }],
     }),
 
     handlePaymentWebhook: builder.mutation({
@@ -117,8 +120,8 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
         body: { paymentData },
       }),
       invalidatesTags: (result, error, arg) => [
-        { type: 'Order', id: arg.orderId },
-        { type: 'Payment', id: 'STATUS' },
+        { type: "Order", id: arg.orderId },
+        { type: "Payment", id: "STATUS" },
       ],
     }),
   }),
