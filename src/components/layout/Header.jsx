@@ -214,9 +214,23 @@ const Header = () => {
             <ul className="flex items-center justify-center space-x-6 py-2">
               <li>
                 <NavLink
+                  to="/"
+                  className={({ isActive }) =>
+                    `font-semibold   ${
+                      isActive
+                        ? " text-[#fce7f3]"
+                        : "text-gray-100 hover:text-[#fce7f3]"
+                    }`
+                  }
+                >
+                  Home
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
                   to="/books"
                   className={({ isActive }) =>
-                    `font-semibold ${
+                    `font-semibold   ${
                       isActive
                         ? " text-[#fce7f3]"
                         : "text-gray-100 hover:text-[#fce7f3]"
@@ -226,7 +240,35 @@ const Header = () => {
                   Books
                 </NavLink>
               </li>
-              {/* Other nav items... */}
+              <li>
+                <NavLink
+                  to="/categories"
+                  className={({ isActive }) =>
+                    `font-semibold   ${
+                      isActive
+                        ? " text-[#fce7f3]"
+                        : "text-gray-100 hover:text-[#fce7f3]"
+                    }`
+                  }
+                >
+                  Categories
+                </NavLink>
+              </li>
+
+              <li>
+                <NavLink
+                  to="/login?redirect=/dashboard/recommendations"
+                  className={({ isActive }) =>
+                    `font-semibold   ${
+                      isActive
+                        ? " text-[#fce7f3]"
+                        : "text-gray-100 hover:text-[#fce7f3]"
+                    }`
+                  }
+                >
+                  Recommendations
+                </NavLink>
+              </li>
             </ul>
           </div>
         </nav>
@@ -247,7 +289,16 @@ const Header = () => {
               </button>
             </div>
 
-            <ul className="space-y-4">
+            <ul className="space-y-3">
+              <li>
+                <Link
+                  to="/"
+                  className="block py-2 text-gray-800 hover:text-purple-700"
+                  onClick={toggleSidebar}
+                >
+                  Home
+                </Link>
+              </li>
               <li>
                 <Link
                   to="/books"
@@ -257,7 +308,34 @@ const Header = () => {
                   Books
                 </Link>
               </li>
-              {/* Other mobile menu items... */}
+              <li>
+                <Link
+                  to="/categories"
+                  className="block py-2 text-gray-800 hover:text-purple-700"
+                  onClick={toggleSidebar}
+                >
+                  Categories
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/login?redirect=/dashboard/recommendations"
+                  className="block py-2 text-gray-800 hover:text-purple-700"
+                  onClick={toggleSidebar}
+                >
+                  Recommendations
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  to="/login"
+                  className="block py-2 text-center rounded-lg text-gray-100 bg-purple-600 hover:b-purple-700"
+                  onClick={toggleSidebar}
+                >
+                  Login
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
