@@ -11,189 +11,166 @@ import {
 import Newsletter from "../components/common/Newsletter";
 import ValueProps from "../components/common/ValueProps";
 import Pagination from "../components/common/Pagination";
-import { Link } from "react-router-dom";
-import { useGetBooksQuery } from "../redux/slices/bookSlice";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useGetBookListsQuery } from "../redux/slices/bookSlice";
 import { toast } from "react-toastify";
 import { addToCartWithSync } from "../redux/slices/cartThunks";
 import { useDispatch } from "react-redux";
+import LoadingSkeleton from "../components/preloader/LoadingSkeleton";
+import ErrorMessage from "../components/common/ErrorMessage";
 
 const BooksPage = () => {
-  const [viewType, setViewType] = useState("grid"); // grid, list
+  const location = useLocation();
+  const navigate = useNavigate();
+  const searchParams = new URLSearchParams(location.search);
+
+  // Initialize state from URL params
+  const [currentPage, setCurrentPage] = useState(
+    parseInt(searchParams.get("page")) || 1
+  );
+  const [itemsPerPage, setItemsPerPage] = useState(
+    parseInt(searchParams.get("limit")) || 8
+  );
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("search") || ""
+  );
+  const [selectedCategories, setSelectedCategories] = useState(
+    searchParams.get("category")?.split(",") || []
+  );
+  const [selectedFormats, setSelectedFormats] = useState(
+    searchParams.get("format")?.split(",") || []
+  );
+  const [priceRange, setPriceRange] = useState([
+    parseFloat(searchParams.get("minPrice")) || 0,
+    parseFloat(searchParams.get("maxPrice")) || 100,
+  ]);
+  const [sortOption, setSortOption] = useState(
+    searchParams.get("sort") || "newest"
+  );
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    params.set("page", currentPage.toString());
+    params.set("limit", itemsPerPage.toString());
+    if (selectedCategories.length)
+      params.set("category", selectedCategories.join(","));
+    if (selectedFormats.length) params.set("format", selectedFormats.join(","));
+    if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString());
+    if (priceRange[1] < 100) params.set("maxPrice", priceRange[1].toString());
+    if (searchQuery) params.set("search", searchQuery);
+    if (sortOption !== "newest") params.set("sort", sortOption);
+
+    navigate(`?${params.toString()}`, { replace: true });
+  }, [
+    currentPage,
+    itemsPerPage,
+    selectedCategories,
+    selectedFormats,
+    priceRange,
+    searchQuery,
+    sortOption,
+    navigate,
+  ]);
+
+  // Get books with current filters
+  const { data, isLoading, isError } = useGetBookListsQuery({
+    page: currentPage,
+    limit: itemsPerPage,
+    category: selectedCategories.join(","),
+    format: selectedFormats.join(","),
+    minPrice: priceRange[0],
+    maxPrice: priceRange[1],
+    search: searchQuery,
+    sort: sortOption,
+  });
+
+  // Reset to page 1 when search query changes
+  useEffect(() => {
+    if (searchParams.get("search") !== searchQuery) {
+      setSearchQuery(searchParams.get("search") || "");
+      setCurrentPage(1);
+    }
+  }, [location.search]);
+
+  const books = data?.data || [];
+  const totalBooks = data?.total || 0;
+  const totalPages = Math.ceil(totalBooks / itemsPerPage);
+
+  const [viewType, setViewType] = useState("grid");
   const [showFilters, setShowFilters] = useState(true);
 
-  // Filter states
-  const [selectedCategories, setSelectedCategories] = useState(["all"]);
-  const [selectedFormat, setSelectedFormat] = useState("all");
-  const [priceRange, setPriceRange] = useState([0, 100]);
-  const [selectedPublisher, setSelectedPublisher] = useState("all");
-  const [selectedYear, setSelectedYear] = useState("all");
-
-  // Sorting and pagination states
-  const [sortOption, setSortOption] = useState("newest");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(8);
   const [favorites, setFavorites] = useState([]);
 
-  // Full book data
-  const [allBooks, setAllBooks] = useState([]);
-  const { data, isLoading, isError } = useGetBooksQuery();
-
-  useEffect(() => {
-    if (data) {
-      setAllBooks(data.books);
-    }
-  }, [data]);
-
-  // Categories list for filter
+  // Available filter options
   const categories = [
-    { id: "all", name: "All Books" },
-    { id: "arts", name: "Arts & Photography" },
-    { id: "fiction", name: "Fiction" },
-    { id: "memoir", name: "Biographies & Memoirs" },
-    { id: "finance", name: "Business & Money" },
-    { id: "children", name: "Children's Books" },
-    { id: "comics", name: "Comics & Graphic Novels" },
-    { id: "computer", name: "Computer & Technology" },
-    { id: "cooking", name: "Cooking, Food & Wine" },
-    { id: "education", name: "Education & Teaching" },
-    { id: "health", name: "Health & Fitness" },
-    { id: "love", name: "Love & Romance" },
-    { id: "travel", name: "Travel & Tourism" },
+    { id: "Fiction", name: "Fiction" },
+    { id: "Non-Fiction", name: "Non-Fiction" },
+    { id: "Science Fiction", name: "Science Fiction" },
+    { id: "Fantasy", name: "Fantasy" },
+    { id: "Mystery", name: "Mystery" },
+    { id: "Thriller", name: "Thriller" },
+    { id: "Romance", name: "Romance" },
+    { id: "Historical Fiction", name: "Historical Fiction" },
+    { id: "Contemporary", name: "Contemporary" },
+    { id: "Young Adult", name: "Young Adult" },
+    { id: "Middle Grade", name: "Middle Grade" },
+    { id: "Children's", name: "Children's" },
+    { id: "Biography & Autobiography", name: "Biography & Autobiography" },
+    { id: "History", name: "History" },
+    { id: "Science & Technology", name: "Science & Technology" },
+    { id: "Mathematics", name: "Mathematics" },
+    { id: "Social Sciences", name: "Social Sciences" },
+    { id: "Psychology", name: "Psychology" },
+    { id: "Self-Help", name: "Self-Help" },
+    { id: "Business & Economics", name: "Business & Economics" },
+    { id: "Travel", name: "Travel" },
+    { id: "Cookbooks, Food & Wine", name: "Cookbooks, Food & Wine" },
+    { id: "Art & Photography", name: "Art & Photography" },
+    { id: "Religion & Spirituality", name: "Religion & Spirituality" },
+    { id: "Philosophy", name: "Philosophy" },
+    { id: "Poetry", name: "Poetry" },
+    { id: "Drama", name: "Drama" },
+    { id: "Comics & Graphic Novels", name: "Comics & Graphic Novels" },
+    { id: "Education", name: "Education" },
+    { id: "Reference", name: "Reference" },
   ];
 
-  // Formats for filter
   const formats = [
-    { id: "all", name: "All Formats" },
     { id: "hardcover", name: "Hardcover" },
     { id: "paperback", name: "Paperback" },
-    { id: "audio", name: "Audio Book" },
-    { id: "large", name: "Large Print" },
-    { id: "ebook", name: "eBook" },
+    { id: "ebook", name: "E-Book" },
+    { id: "audio", name: "Audiobook" },
   ];
 
-  // Publishers list for filter
-  const publishers = [
-    { id: "all", name: "All Publishers" },
-    { id: "harper", name: "Harper" },
-    { id: "penguin", name: "Penguin" },
-    { id: "random", name: "Random House" },
-    { id: "mit", name: "MIT Press" },
-    { id: "orbit", name: "Orbit" },
-    { id: "kodansha", name: "Kodansha" },
+  const sortOptions = [
+    { value: "newest", label: "Newest" },
+    { value: "oldest", label: "Oldest" },
+    { value: "price-asc", label: "Price: Low to High" },
+    { value: "price-desc", label: "Price: High to Low" },
+    { value: "rating", label: "Highest Rating" },
+    { value: "bestseller", label: "Bestsellers" },
+    { value: "title-asc", label: "Title: A-Z" },
+    { value: "title-desc", label: "Title: Z-A" },
   ];
-
-  // Filter books based on selected filters
-  const filterBooks = () => {
-    return allBooks.filter((book) => {
-      // Category filter
-      if (selectedCategories.includes("all")) {
-        // "All" is selected, don't filter by category
-      } else if (
-        !selectedCategories.some((cat) => {
-          // Map category IDs to actual category names or check directly
-          const catLower = cat.toLowerCase();
-          const bookCatLower = book.category.toLowerCase();
-          return (
-            bookCatLower.includes(catLower) || catLower.includes(bookCatLower)
-          );
-        })
-      ) {
-        return false;
-      }
-
-      // Format filter
-      if (selectedFormat !== "all" && book.format !== selectedFormat) {
-        return false;
-      }
-
-      // Publisher filter
-      if (
-        selectedPublisher !== "all" &&
-        !book.publisher.toLowerCase().includes(selectedPublisher.toLowerCase())
-      ) {
-        return false;
-      }
-
-      // Year filter
-      if (selectedYear !== "all" && book.year.toString() !== selectedYear) {
-        return false;
-      }
-
-      // Price range filter
-      if (book.price < priceRange[0] || book.price > priceRange[1]) {
-        return false;
-      }
-
-      return true;
-    });
-  };
-
-  // Sort the filtered books
-  const sortBooks = (books) => {
-    switch (sortOption) {
-      case "newest":
-        return [...books].sort((a, b) => b.year - a.year);
-      case "price-low-high":
-        return [...books].sort((a, b) => a.price - b.price);
-      case "price-high-low":
-        return [...books].sort((a, b) => b.price - a.price);
-      case "rating":
-        return [...books].sort((a, b) => b.rating - a.rating);
-      default:
-        return books;
-    }
-  };
-
-  // Get current books for pagination
-  const getVisibleBooks = () => {
-    const filtered = filterBooks();
-    const sorted = sortBooks(filtered);
-
-    // Calculate pagination
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    return sorted.slice(indexOfFirstItem, indexOfLastItem);
-  };
-
-  // Calculate total pages
-  const totalPages = Math.ceil(filterBooks().length / itemsPerPage);
-
-  // Books to display after filtering, sorting, and pagination
-  const visibleBooks = getVisibleBooks();
 
   // Toggle category selection
   const toggleCategory = (categoryId) => {
-    if (categoryId === "all") {
-      setSelectedCategories(["all"]);
-    } else {
-      const newSelectedCategories = selectedCategories.includes(categoryId)
-        ? selectedCategories.filter((id) => id !== categoryId)
-        : [...selectedCategories.filter((id) => id !== "all"), categoryId];
-
-      // If nothing is selected, default to 'all'
-      setSelectedCategories(
-        newSelectedCategories.length ? newSelectedCategories : ["all"]
-      );
-    }
-    // Reset to first page when filter changes
+    setSelectedCategories((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId]
+    );
     setCurrentPage(1);
   };
 
-  // Handle format change
-  const handleFormatChange = (formatId) => {
-    setSelectedFormat(formatId);
-    setCurrentPage(1);
-  };
-
-  // Handle publisher change
-  const handlePublisherChange = (publisherId) => {
-    setSelectedPublisher(publisherId);
-    setCurrentPage(1);
-  };
-
-  // Handle year change
-  const handleYearChange = (yearId) => {
-    setSelectedYear(yearId);
+  // Toggle format selection
+  const toggleFormat = (formatId) => {
+    setSelectedFormats((prev) =>
+      prev.includes(formatId)
+        ? prev.filter((id) => id !== formatId)
+        : [...prev, formatId]
+    );
     setCurrentPage(1);
   };
 
@@ -203,102 +180,98 @@ const BooksPage = () => {
     setCurrentPage(1);
   };
 
-  // Reset all filters
-  const resetFilters = () => {
-    setSelectedCategories(["all"]);
-    setSelectedFormat("all");
-    setSelectedPublisher("all");
-    setSelectedYear("all");
-    setPriceRange([0, 100]);
-    setCurrentPage(1);
+  // Update your handleSearch function in the search form
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // Reset to first page when searching
   };
 
-  // Apply all filters (for the Apply button)
-  const applyFilters = () => {
-    // This function could be used for additional logic before applying filters
-    // Currently, filters are applied immediately, but you could batch changes
-    console.log("Filters applied:", {
-      categories: selectedCategories,
-      format: selectedFormat,
-      publisher: selectedPublisher,
-      year: selectedYear,
-      priceRange,
-    });
+  // Reset all filters
+  const resetFilters = () => {
+    setSelectedCategories([]);
+    setSelectedFormats([]);
+    setPriceRange([0, 100]);
+    setSearchQuery("");
+    setCurrentPage(1);
   };
 
   // Handle pagination
   const handlePageChange = (page) => {
-    // Check if page is valid
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
-      // Scroll to top when page changes
       window.scrollTo(0, 0);
     }
   };
 
   // Toggle favorite status
   const toggleFavorite = (bookId) => {
-    if (favorites.includes(bookId)) {
-      setFavorites(favorites.filter((id) => id !== bookId));
-    } else {
-      setFavorites([...favorites, bookId]);
-    }
+    setFavorites((prev) =>
+      prev.includes(bookId)
+        ? prev.filter((id) => id !== bookId)
+        : [...prev, bookId]
+    );
   };
 
   // Handle sort change
   const handleSortChange = (option) => {
     setSortOption(option);
+    setCurrentPage(1);
   };
 
   // Render star ratings
   const renderRating = (rating) => {
-    const stars = [];
-    for (let i = 0; i < 5; i++) {
-      stars.push(
-        <Star
-          key={i}
-          className={`w-4 h-4 ${
-            i < Math.floor(rating)
-              ? "text-yellow-400 fill-yellow-400"
-              : "text-gray-300"
-          }`}
-        />
-      );
-    }
-    return <div className="flex">{stars}</div>;
+    return (
+      <div className="flex">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`w-4 h-4 ${
+              star <= Math.floor(rating)
+                ? "text-yellow-400 fill-yellow-400"
+                : "text-gray-300"
+            }`}
+          />
+        ))}
+      </div>
+    );
   };
 
   // Format price
   const formatPrice = (price) => {
-    return `$${price.toFixed(2)}`;
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(price);
   };
 
   // Add to Cart
   const dispatch = useDispatch();
-  const [isAdding, setIsAdding] = useState(false);
-  const addToCart = async (bookId, quantity = 1) => {
-    setIsAdding(true);
+  const addToCart = async (bookId) => {
     try {
-      await dispatch(
-        addToCartWithSync({
-          bookId,
-          quantity,
-        })
-      );
-      // Show success message or notification
-      toast.success("Sucessfully added Book Cart");
-    } catch (err) {
-      toast.error(err);
-      console.log(err);
-    } finally {
-      setIsAdding(false);
+      await dispatch(addToCartWithSync({ bookId, quantity: 1 }));
+      toast.success("Added to cart successfully");
+    } catch (error) {
+      toast.error("Failed to add to cart");
+      console.error(error);
     }
   };
 
+  if (isLoading)
+    return (
+      <div className="lg:px-28">
+        <LoadingSkeleton type={"card"} count={4} />
+      </div>
+    );
+
+  // Show error state
+  if (isError) {
+    return <ErrorMessage error={"Error loading books"} />;
+  }
   return (
     <div>
       {/* Breadcrumb */}
-      <div className="bg-gray-50 py-3 ">
+      <div className="bg-gray-50 py-3">
         <div className="container mx-auto px-4 flex justify-between">
           <div className="flex items-center text-sm">
             <Link to="/" className="text-gray-600 hover:text-purple-700">
@@ -308,12 +281,11 @@ const BooksPage = () => {
             <span className="text-gray-900">Books</span>
           </div>
 
-          {/* Toggle Filters Button (Mobile) */}
           <button
             className="md:hidden flex items-center text-sm gap-x-2 border border-gray-300 rounded-md px-2 py-1.5"
             onClick={() => setShowFilters(!showFilters)}
           >
-            <Filter className="w-4 h-4 " />
+            <Filter className="w-4 h-4" />
             {showFilters ? "Hide Filters" : "Show Filters"}
           </button>
         </div>
@@ -321,98 +293,62 @@ const BooksPage = () => {
 
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row">
-          {/* Sidebar Filters - Only visible in certain views */}
-          {(viewType === "grid" || viewType === "list") && showFilters && (
-            <div className="w-full md:w-64 md:mr-8">
-              <div className="mb-8">
+          {/* Sidebar Filters */}
+          {showFilters && (
+            <div className="w-full md:w-64 md:mr-8 mb-6 md:mb-0">
+              <div className="bg-white p-4 rounded-lg shadow-sm">
                 <h2 className="text-xl font-bold mb-4">Filter</h2>
+
+                {/* Search */}
+                <form onSubmit={handleSearch} className="mb-6">
+                  <input
+                    type="text"
+                    placeholder="Search books..."
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <button type="submit" className="hidden" aria-hidden="true" />
+                </form>
 
                 {/* Categories Filter */}
                 <div className="mb-6">
-                  <h3 className="font-medium mb-3 flex items-center justify-between">
-                    <span>Categories</span>
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
-                  </h3>
+                  <h3 className="font-medium mb-3">Categories</h3>
                   <ul className="space-y-2">
                     {categories.map((category) => (
-                      <li
-                        key={category._id}
-                        className="flex items-center justify-between"
-                      >
-                        <div className="flex items-center">
+                      <li key={category.id}>
+                        <label className="flex items-center">
                           <input
                             type="checkbox"
-                            id={`category-${category._id}`}
                             className="mr-2 h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                            checked={
-                              selectedCategories.includes(category._id) ||
-                              (category._id === "all" &&
-                                selectedCategories.includes("all"))
-                            }
-                            onChange={() => toggleCategory(category._id)}
+                            checked={selectedCategories.includes(category.id)}
+                            onChange={() => toggleCategory(category.id)}
                           />
-                          <label
-                            htmlFor={`category-${category._id}`}
-                            className="text-sm text-gray-700"
-                          >
+                          <span className="text-sm text-gray-700">
                             {category.name}
-                          </label>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Book Format Filter */}
-                <div className="mb-6">
-                  <h3 className="font-medium mb-3 flex items-center justify-between">
-                    <span>Book Format</span>
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
-                  </h3>
-                  <ul className="space-y-2">
-                    {formats.map((format) => (
-                      <li key={format._id} className="flex items-center">
-                        <input
-                          type="radio"
-                          id={`format-${format._id}`}
-                          name="format"
-                          className="mr-2 h-4 w-4 border-gray-300 text-purple-600 focus:ring-purple-500"
-                          checked={selectedFormat === format._id}
-                          onChange={() => handleFormatChange(format._id)}
-                        />
-                        <label
-                          htmlFor={`format-${format._id}`}
-                          className="text-sm text-gray-700"
-                        >
-                          {format.name}
+                          </span>
                         </label>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                {/* Publisher Filter */}
+                {/* Format Filter */}
                 <div className="mb-6">
-                  <h3 className="font-medium mb-3 flex items-center justify-between">
-                    <span>Publisher</span>
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
-                  </h3>
+                  <h3 className="font-medium mb-3">Format</h3>
                   <ul className="space-y-2">
-                    {publishers.map((publisher) => (
-                      <li key={publisher._id} className="flex items-center">
-                        <input
-                          type="radio"
-                          id={`publisher-${publisher._id}`}
-                          name="publisher"
-                          className="mr-2 h-4 w-4 border-gray-300 text-purple-600 focus:ring-purple-500"
-                          checked={selectedPublisher === publisher._id}
-                          onChange={() => handlePublisherChange(publisher._id)}
-                        />
-                        <label
-                          htmlFor={`publisher-${publisher._id}`}
-                          className="text-sm text-gray-700"
-                        >
-                          {publisher.name}
+                    {formats.map((format) => (
+                      <li key={format.id}>
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            className="mr-2 h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                            checked={selectedFormats.includes(format.id)}
+                            onChange={() => toggleFormat(format.id)}
+                          />
+                          <span className="text-sm text-gray-700">
+                            {format.name}
+                          </span>
                         </label>
                       </li>
                     ))}
@@ -421,65 +357,30 @@ const BooksPage = () => {
 
                 {/* Price Range Filter */}
                 <div className="mb-6">
-                  <h3 className="font-medium mb-3 flex items-center justify-between">
-                    <span>Price Range</span>
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
-                  </h3>
+                  <h3 className="font-medium mb-3">Price Range</h3>
                   <div className="px-2">
-                    <div className="bg-purple-600 h-1 rounded-full relative my-6">
-                      <div
-                        className="absolute -top-2 -ml-2 left-1/4 cursor-pointer"
-                        style={{ left: `${(priceRange[0] / 100) * 100}%` }}
-                      >
-                        <div className="h-5 w-5 bg-white border border-purple-600 rounded-full" />
-                      </div>
-                      <div
-                        className="absolute -top-2 -ml-2 cursor-pointer"
-                        style={{ left: `${(priceRange[1] / 100) * 100}%` }}
-                      >
-                        <div className="h-5 w-5 bg-white border border-purple-600 rounded-full" />
-                      </div>
-                    </div>
-                    <div className="flex justify-between text-sm text-gray-500">
-                      <span>${priceRange[0]}</span>
-                      <span>${priceRange[1]}</span>
-                    </div>
-                    {/* Simple buttons to adjust price range for demo */}
-                    <div className="flex justify-between mt-4">
-                      <button
-                        className="text-xs text-purple-600 underline"
-                        onClick={() => handlePriceRangeChange(0, 20)}
-                      >
-                        Under $20
-                      </button>
-                      <button
-                        className="text-xs text-purple-600 underline"
-                        onClick={() => handlePriceRangeChange(20, 30)}
-                      >
-                        $20 - $30
-                      </button>
-                      <button
-                        className="text-xs text-purple-600 underline"
-                        onClick={() => handlePriceRangeChange(30, 100)}
-                      >
-                        Over $30
-                      </button>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={priceRange[1]}
+                      onChange={(e) =>
+                        handlePriceRangeChange(0, e.target.value)
+                      }
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-sm text-gray-500 mt-2">
+                      <span>{formatPrice(priceRange[0])}</span>
+                      <span>{formatPrice(priceRange[1])}</span>
                     </div>
                   </div>
                 </div>
 
                 <button
-                  className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition"
-                  onClick={applyFilters}
-                >
-                  Apply Filters
-                </button>
-
-                <button
-                  className="w-full text-gray-700 py-2 mt-2 text-sm hover:text-purple-700 transition"
                   onClick={resetFilters}
+                  className="w-full text-purple-600 underline text-sm mt-4 text-left"
                 >
-                  Reset Filter
+                  Reset all filters
                 </button>
               </div>
             </div>
@@ -487,34 +388,30 @@ const BooksPage = () => {
 
           {/* Main Content */}
           <div className="flex-1">
-            <div className="flex justify-end md:justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold hidden lg:block">Books</h1>
-              <div className="flex  items-center  space-x-2">
-                {/* Advanced Search Button */}
-                <button className="hidden md:flex items-center text-sm border border-gray-300 rounded-md px-3 py-1.5">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Advanced Search
-                </button>
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
+              <h1 className="text-2xl font-bold mb-4 md:mb-0">Books</h1>
 
+              <div className="flex flex-col sm:flex-row gap-3">
                 {/* Sort Dropdown */}
                 <div className="relative">
                   <select
-                    className="bg-white border border-gray-300 text-sm rounded-md py-1.5 px-3 appearance-none pr-8"
+                    className="bg-white border border-gray-300 text-sm rounded-md py-2 px-3 appearance-none pr-8 w-full"
                     value={sortOption}
                     onChange={(e) => handleSortChange(e.target.value)}
                   >
-                    <option value="newest">Newest</option>
-                    <option value="price-low-high">Price: Low to High</option>
-                    <option value="price-high-low">Price: High to Low</option>
-                    <option value="rating">Best Rating</option>
+                    {sortOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
                   </select>
-                  <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none text-gray-400" />
                 </div>
 
                 {/* View Toggle */}
-                <div className="flex border border-gray-300 rounded-md overflow-hidden ">
+                <div className="flex border border-gray-300 rounded-md overflow-hidden self-end sm:self-auto">
                   <button
-                    className={`p-1.5 ${
+                    className={`p-2 ${
                       viewType === "grid"
                         ? "bg-purple-600 text-white"
                         : "bg-white text-gray-700"
@@ -524,7 +421,7 @@ const BooksPage = () => {
                     <Grid className="w-4 h-4" />
                   </button>
                   <button
-                    className={`p-1.5 ${
+                    className={`p-2 ${
                       viewType === "list"
                         ? "bg-purple-600 text-white"
                         : "bg-white text-gray-700"
@@ -537,14 +434,14 @@ const BooksPage = () => {
               </div>
             </div>
 
-            {/* No Results Message */}
-            {visibleBooks.length === 0 && (
+            {/* No Results */}
+            {books.length === 0 && (
               <div className="bg-gray-50 p-8 text-center rounded-lg">
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
                   No books found
                 </h3>
                 <p className="text-gray-600">
-                  Try adjusting your filters or search criteria.
+                  Try adjusting your filters or search query.
                 </p>
                 <button
                   className="mt-4 text-purple-600 underline"
@@ -556,87 +453,57 @@ const BooksPage = () => {
             )}
 
             {/* Book Grid View */}
-            {viewType === "grid" && visibleBooks.length > 0 && (
-              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
-                {visibleBooks.map((book) => (
+            {viewType === "grid" && books.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                {books.map((book) => (
                   <div key={book._id} className="group relative">
                     <div className="relative bg-gray-100 rounded-lg overflow-hidden aspect-[2/3]">
                       <img
-                        src={book.image}
+                        src={book.image || "/book-placeholder.jpg"}
                         alt={book.title}
                         className="w-full h-full object-cover"
                       />
-                      {book.tag && (
-                        <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
-                          {book.tag}
-                        </div>
-                      )}
-
                       <div className="absolute bottom-0 right-0 p-2 flex flex-col items-center space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
-                          className={`${
+                          className={`p-2 rounded-full shadow-md ${
                             favorites.includes(book._id)
                               ? "bg-purple-100 text-purple-600"
                               : "bg-white text-gray-500"
-                          } p-1.5 rounded-full shadow-md hover:text-purple-600`}
+                          }`}
                           onClick={() => toggleFavorite(book._id)}
                         >
                           <Heart
-                            className={`w-5 h-5 ${
-                              favorites.includes(book._id)
-                                ? "fill-purple-600"
-                                : ""
+                            className={`w-4 h-4 ${
+                              favorites.includes(book._id) ? "fill-current" : ""
                             }`}
                           />
                         </button>
                         <button
-                          onClick={() => {
-                            addToCart(book._id);
-                          }}
-                          className="bg-white rounded-full p-2 shadow-md"
+                          onClick={() => addToCart(book._id)}
+                          className="bg-white rounded-full p-2 shadow-md text-gray-500 hover:text-purple-600"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 text-gray-600 hover:text-purple-600"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                            />
-                          </svg>
+                          <ShoppingCart className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
                     <div className="mt-3">
-                      <div className="flex items-center text-xs text-gray-500 mb-1">
-                        <span>{book.category}</span>
-                      </div>
-                      <Link
-                        to={`/books/${book._id}`}
-                        className="font-semibold text-gray-900 mb-1"
-                      >
-                        {book.title}
-                      </Link>
-                      <p className="text-gray-500 text-sm mb-1">
+                      <h3 className="font-medium text-gray-900 line-clamp-2">
+                        <Link to={`/books/${book._id}`}>{book.title}</Link>
+                      </h3>
+                      <p className="text-gray-500 text-sm mt-1">
                         {book.author}
                       </p>
-                      <div className="flex items-center mb-2">
-                        {renderRating(book.rating)}
-                        <span className="text-xs text-gray-500 ml-1">
-                          ({book.rating})
-                        </span>
-                      </div>
-                      <div className="flex items-center">
+                      {book.averageRating && (
+                        <div className="flex items-center mt-1">
+                          {renderRating(book.averageRating)}
+                          <span className="text-xs text-gray-500 ml-1">
+                            ({book.averageRating.toFixed(1)})
+                          </span>
+                        </div>
+                      )}
+                      <div className="mt-2">
                         <span className="font-medium text-gray-900">
                           {formatPrice(book.price)}
-                        </span>
-                        <span className="text-gray-500 text-sm line-through ml-2">
-                          {formatPrice(book.price * 1.2)}
                         </span>
                       </div>
                     </div>
@@ -646,93 +513,72 @@ const BooksPage = () => {
             )}
 
             {/* Book List View */}
-            {viewType === "list" && visibleBooks.length > 0 && (
+            {viewType === "list" && books.length > 0 && (
               <div className="space-y-6">
-                {visibleBooks.map((book) => (
-                  <div key={book._id} className="flex border-b pb-6">
-                    <div className="relative h-40 w-28 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                      <img
-                        src={book.image}
-                        alt={book.title}
-                        className="h-full w-full object-cover"
-                      />
-                      {book.tag && (
-                        <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
-                          {book.tag}
-                        </div>
-                      )}
+                {books.map((book) => (
+                  <div
+                    key={book._id}
+                    className="flex flex-col sm:flex-row gap-4 border-b pb-6"
+                  >
+                    <div className="w-full sm:w-32 flex-shrink-0">
+                      <div className="relative bg-gray-100 rounded-lg overflow-hidden aspect-[2/3]">
+                        <img
+                          src={book.image || "/book-placeholder.jpg"}
+                          alt={book.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     </div>
-                    <div className="ml-2 sm:ml-6 flex-1">
-                      <div className="flex justify-between">
-                        <div>
-                          <div className="flex items-center text-xs text-gray-500 mb-1">
-                            <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded mr-2">
-                              {book.category}
-                            </span>
-                            {book.tag && (
-                              <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded">
-                                {book.tag}
-                              </span>
-                            )}
-                          </div>
-                          <Link
-                            to={`/books/${book._id}`}
-                            className="font-medium text-lg text-gray-900 mb-1"
-                          >
-                            {book.title}
-                          </Link>
-                          <p className="text-gray-500 text-sm mb-2">
+                    <div className="flex-1">
+                      <div className="flex flex-col h-full">
+                        <div className="flex-1">
+                          <h3 className="font-medium text-lg text-gray-900">
+                            <Link to={`/books/${book._id}`}>{book.title}</Link>
+                          </h3>
+                          <p className="text-gray-500 text-sm mt-1">
                             {book.author}
                           </p>
-                          <div className="flex items-center mb-3">
-                            {renderRating(book.rating)}
-                            <span className="text-xs text-gray-500 ml-1">
-                              ({book.rating})
-                            </span>
-                            <span className="mx-2 text-gray-400">|</span>
-                            <span className="text-xs text-gray-500">
-                              {book.reviews} reviews
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                          {book.averageRating && (
+                            <div className="flex items-center mt-2">
+                              {renderRating(book.averageRating)}
+                              <span className="text-xs text-gray-500 ml-1">
+                                ({book.averageRating.toFixed(1)})
+                              </span>
+                            </div>
+                          )}
+                          <p className="text-sm text-gray-600 mt-2 line-clamp-2">
                             {book.description}
                           </p>
                         </div>
-                        <div className="flex flex-col items-end">
-                          <button
-                            className={`${
-                              favorites.includes(book._id)
-                                ? "bg-purple-100 text-purple-600"
-                                : "bg-white text-gray-500"
-                            } p-1.5 rounded-full shadow-md hover:text-purple-600`}
-                            onClick={() => toggleFavorite(book._id)}
-                          >
-                            <Heart
-                              className={`w-4 h-4 ${
+                        <div className="mt-4 flex justify-between items-center">
+                          <span className="font-medium text-gray-900 text-lg">
+                            {formatPrice(book.price)}
+                          </span>
+                          <div className="flex gap-2">
+                            <button
+                              className={`p-2 rounded-full ${
                                 favorites.includes(book._id)
-                                  ? "fill-purple-600"
-                                  : ""
+                                  ? "text-purple-600"
+                                  : "text-gray-400"
                               }`}
-                            />
-                          </button>
-                          <div className="flex items-center mb-1">
-                            <span className="font-medium text-gray-900 text-lg">
-                              {formatPrice(book.price)}
-                            </span>
-                            <span className="text-gray-500 text-sm line-through ml-2">
-                              {formatPrice(book.price * 1.2)}
-                            </span>
+                              onClick={() => toggleFavorite(book._id)}
+                            >
+                              <Heart
+                                className={`w-5 h-5 ${
+                                  favorites.includes(book._id)
+                                    ? "fill-current"
+                                    : ""
+                                }`}
+                              />
+                            </button>
+                            <button
+                              onClick={() => addToCart(book._id)}
+                              className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition flex items-center"
+                            >
+                              <ShoppingCart className="w-4 h-4 mr-1" />
+                              Add to Cart
+                            </button>
                           </div>
-                          <div className="text-xs text-green-600 mb-4">
-                            10% OFF
-                          </div>
-                          <button
-                            className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition flex items-center"
-                            onClick={() => addToCart(book)}
-                          >
-                            <ShoppingCart className="w-4 h-4 mr-1" />
-                            Buy
-                          </button>
                         </div>
                       </div>
                     </div>
@@ -750,14 +596,13 @@ const BooksPage = () => {
               />
             )}
 
-            {/* Items per page selector */}
-            <div className="flex justify-between items-center mt-6 text-sm text-gray-500">
-              <div>
+            {/* Results Info */}
+            <div className="flex flex-col sm:flex-row justify-between items-center mt-6 text-sm text-gray-500">
+              <div className="mb-2 sm:mb-0">
                 Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-                {Math.min(currentPage * itemsPerPage, filterBooks().length)} of{" "}
-                {filterBooks().length} books
+                {Math.min(currentPage * itemsPerPage, totalBooks)} of{" "}
+                {totalBooks} books
               </div>
-
               <div className="flex items-center">
                 <span className="mr-2">Show:</span>
                 <select
@@ -765,7 +610,7 @@ const BooksPage = () => {
                   value={itemsPerPage}
                   onChange={(e) => {
                     setItemsPerPage(Number(e.target.value));
-                    setCurrentPage(1); // Reset to first page when changing items per page
+                    setCurrentPage(1);
                   }}
                 >
                   <option value={8}>8</option>

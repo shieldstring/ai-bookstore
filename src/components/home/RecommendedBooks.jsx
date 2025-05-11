@@ -15,8 +15,8 @@ const RecommendedBooks = () => {
   const { data, isLoading, isError } = useGetBooksQuery();
 
   useEffect(() => {
-    if (data?.books) {
-      setBooks(data.books);
+    if (data?.data) {
+      setBooks(data.data);
     }
   }, [data]);
 

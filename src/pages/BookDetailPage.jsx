@@ -38,7 +38,7 @@ function BookDetailPage() {
 
   useEffect(() => {
     if (data) {
-      setBook(data);
+      setBook(data.data);
     }
   }, [data]);
 

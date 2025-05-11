@@ -11,7 +11,7 @@ export default function BestSellers() {
 
   useEffect(() => {
     if (data) {
-      setBestSellers(data.books);
+      setBestSellers(data.data);
     }
   }, [data]);
 

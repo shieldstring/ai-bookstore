@@ -12,7 +12,7 @@ const HeroBanner = () => {
 
   useEffect(() => {
     if (data) {
-      setBooks(data.books);
+      setBooks(data.data);
     }
   }, [data]);
 

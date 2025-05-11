@@ -65,10 +65,10 @@ const CartPage = () => {
             const bookDetails = await response.json();
             return {
               ...item,
-              name: bookDetails.title || "Unknown Book",
-              image: bookDetails.image || "/default-book-cover.jpg",
-              price: bookDetails.price || 0,
-              author: bookDetails.author || "Unknown ",
+              name: bookDetails.data.title || "Unknown Book",
+              image: bookDetails.data.image || "/default-book-cover.jpg",
+              price: bookDetails.data.price || 0,
+              author: bookDetails.data.author || "Unknown ",
               // Any other book details you need
             };
           })

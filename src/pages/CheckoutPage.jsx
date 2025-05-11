@@ -60,10 +60,10 @@ const CheckoutPage = () => {
             const bookDetails = await response.json();
             return {
               ...item,
-              name: bookDetails.title || "Unknown Book",
-              image: bookDetails.image || "/default-book-cover.jpg",
-              price: bookDetails.price || 0,
-              author: bookDetails.author || "Unknown ",
+              name: bookDetails.data.title || "Unknown Book",
+              image: bookDetails.data.image || "/default-book-cover.jpg",
+              price: bookDetails.data.price || 0,
+              author: bookDetails.data.author || "Unknown ",
               // Any other book details you need
             };
           })
@@ -142,11 +142,9 @@ const CheckoutPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setPaymentError("");
-
     try {
       if (paymentMethod === "stripe") {
         setIsRedirecting(true);
-        
         // Format line items for Stripe Checkout
         const items = enrichedCart.map(item => ({
           price_data: {
@@ -160,7 +158,7 @@ const CheckoutPage = () => {
           },
           quantity: item.quantity,
         }));
-
+        
         // Create a checkout session
         const checkoutResult = await createCheckoutSession({
           amount: Math.round(total * 100), // Total in cents
@@ -169,13 +167,16 @@ const CheckoutPage = () => {
           successUrl: `${window.location.origin}/checkout?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${window.location.origin}/cart`,
         }).unwrap();
-
+        
         // Store the checkout session ID
         setCheckoutSessionId(checkoutResult.sessionId);
         
-        // Create order first to associate with payment
+        // Prepare order data - make sure to include the book ID properly
         const orderData = {
-          orderItems: cartData,
+          orderItems: cartData.map(item => ({
+            ...item,
+            book: item._id // Explicitly ensure book ID is included
+          })),
           shippingAddress: shippingInfo,
           paymentMethod,
           totalPrice: total,
@@ -187,17 +188,19 @@ const CheckoutPage = () => {
           },
           checkoutSessionId: checkoutResult.sessionId,
         };
-
+        
         const orderResult = await createOrder(orderData).unwrap();
         setOrderId(orderResult._id);
         
         // Redirect to Stripe Checkout
         window.location.href = checkoutResult.url;
-        
       } else if (paymentMethod === "paypal") {
-        // Create the order for PayPal payment
+        // Create the order for PayPal payment - make sure to include the book ID properly
         const orderData = {
-          orderItems: cartData,
+          orderItems: cartData.map(item => ({
+            ...item,
+            book: item._id // Explicitly ensure book ID is included
+          })),
           shippingAddress: shippingInfo,
           paymentMethod,
           totalPrice: total,
@@ -208,7 +211,7 @@ const CheckoutPage = () => {
             email_address: userInfo.email,
           },
         };
-
+        
         const res = await createOrder(orderData).unwrap();
         setOrderId(res._id);
         
@@ -235,7 +238,7 @@ const CheckoutPage = () => {
   // Show loading state
   if (isLoading) {
     return (
-      <section className="max-w-xl mx-auto text-white py-12 lg:py-16">
+      <section className="px-2 lg:px-28 mx-auto text-white py-12 lg:py-16">
         <div className="container mx-auto px-4">
           <LoadingSkeleton type={"list"} count={3} />
         </div>
@@ -250,7 +253,7 @@ const CheckoutPage = () => {
   );
 
   // Show processing state when returning from Stripe with session_id
-  if (sessionId && !checkoutStatusData) {
+  if (sessionId && !checkoutStatusData) { 
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center p-8">
@@ -298,7 +301,7 @@ const CheckoutPage = () => {
       )}
 
       {isRedirecting && (
-        <div className="bg-blue-50 text-purple-700 p-4 mb-6 rounded-md flex items-center">
+        <div className="bg-blue-50 text-purple-700 p-4 mb-6 rounded-md flex items-center mx-auto">
           <LoadingSpinner size="sm" className="mr-2" />
           <span>Preparing checkout... You'll be redirected to complete payment.</span>
         </div>

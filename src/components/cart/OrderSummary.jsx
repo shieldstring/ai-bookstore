@@ -38,7 +38,7 @@ const OrderSummary = ({ subtotal, discount, total, coupon }) => {
       )}
 
       <Link
-        to="/checkout"
+        to="/login?redirect=/checkout"
         className="block w-full bg-purple-600 text-white text-center py-3 rounded-md mt-6 hover:bg-purple-700 transition"
       >
         Proceed to Checkout

@@ -12,7 +12,7 @@ export default function TrendingBooks() {
 
   useEffect(() => {
     if (data) {
-      setAllBooks(data.books);
+      setAllBooks(data.data);
     }
   }, [data]);
 
