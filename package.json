@@ -28,10 +28,7 @@
 		"dev": "react-scripts start",
 		"build": "react-scripts build",
 		"test": "react-scripts test",
-		"eject": "react-scripts eject",
-		"generate-sw": "node scripts/generate-sw.js",
-		"prestart": "npm run generate-sw",
-		"prebuild": "npm run generate-sw"
+		"eject": "react-scripts eject"
 		},
 	"eslintConfig": {
 		"extends": [
