@@ -156,13 +156,37 @@ const Header = () => {
                   >
                     My Profile
                   </Link>
-                  {/* Other menu items... */}
+                  <Link
+                    to="/dashboard"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                  >
+                    My Profile
+                  </Link>
+                  <Link
+                    to="/dashboard/orders"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                  >
+                    My Orders
+                  </Link>
+                  <Link
+                    to="/dashboard/wishlist"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                  >
+                    Wishlist
+                  </Link>
+                  <Link
+                    to="/dashboard/mlm"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                  >
+                    My Network
+                  </Link>
                   <button
                     onClick={handleUserLogout}
                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
                   >
                     Sign Out
                   </button>
+                  
                 </div>
               </div>
             ) : (

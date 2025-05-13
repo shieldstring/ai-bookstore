@@ -1,42 +1,42 @@
-import { useEffect } from "react";
-import { messaging, getToken, onMessage } from "./firebase";
-import { notificationAPI } from "./api";
-import { toast } from "react-toastify";
+import { useState, useEffect, useCallback } from 'react';
+
+import { toast } from 'react-toastify';
+import { notificationManager } from '../utils/notificationUtils';
 
 const useFCM = () => {
-  useEffect(() => {
-    const registerToken = async () => {
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission === "granted") {
-          const token = await getToken(messaging, {
-            vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
-          });
+  const [permissionStatus, setPermissionStatus] = useState(Notification.permission);
+  const [notificationEnabled, setNotificationEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-          if (token) {
-            const deviceInfo = navigator.userAgent;
-            await notificationAPI.registerToken(token, deviceInfo);
-            toast.success("Notifications enabled for this device");
-          }
-        } else {
-          toast.info("Please enable notifications for the best experience");
+  // Initial setup
+  useEffect(() => {
+    const initializeFCM = async () => {
+      setIsLoading(true);
+      try {
+        // Check current permission status
+        setPermissionStatus(Notification.permission);
+        setNotificationEnabled(Notification.permission === 'granted');
+        
+        // If permission is already granted, just get the token
+        if (Notification.permission === 'granted') {
+          await notificationManager.getToken();
         }
       } catch (error) {
-        toast.error("Failed to enable notifications");
-        console.error("FCM registration error:", error);
+        console.error('FCM initialization error:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
-
-    registerToken();
-
-    // Handle foreground messages
-    const unsubscribe = onMessage(messaging, (payload) => {
-      console.log("Foreground message:", payload);
-
+    
+    initializeFCM();
+    
+    // Set up notification listener (for displaying toasts)
+    const unsubscribe = notificationManager.addListener((notification) => {
+      // Show toast for foreground notifications
       toast.info(
         <div>
-          <h4 className="font-bold">{payload.notification?.title}</h4>
-          <p>{payload.notification?.body}</p>
+          <h4 className="font-bold">{notification.title}</h4>
+          <p>{notification.body}</p>
         </div>,
         {
           position: "top-right",
@@ -48,30 +48,64 @@ const useFCM = () => {
         }
       );
     });
-
+    
     return () => {
       unsubscribe();
     };
   }, []);
-
-  // Optional: Add function to manually request permission
-  const requestNotificationPermission = async () => {
+  
+  // Function to request notification permission
+  const requestPermission = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        toast.success("Notifications enabled!");
+      const granted = await notificationManager.requestPermission();
+      setPermissionStatus(Notification.permission);
+      setNotificationEnabled(granted);
+      
+      if (granted) {
+        toast.success('Notifications enabled for this device');
+        return true;
+      } else {
+        toast.info('Please enable notifications for the best experience');
+        return false;
+      }
+    } catch (error) {
+      console.error('Permission request failed:', error);
+      toast.error('Failed to enable notifications');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+  
+  // Function to disable notifications
+  const disableNotifications = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const success = await notificationManager.unregisterToken();
+      if (success) {
+        setNotificationEnabled(false);
+        toast.info('Notifications disabled for this device');
         return true;
       }
-      toast.warn("Notifications permission denied");
       return false;
     } catch (error) {
-      toast.error("Error requesting notification permission");
-      console.error(error);
+      console.error('Failed to disable notifications:', error);
+      toast.error('Failed to disable notifications');
       return false;
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, []);
 
-  return { requestNotificationPermission };
+  return {
+    permissionStatus,
+    notificationEnabled,
+    isLoading,
+    requestPermission,
+    disableNotifications,
+    isSupported: notificationManager.isSupported
+  };
 };
 
 export default useFCM;

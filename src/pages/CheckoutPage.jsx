@@ -126,7 +126,7 @@ const CheckoutPage = () => {
       // If payment is complete and we have an orderId, navigate to order confirmation
       if (checkoutStatusData.status === "paid" && checkoutStatusData.orderId) {
         dispatch(clearLocalCart());
-        navigate(`/order/${checkoutStatusData.orderId}`);
+        navigate(`/dashboard/orders/${checkoutStatusData.orderId}`);
       }
     }
   }, [checkoutStatusData, navigate, dispatch]);
@@ -141,6 +141,7 @@ const CheckoutPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setPaymentError("");
+    
     try {
       const formattedOrderItems = enrichedCart.map((item) => ({
         book: item.bookId,
@@ -149,7 +150,7 @@ const CheckoutPage = () => {
         image: item.image || "",
         price: item.price,
       }));
-
+      
       const orderData = {
         orderItems: formattedOrderItems,
         shippingAddress: shippingInfo,
@@ -165,47 +166,57 @@ const CheckoutPage = () => {
           email_address: userInfo.email,
         },
       };
-
+      
       if (paymentMethod === "stripe") {
         setIsRedirecting(true);
-        // Create Stripe checkout session items
-        const items = enrichedCart.map((item) => ({
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: item.name,
-              description: item.author ? `by ${item.author}` : undefined,
-              images: item.image ? [item.image] : undefined,
+        
+        try {
+          // First create the order to get an order ID
+          const orderResult = await createOrder(orderData).unwrap();
+          
+          setOrderId(orderResult._id);
+          
+          // Create Stripe checkout session items
+          const items = enrichedCart.map((item) => ({
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: item.name,
+                description: item.author ? `by ${item.author}` : undefined,
+                images: item.image ? [item.image] : undefined,
+              },
+              unit_amount: Math.round(item.price * 100),
             },
-            unit_amount: Math.round(item.price * 100),
-          },
-          quantity: item.quantity,
-        }));
-
-        const checkoutResult = await createCheckoutSession({
-          amount: Math.round(total * 100),
-          items,
-          successUrl: `${window.location.origin}/checkout?session_id={CHECKOUT_SESSION_ID}`,
-          cancelUrl: `${window.location.origin}/cart`,
-        }).unwrap();
-
-        // Create the order first
-        const orderResult = await createOrder({
-          ...orderData,
-          paymentResult: {
-            ...orderData.paymentResult,
-            id: checkoutResult.sessionId,
-          },
-        }).unwrap();
-
-        setOrderId(orderResult._id);
-        setCheckoutSessionId(checkoutResult.sessionId);
-        window.location.href = checkoutResult.url;
+            quantity: item.quantity,
+          }));
+          
+          // Create checkout session with order ID already included in the success URL
+          const checkoutResult = await createCheckoutSession({
+            amount: Math.round(total * 100),
+            items,
+            // Explicitly include session_id and order_id in the success URL
+            successUrl: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${orderResult._id}`,
+            cancelUrl: `${window.location.origin}/cart`,
+            orderId: orderResult._id, // Pass order ID to backend
+          }).unwrap();
+          
+          setCheckoutSessionId(checkoutResult.sessionId);
+          
+          // Clear the cart locally before redirecting
+          dispatch(clearLocalCart());
+          
+          // Redirect to Stripe checkout
+          window.location.href = checkoutResult.url;
+        } catch (err) {
+          console.error("Error during Stripe checkout:", err);
+          setPaymentError(err.data?.message || "Failed to process Stripe payment");
+          setIsRedirecting(false);
+        }
       } else if (paymentMethod === "paypal") {
         const res = await createOrder(orderData).unwrap();
         setOrderId(res._id);
         dispatch(clearLocalCart());
-        navigate(`/order/${res._id}`);
+        navigate(`/dashboard/orders`);
       }
     } catch (err) {
       console.error("Order creation error:", err);
@@ -244,8 +255,8 @@ const CheckoutPage = () => {
   // Show processing state when returning from Stripe with session_id
   if (sessionId && !checkoutStatusData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center p-8">
+      <div className="min-h-screen flex items-center justify-center ">
+        <div className="text-center mx-auto p-8">
           <LoadingSpinner size="lg" className="mx-auto mb-4" />
           <h2 className="text-2xl font-semibold mb-2">Processing Your Order</h2>
           <p className="text-gray-600">

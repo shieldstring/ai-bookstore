@@ -113,6 +113,13 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
       providesTags: ["Payment"],
     }),
 
+    verifyPayment: builder.mutation({
+      query: (data) => ({
+        url: "orders/verify-payment",
+        method: "POST",
+        body: data,
+      }),
+    }),
     updateOrderPaymentStatus: builder.mutation({
       query: ({ orderId, paymentData }) => ({
         url: `orders/${orderId}/payment-status`,
@@ -139,4 +146,5 @@ export const {
   useUpdateOrderStatusMutation,
   useCancelOrderMutation,
   useDeleteOrderMutation,
+  useVerifyPaymentMutation,
 } = ordersApiSlice;

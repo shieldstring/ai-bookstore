@@ -98,7 +98,7 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
                 </h4>
                 <p className="text-sm text-gray-600">
                   {order.shippingAddress.address}, {order.shippingAddress.city},{" "}
-                  {order.shippingAddress.postalCode},
+                  {order.shippingAddress.postalCode},{" "}
                   {order.shippingAddress.country}
                 </p>
               </div>

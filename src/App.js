@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import HomePage from "./pages/Home";
@@ -35,21 +35,16 @@ import NotificationPrompt from "./components/notification/NotificationPrompt";
 import useFCM from "./services/useFCM";
 import NotificationsPage from "./pages/dashboard/NotificationsPage";
 import OAuthCallback from "./components/OAuthCallback";
+import CheckoutSuccess from "./components/CheckoutSuccess";
 function App() {
-  useFCM(); // Initialize FCM
-  // Register service worker
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("/firebase-messaging-sw.js")
-        .then((registration) => {
-          console.log("ServiceWorker registration successful:", registration);
-        })
-        .catch((err) => {
-          console.log("ServiceWorker registration failed:", err);
-        });
-    });
-  }
+  // Initialize FCM and get FCM functionality
+  const { isSupported } = useFCM();
+
+  useEffect(() => {
+    if (!isSupported) {
+      console.log("Push notifications are not supported in this browser");
+    }
+  }, [isSupported]);
 
   return (
     <Router>
@@ -77,6 +72,7 @@ function App() {
           <Route path="profile/:userId" element={<UserProfile />} />
           <Route path="groups/:groupId" element={"<GroupPage />"} />
           <Route path="cart" element={<CartPage />} />
+          <Route path="checkout/success" element={<CheckoutSuccess />} />
 
           {/* Protected Routes */}
           <Route
