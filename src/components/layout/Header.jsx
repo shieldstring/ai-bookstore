@@ -156,12 +156,7 @@ const Header = () => {
                   >
                     My Profile
                   </Link>
-                  <Link
-                    to="/dashboard"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
-                  >
-                    My Profile
-                  </Link>
+                 
                   <Link
                     to="/dashboard/orders"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
