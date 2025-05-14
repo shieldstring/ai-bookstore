@@ -57,9 +57,9 @@ const GroupChat = () => {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!message.trim()) return;
-
+    const data = { groupId, message };
     try {
-      await addDiscussion({ groupId, content: message }).unwrap();
+      await addDiscussion(data).unwrap();
       setMessage("");
       refetchDiscussions();
     } catch (error) {
@@ -109,10 +109,10 @@ const GroupChat = () => {
       {/* Header */}
       <div className="p-4 border-b border-gray-200 bg-white flex items-center justify-between">
         <div className="flex items-center">
-          <Link to="/dashboard/groups" className="mr-3">
+          <Link to="/dashboard/chats" className="mr-3">
             <ArrowLeft className="h-5 w-5 text-gray-500" />
           </Link>
-          <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 overflow-hidden mr-3">
+          <div className="flex-shrink-0 h-10 w-10 rounded-full bg-purple-200 overflow-hidden mr-3">
             {group.avatar ? (
               <img
                 src={group.avatar}
@@ -120,11 +120,11 @@ const GroupChat = () => {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <Users className="h-full w-full p-1.5 text-gray-400" />
+              <Users className="h-full w-full p-1.5 text-purple-400" />
             )}
           </div>
           <div className="flex-1">
-            <h2 className="text-lg font-semibold">{group.name}</h2>
+            <h2 className="text-lg font-semibold capitalize">{group.name}</h2>
             <p className="text-sm text-gray-500">
               {group.members?.length || 0} members
             </p>
@@ -134,8 +134,8 @@ const GroupChat = () => {
           onClick={handleGroupAction}
           className={`px-3 py-1 rounded-md text-sm ${
             isMember
-              ? "bg-gray-100 text-gray-800 hover:bg-gray-200"
-              : "bg-blue-600 text-white hover:bg-blue-700"
+              ? "bg-red-100 text-red-800 hover:bg-gray-200"
+              : "bg-purple-600 text-white hover:bg-purple-700"
           }`}
         >
           {isMember ? "Leave Group" : "Join Group"}
@@ -179,7 +179,7 @@ const GroupChat = () => {
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <div className="h-full w-full flex items-center justify-center bg-blue-500 text-white">
+                        <div className="h-full w-full flex items-center justify-center bg-purple-500 text-white">
                           {discussion.user?.name?.charAt(0) || "U"}
                         </div>
                       )}
@@ -194,11 +194,11 @@ const GroupChat = () => {
                     <div
                       className={`rounded-lg px-4 py-2 break-words relative ${
                         isCurrentUser
-                          ? "bg-blue-500 text-white"
+                          ? "bg-purple-500 text-white"
                           : "bg-white border border-gray-200 text-gray-800"
                       }`}
                     >
-                      <p>{discussion.content}</p>
+                      <p>{discussion.message}</p>
                       {canDelete && (
                         <button
                           onClick={() =>
@@ -251,13 +251,13 @@ const GroupChat = () => {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type a message..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
               disabled={!isMember}
             />
             <button
               type="submit"
               disabled={!message.trim() || !isMember}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center"
+              className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center"
             >
               <Send className="h-5 w-5" />
             </button>

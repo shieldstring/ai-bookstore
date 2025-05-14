@@ -9,7 +9,7 @@ import ErrorMessage from "../../../components/common/ErrorMessage";
 
 function ChatLists() {
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: userGroups = [], isLoading, isError } = useGetUserGroupsQuery();
+  const { data: userGroups = [] , isLoading, isError } = useGetUserGroupsQuery();
 
   useEffect(() => {
     window.scrollTo({

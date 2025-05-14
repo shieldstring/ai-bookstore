@@ -61,10 +61,10 @@ export const groupApiSlice = apiTwo.injectEndpoints({
       ],
     }),
     addDiscussion: builder.mutation({
-      query: ({ groupId, content }) => ({
+      query: (data) => ({
         url: `/groups/discussions`,
         method: 'POST',
-        body: { groupId, content },
+        body: data,
       }),
       invalidatesTags: ['Discussion', 'Group'],
     }),

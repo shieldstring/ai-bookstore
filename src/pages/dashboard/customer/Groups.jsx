@@ -6,10 +6,11 @@ import {
   useGetGroupsQuery,
   useJoinGroupMutation,
   useLeaveGroupMutation,
-  useCreateGroupMutation,
 } from "../../../redux/slices/groupApiSlice";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import ErrorMessage from "../../../components/common/ErrorMessage";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Groups = () => {
   useEffect(() => {
@@ -19,6 +20,7 @@ const Groups = () => {
     });
   }, []);
 
+  const navigate = useNavigate();
   const [modal, setModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
@@ -39,7 +41,6 @@ const Groups = () => {
   // Mutation hooks
   const [joinGroup] = useJoinGroupMutation();
   const [leaveGroup] = useLeaveGroupMutation();
-  const [createGroup] = useCreateGroupMutation();
 
   // Handle join/leave group
   const handleGroupAction = async (groupId, isJoined) => {
@@ -51,12 +52,16 @@ const Groups = () => {
       }
       refetch(); // Refresh the groups list after action
     } catch (error) {
-      console.error("Failed to perform group action:", error);
+      if (error?.data?.message === "You are already a member of this group") {
+        navigate("/dashboard/chats");
+      } else {
+        toast.error(error?.data?.message);
+      }
     }
   };
 
   // Filter groups based on search term (now handled by API)
-  const filteredGroups = groups.data || [];
+  const filteredGroups = groups || [];
 
   if (isLoading) {
     return (
@@ -111,41 +116,54 @@ const Groups = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredGroups.map((group) => (
-              <div
-                key={group._id}
-                className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="bg-purple-100 p-3 rounded-full mr-4">
-                    <Users className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900">
-                    {group.name}
-                  </h3>
-                </div>
-                <div className="flex justify-between text-sm text-gray-500 mb-4">
-                  <div className="flex items-center space-x-1">
-                    <Users className="h-4 w-4" />
-                    <span>{group.members?.length || 0} members</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <MessageCircle className="h-4 w-4" />
-                    <span>{group.discussions?.length || 0} discussions</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleGroupAction(group._id, group.isMember)}
-                  className={`w-full py-2 px-4 rounded-md ${
-                    group.isMember
-                      ? "bg-gray-100 text-gray-800 hover:bg-gray-200"
-                      : "bg-purple-600 text-white hover:bg-purple-700"
-                  } transition-colors`}
+            {filteredGroups.map((group) => {
+              if (!group || typeof group !== "object") return null;
+              return (
+                <div
+                  key={group._id}
+                  className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
                 >
-                  {group.isMember ? "Leave Group" : "Join Group"}
-                </button>
-              </div>
-            ))}
+                  <div className="flex items-center mb-4">
+                    <div className="bg-purple-100 p-3 rounded-full mr-4">
+                      <Users className="h-6 w-6 text-purple-600" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 capitalize">
+                      {group.name} 
+                    </h3>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-500 mb-4">
+                    <div className="flex items-center space-x-1">
+                      <Users className="h-4 w-4" />
+                      <span>
+                        {Array.isArray(group.members)
+                          ? group.members.length
+                          : 0}{" "}
+                        members
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <MessageCircle className="h-4 w-4" />
+                      <span>
+                        {Array.isArray(group.discussions)
+                          ? group.discussions.length
+                          : 0}{" "}
+                        discussions
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleGroupAction(group._id, group.isMember)}
+                    className={`w-full py-2 px-4 rounded-md ${
+                      group.isMember
+                        ? "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                        : "bg-purple-600 text-white hover:bg-purple-700"
+                    } transition-colors`}
+                  >
+                    {group.isMember ? "Leave Group" : "Join Group"}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
