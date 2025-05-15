@@ -131,6 +131,11 @@ const Groups = () => {
                       {group.name} 
                     </h3>
                   </div>
+                  {group.description && (
+          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+            {group.description}
+          </p>
+        )}
                   <div className="flex justify-between text-sm text-gray-500 mb-4">
                     <div className="flex items-center space-x-1">
                       <Users className="h-4 w-4" />
@@ -141,19 +146,9 @@ const Groups = () => {
                         members
                       </span>
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <MessageCircle className="h-4 w-4" />
-                      <span>
-                        {Array.isArray(group.discussions)
-                          ? group.discussions.length
-                          : 0}{" "}
-                        discussions
-                      </span>
-                    </div>
-                  </div>
-                  <button
+                    <button
                     onClick={() => handleGroupAction(group._id, group.isMember)}
-                    className={`w-full py-2 px-4 rounded-md ${
+                    className={`flex py-2 px-4 rounded-md ${
                       group.isMember
                         ? "bg-gray-100 text-gray-800 hover:bg-gray-200"
                         : "bg-purple-600 text-white hover:bg-purple-700"
@@ -161,6 +156,8 @@ const Groups = () => {
                   >
                     {group.isMember ? "Leave Group" : "Join Group"}
                   </button>
+                  </div>
+                 
                 </div>
               );
             })}

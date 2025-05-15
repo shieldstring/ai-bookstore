@@ -209,7 +209,7 @@ const GroupChat = () => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-gray-50">
+    <div className="h-screen  flex flex-col bg-gray-50">
       {/* Header */}
       <div className="p-4 border-b border-gray-200 bg-white flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center">

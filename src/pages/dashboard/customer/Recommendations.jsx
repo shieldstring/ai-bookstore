@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useGetBooksQuery } from "../../../redux/slices/bookSlice";
+import { useGetRecommendationsQuery } from "../../../redux/slices/bookSlice";
 import ErrorMessage from "../../../components/common/ErrorMessage";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import { Star } from "lucide-react";
@@ -14,11 +14,11 @@ function Recommendations() {
     });
   }, []);
   const [books, setBooks] = useState([]);
-  const { data, isLoading, isError } = useGetBooksQuery();
+  const { data, isLoading, isError } = useGetRecommendationsQuery();
 
   useEffect(() => {
-    if (data?.books) {
-      setBooks(data.books);
+    if (data) {
+      setBooks(data.data);
     }
   }, [data]);
 
@@ -61,21 +61,15 @@ function Recommendations() {
                   {book.title}
                 </h4>
                 <p className="text-xs text-gray-500">{book.author}</p>
-                <div className="flex items-center mt-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`h-3 w-3 ${
-                        i < book.rating
-                          ? "text-yellow-400 fill-yellow-400"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  ))}
-                  <span className="text-xs text-gray-500 ml-1">
-                    ({book.reviewCount})
-                  </span>
-                </div>
+                <p className="text-gray-500 text-xs ">
+                      {book?.description}
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-purple-600 font-bold">
+                        ${book?.price?.toFixed(2) || "0.00"}
+                      </span>
+                      
+                    </div>
               </div>
               <Link
                 to={`/books/${book._id}`}

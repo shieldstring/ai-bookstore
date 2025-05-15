@@ -27,7 +27,7 @@ const GroupForm = ({ setModal }) => {
     try {
       const group = await createGroup(formData).unwrap();
       setModal(false); // Close the modal
-      navigate(`/chats/${group._id}`); // Navigate to the new group
+      navigate(`/dashboard/groups/${group._id}`); // Navigate to the new group
     } catch (err) {
       console.error("Error creating group:", err);
       setError(err.data?.message || "Failed to create group");
