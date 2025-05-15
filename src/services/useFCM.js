@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-
 import { toast } from 'react-toastify';
 import { notificationManager } from '../utils/notificationUtils';
 
 const useFCM = () => {
-  const [permissionStatus, setPermissionStatus] = useState(Notification.permission);
+  const [permissionStatus, setPermissionStatus] = useState(
+    'Notification' in window ? Notification.permission : 'unsupported'
+  );
   const [notificationEnabled, setNotificationEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -13,10 +14,17 @@ const useFCM = () => {
     const initializeFCM = async () => {
       setIsLoading(true);
       try {
+        // Check if notifications are supported
+        if (!notificationManager.isSupported) {
+          setPermissionStatus('unsupported');
+          setNotificationEnabled(false);
+          return;
+        }
+
         // Check current permission status
         setPermissionStatus(Notification.permission);
         setNotificationEnabled(Notification.permission === 'granted');
-        
+
         // If permission is already granted, just get the token
         if (Notification.permission === 'granted') {
           await notificationManager.getToken();
@@ -27,15 +35,15 @@ const useFCM = () => {
         setIsLoading(false);
       }
     };
-    
+
     initializeFCM();
-    
+
     // Set up notification listener (for displaying toasts)
     const unsubscribe = notificationManager.addListener((notification) => {
       // Show toast for foreground notifications
       toast.info(
         <div>
-          <h4 className="font-bold">{notification.title}</h4>
+          <strong>{notification.title}</strong>
           <p>{notification.body}</p>
         </div>,
         {
@@ -48,12 +56,12 @@ const useFCM = () => {
         }
       );
     });
-    
+
     return () => {
       unsubscribe();
     };
   }, []);
-  
+
   // Function to request notification permission
   const requestPermission = useCallback(async () => {
     setIsLoading(true);
@@ -77,7 +85,7 @@ const useFCM = () => {
       setIsLoading(false);
     }
   }, []);
-  
+
   // Function to disable notifications
   const disableNotifications = useCallback(async () => {
     setIsLoading(true);
