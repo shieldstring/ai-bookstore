@@ -4,7 +4,7 @@ import { createSlice } from "@reduxjs/toolkit";
 export const notificationApiSlice = apiTwo.injectEndpoints({
   endpoints: (builder) => ({
     getNotifications: builder.query({
-      query: () => `/notifications`,
+      query: () => `notifications`,
       providesTags: ["Notification"],
       transformResponse: (response) => {
         // Transform the response to include sender, group, and discussion details
@@ -17,12 +17,12 @@ export const notificationApiSlice = apiTwo.injectEndpoints({
       },
     }),
     getUnreadCount: builder.query({
-      query: () => `/notifications/unread-count`,
+      query: () => `notifications/unread-count`,
       providesTags: ["Notification"],
     }),
     markNotificationsAsRead: builder.mutation({
       query: (notificationIds) => ({
-        url: `/notifications/mark-read`,
+        url: `notifications/mark-read`,
         method: "POST",
         body: { notificationIds },
       }),
@@ -30,7 +30,7 @@ export const notificationApiSlice = apiTwo.injectEndpoints({
     }),
     markAllNotificationsAsRead: builder.mutation({
       query: () => ({
-        url: `/notifications/mark-all-read`,
+        url: `notifications/mark-all-read`,
         method: "POST",
       }),
       invalidatesTags: ["Notification"],
@@ -45,21 +45,21 @@ export const notificationApiSlice = apiTwo.injectEndpoints({
     }),
     updateNotificationPreferences: builder.mutation({
       query: (preferences) => ({
-        url: `/notifications/preferences`,
+        url: `notifications/preferences`,
         method: "PUT",
         body: preferences,
       }),
     }),
     deleteNotification: builder.mutation({
       query: (notificationId) => ({
-        url: `/notifications/${notificationId}`,
+        url: `notifications/${notificationId}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Notification"],
     }),
     deleteAllNotifications: builder.mutation({
       query: () => ({
-        url: `/notifications`,
+        url: `notifications`,
         method: "DELETE",
       }),
       invalidatesTags: ["Notification"],

@@ -13,7 +13,7 @@ export const productsApiSlice = apiTwo.injectEndpoints({
     }),
     createProduct: builder.mutation({
       query: (productData) => ({
-        url: "/products",
+        url: "products",
         method: "POST",
         body: productData,
       }),
@@ -21,7 +21,7 @@ export const productsApiSlice = apiTwo.injectEndpoints({
     }),
     updateProduct: builder.mutation({
       query: ({ id, ...productData }) => ({
-        url: `/products/${id}`,
+        url: `products/${id}`,
         method: "PUT",
         body: productData,
       }),
@@ -29,7 +29,7 @@ export const productsApiSlice = apiTwo.injectEndpoints({
     }),
     deleteProduct: builder.mutation({
       query: ({ id, ...productData }) => ({
-        url: `/products/${id}`,
+        url: `products/${id}`,
         method: "DELETE",
         body: productData,
       }),

@@ -4,20 +4,20 @@ export const groupApiSlice = apiTwo.injectEndpoints({
   endpoints: (builder) => ({
     getGroups: builder.query({
       query: ({ page = 1, limit = 10, category = '', search = '' }) =>
-        `/groups?page=${page}&limit=${limit}&category=${category}&search=${search}`,
+        `groups?page=${page}&limit=${limit}&category=${category}&search=${search}`,
       providesTags: ['Group'],
     }),
     getUserGroups: builder.query({
-      query: () => `/groups/user`,
+      query: () => `groups/user`,
       providesTags: ['Group'],
     }),
     getGroupDetails: builder.query({
-      query: (groupId) => `/groups/${groupId}`,
+      query: (groupId) => `groups/${groupId}`,
       providesTags: (result, error, arg) => [{ type: 'Group', id: arg }],
     }),
     createGroup: builder.mutation({
       query: (groupData) => ({
-        url: '/groups',
+        url: 'groups',
         method: 'POST',
         body: groupData,
       }),
@@ -25,7 +25,7 @@ export const groupApiSlice = apiTwo.injectEndpoints({
     }),
     editGroup: builder.mutation({
       query: ({ groupId, groupData }) => ({
-        url: `/groups/${groupId}`,
+        url: `groups/${groupId}`,
         method: 'PUT',
         body: groupData,
       }),
@@ -33,28 +33,28 @@ export const groupApiSlice = apiTwo.injectEndpoints({
     }),
     deleteGroup: builder.mutation({
       query: (groupId) => ({
-        url: `/groups/${groupId}`,
+        url: `groups/${groupId}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Group'],
     }),
     joinGroup: builder.mutation({
       query: (groupId) => ({
-        url: `/groups/${groupId}/join`,
+        url: `groups/${groupId}/join`,
         method: 'POST',
       }),
       invalidatesTags: ['Group'],
     }),
     leaveGroup: builder.mutation({
       query: (groupId) => ({
-        url: `/groups/${groupId}/leave`,
+        url: `groups/${groupId}/leave`,
         method: 'POST',
       }),
       invalidatesTags: ['Group'],
     }),
     // Discussion endpoints
     getGroupDiscussions: builder.query({
-      query: (groupId) => `/groups/${groupId}/discussions`,
+      query: (groupId) => `groups/${groupId}/discussions`,
       providesTags: (result, error, arg) => [
         { type: 'Discussion', id: arg },
         'Discussion'
@@ -62,7 +62,7 @@ export const groupApiSlice = apiTwo.injectEndpoints({
     }),
     addDiscussion: builder.mutation({
       query: (data) => ({
-        url: `/groups/discussions`,
+        url: `groups/discussions`,
         method: 'POST',
         body: data,
       }),
@@ -70,14 +70,14 @@ export const groupApiSlice = apiTwo.injectEndpoints({
     }),
     deleteDiscussion: builder.mutation({
       query: (discussionId) => ({
-        url: `/groups/discussions/${discussionId}`,
+        url: `groups/discussions/${discussionId}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Discussion', 'Group'],
     }),
     createGroupPost: builder.mutation({
       query: ({ groupId, content }) => ({
-        url: `/groups/${groupId}/posts`,
+        url: `groups/${groupId}/posts`,
         method: 'POST',
         body: { content },
       }),

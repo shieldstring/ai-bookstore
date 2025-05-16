@@ -21,6 +21,7 @@ import {
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import ErrorMessage from "../../../components/common/ErrorMessage";
+import NotificationSettings from "../../../components/dashboard/NotificationSettings";
 
 const MyAccount = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -146,7 +147,7 @@ const MyAccount = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 ">
+    <div className="min-h-screen bg-gray-50 space-y-6">
       <SEO
         title="Account Settings"
         description="Manage your personal information, security settings, payment methods, and shipping addresses."
@@ -781,6 +782,8 @@ const MyAccount = () => {
           </div>
         </div>
       )}
+
+      <NotificationSettings />
     </div>
   );
 };

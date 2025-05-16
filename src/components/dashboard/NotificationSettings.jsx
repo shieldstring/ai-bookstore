@@ -112,13 +112,13 @@ const NotificationSettings = () => {
   if (isLoading || fcmLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="px mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Notification Settings</h2>
       
       {/* Master notification toggle */}
@@ -139,9 +139,9 @@ const NotificationSettings = () => {
             <button
               onClick={handleToggleNotifications}
               disabled={fcmLoading}
-              className={`px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+              className={`px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 ${
                 notificationEnabled 
-                  ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                  ? 'bg-purple-500 text-white hover:bg-purple-600' 
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
@@ -176,7 +176,7 @@ const NotificationSettings = () => {
                   className="sr-only"
                 />
                 <div className={`block w-10 h-6 rounded-full ${
-                  !notificationEnabled ? 'bg-gray-300' : value ? 'bg-blue-500' : 'bg-gray-400'
+                  !notificationEnabled ? 'bg-gray-300' : value ? 'bg-purple-500' : 'bg-gray-400'
                 }`}></div>
                 <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition ${
                   value ? 'transform translate-x-4' : ''
@@ -201,7 +201,7 @@ const NotificationSettings = () => {
               <div>
                 <p className="text-gray-800 font-medium">
                   {device.deviceInfo?.platform || 'Unknown Device'}
-                  {device.isCurrent && <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Current</span>}
+                  {device.isCurrent && <span className="ml-2 text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">Current</span>}
                 </p>
                 <p className="text-sm text-gray-500">
                   Last active: {new Date(device.lastUsed || Date.now()).toLocaleString()}
