@@ -149,40 +149,71 @@ const Header = () => {
                     />
                   </svg>
                 </button>
-                <div className="absolute right-0 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-[100]">
-                  <Link
-                    to="/dashboard"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
-                  >
-                    My Profile
-                  </Link>
-                 
-                  <Link
-                    to="/dashboard/orders"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
-                  >
-                    My Orders
-                  </Link>
-                  <Link
-                    to="/dashboard/wishlist"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
-                  >
-                    Wishlist
-                  </Link>
-                  <Link
-                    to="/dashboard/mlm"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
-                  >
-                    My Network
-                  </Link>
-                  <button
-                    onClick={handleUserLogout}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
-                  >
-                    Sign Out
-                  </button>
-                  
-                </div>
+                {userInfo.role === "admin" ? (
+                  <div className="absolute right-0 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-[100]">
+                    <Link
+                      to="/admin/overview"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      Overview
+                    </Link>
+
+                    <Link
+                      to="/admin/orders"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      Orders
+                    </Link>
+                    <Link
+                      to="/admin/customers"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      Customers
+                    </Link>
+                    <Link
+                      to="/admin/products"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      Products
+                    </Link>
+
+                    <button
+                      onClick={handleUserLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                ) : (
+                  <div className="absolute right-0 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-[100]">
+                    <Link
+                      to="/dashboard"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      My Profile
+                    </Link>
+
+                    <Link
+                      to="/dashboard/orders"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      My Orders
+                    </Link>
+
+                    <Link
+                      to="/dashboard/mlm"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      My Network
+                    </Link>
+                    <button
+                      onClick={handleUserLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <Link

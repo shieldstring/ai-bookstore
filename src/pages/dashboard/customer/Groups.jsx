@@ -49,6 +49,7 @@ const Groups = () => {
         await leaveGroup(groupId).unwrap();
       } else {
         await joinGroup(groupId).unwrap();
+        navigate("/dashboard/chats");
       }
       refetch(); // Refresh the groups list after action
     } catch (error) {
