@@ -12,14 +12,14 @@ import {
 } from "lucide-react";
 import ErrorMessage from "../../../components/common/ErrorMessage";
 import StatsCard from "../../../components/dashboard/StatsCard";
-import ReadingProgressChart from "../../../components/dashboard/ReadingProgressChart";
 import BookRecommendations from "../../../components/dashboard/BookRecommendations";
 import RecentOrders from "../../../components/dashboard/RecentOrders";
 import UserProfileCard from "../../../components/dashboard/UserProfileCard";
 import UpcomingChallenges from "../../../components/dashboard/UpcomingChallenges";
-import { useGetBooksQuery } from "../../../redux/slices/bookSlice";
+import { useGetRecommendationsQuery } from "../../../redux/slices/bookSlice";
 import SEO from "../../../components/SEO";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
+import { Link } from "react-router-dom";
 
 const UserDashboard = () => {
   useEffect(() => {
@@ -30,13 +30,14 @@ const UserDashboard = () => {
   }, []);
   const { data, isLoading, error } = useGetUserDashboardQuery();
   const [books, setBooks] = useState([]);
-  const { data: book } = useGetBooksQuery();
+  const { data: recommemdedbooks } = useGetRecommendationsQuery();
 
   useEffect(() => {
-    if (book?.books) {
-      setBooks(book.books);
+    if (recommemdedbooks) {
+      setBooks(recommemdedbooks.data);
     }
-  }, [book]);
+  }, [data]);
+
 
   if (isLoading)
     return (
@@ -168,7 +169,23 @@ const UserDashboard = () => {
                 Reading Groups
               </h2>
             </div>
-            <div className="p-6">{/* Group membership component */}</div>
+            <div className="px-6 pb-6">
+              {data.groups.slice(0, 2).map((group) => (
+                <div
+                  key={group._id}
+                  className="flex items-center p-2 text-sm border-b hover:bg-slate-100"
+                >
+                  <Link to={`/dashboard/groups/${group._id}`}>
+                    <span className="truncate">{group.name}</span>
+                  </Link>
+                </div>
+              ))}
+              {data.groups.length > 2 && (
+                <button className="text-xs font-medium text-purple-600 hover:text-purple-700">
+                  +{data.groups.length - 2} more groups
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

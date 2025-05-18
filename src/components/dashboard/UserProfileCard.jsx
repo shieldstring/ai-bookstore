@@ -19,19 +19,19 @@ const UserProfileCard = ({ user, groups, achievements }) => {
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
       <div className="p-6 text-center">
         <div className="flex justify-center items-center space-x-4 mb-4">
-          {/* <div className="h-16 w-16 rounded-full bg-gray-200 overflow-hidden">
-            <img
-              src={user.avatar || "/images/avatar-placeholder.png"}
-              alt={user.name}
-              className="h-full w-full object-cover"
-            />
-          </div> */}
           <div>
-            <div className="mx-auto h-20 w-20 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-2xl font-bold mb-4">
-              {user.name.charAt(0)}
-            </div>
+            {user.profilePicture ? (
+              <img
+                src={user.profilePicture}
+                alt={user.name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="mx-auto h-20 w-20 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-2xl font-bold mb-4">
+                {user.name.charAt(0)}
+              </div>
+            )}
             <h3 className="text-lg font-medium text-gray-900">{user.name}</h3>
-            {/* <p className="text-gray-600 text-sm">@{user.username}</p> */}
             <p className="text-sm text-gray-500">
               Member since <br /> <FormattedDate date={user?.createdAt} />
             </p>
@@ -97,27 +97,7 @@ const UserProfileCard = ({ user, groups, achievements }) => {
         </div>
       </div>
 
-      <div className="border-t border-gray-200 px-6 py-4">
-        <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
-          <Users className="mr-2 h-4 w-4" />
-          Groups
-        </h4>
-        <div className="space-y-2">
-          {groups.slice(0, 2).map((group) => (
-            <div key={group.id} className="flex items-center text-sm">
-              <span className="truncate">{group.name}</span>
-              <span className="ml-auto text-gray-500">
-                {group.members} members
-              </span>
-            </div>
-          ))}
-          {groups.length > 2 && (
-            <button className="text-xs font-medium text-purple-600 hover:text-purple-700">
-              +{groups.length - 2} more groups
-            </button>
-          )}
-        </div>
-      </div>
+
 
       <div className="border-t border-gray-200 px-6 py-4">
         <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center">

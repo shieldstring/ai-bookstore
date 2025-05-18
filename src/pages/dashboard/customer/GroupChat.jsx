@@ -287,9 +287,9 @@ const GroupChat = () => {
                 >
                   {!isCurrentUser && (
                     <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gray-200 overflow-hidden mr-2 mt-1">
-                      {discussion.user?.avatar ? (
+                      {discussion.user?.profilePicture ? (
                         <img
-                          src={discussion.user.avatar}
+                          src={discussion.user.profilePicture}
                           alt={discussion.user.name}
                           className="h-full w-full object-cover"
                         />

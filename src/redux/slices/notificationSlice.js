@@ -37,7 +37,7 @@ export const notificationApiSlice = apiTwo.injectEndpoints({
     }),
     createNotification: builder.mutation({
       query: (notificationData) => ({
-        url: `/notifications/create`,
+        url: `notifications/create`,
         method: "POST",
         body: notificationData,
       }),

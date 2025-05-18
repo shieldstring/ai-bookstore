@@ -95,11 +95,35 @@ export const authApiAuthSlice = apiTwo.injectEndpoints({
     }),
     updateProfile: builder.mutation({
       query: (profileData) => ({
-        url: "profile",
+        url: "users/profile",
         method: "PUT",
         body: profileData,
       }),
       invalidatesTags: [{ type: "User", id: "CURRENT" }], // This will auto-refresh getUserDashboard
+    }),
+    // Admin user management endpoints
+    getAllUsers: builder.query({
+      query: () => `admin/users`,
+      providesTags: ["Users"],
+    }),
+    getUserById: builder.query({
+      query: (id) => `admin/users/${id}`,
+      providesTags: (result, error, id) => [{ type: "User", id }],
+    }),
+    updateUserRole: builder.mutation({
+      query: ({ id, role }) => ({
+        url: `admin/users/${id}/role`,
+        method: "PUT",
+        body: { role },
+      }),
+      invalidatesTags: ["Users", (result, error, arg) => [{ type: "User", id: arg.id }]],
+    }),
+    deleteUser: builder.mutation({
+      query: (id) => ({
+        url: `admin/users/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Users"],
     }),
   }),
 });

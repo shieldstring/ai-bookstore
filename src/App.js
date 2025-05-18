@@ -20,7 +20,6 @@ import Analytics from "./pages/dashboard/admin/Analytics";
 import Customers from "./pages/dashboard/admin/Customers";
 import AdminOrders from "./pages/dashboard/admin/Orders";
 import AdminSettings from "./pages/dashboard/admin/Settings";
-import ProductsList from "./pages/dashboard/admin/ProductsList";
 import UserProfile from "./pages/UserProfile";
 import UserDashboard from "./pages/dashboard/customer/UserDashboard";
 import AdminDashboard from "./pages/dashboard/admin/AdminDashboard";
@@ -28,7 +27,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import Recommendations from "./pages/dashboard/customer/Recommendations";
-
 import ChatLists from "./pages/dashboard/customer/ChatLists";
 import GroupChat from "./pages/dashboard/customer/GroupChat";
 import NotificationPrompt from "./components/notification/NotificationPrompt";
@@ -36,6 +34,7 @@ import useFCM from "./services/useFCM";
 import NotificationsPage from "./pages/dashboard/NotificationsPage";
 import OAuthCallback from "./components/OAuthCallback";
 import CheckoutSuccess from "./components/CheckoutSuccess";
+import BooksList from "./pages/dashboard/admin/BooksList";
 function App() {
   // Initialize FCM and get FCM functionality
   const { isSupported } = useFCM();
@@ -137,7 +136,7 @@ function App() {
           <Route path="customers" element={<Customers />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="settings" element={<AdminSettings />} />
-          <Route path="products" element={<ProductsList />} />
+          <Route path="products" element={<BooksList />} />
         </Route>
       </Routes>
     </Router>

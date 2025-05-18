@@ -61,15 +61,12 @@ function Recommendations() {
                   {book.title}
                 </h4>
                 <p className="text-xs text-gray-500">{book.author}</p>
-                <p className="text-gray-500 text-xs ">
-                      {book?.description}
-                    </p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-purple-600 font-bold">
-                        ${book?.price?.toFixed(2) || "0.00"}
-                      </span>
-                      
-                    </div>
+                <p className="text-gray-500 text-xs ">{book?.description}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-purple-600 font-bold">
+                    ${book?.price?.toFixed(2) || "0.00"}
+                  </span>
+                </div>
               </div>
               <Link
                 to={`/books/${book._id}`}

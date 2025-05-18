@@ -34,9 +34,9 @@ export const notificationAPI = {
   getTokens: () => 
     api.get("users/fcm-tokens"),
   updatePreferences: (preferences) =>
-    api.put("users/notification-preferences", preferences),
+    api.put("notifications/notification-preferences", preferences),
   getPreferences: () => 
-    api.get("users/notification-preferences"),
+    api.get("notifications/notification-preferences"),
 };
 
 export default api;

@@ -160,15 +160,26 @@ const MyAccount = () => {
           {/* Profile Header */}
           <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-8 text-white">
             <div className="flex items-center space-x-4">
-              <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
-                <User className="h-8 w-8" />
-              </div>
+              {userData.profilePicture ? (
+                <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
+                  <img
+                    src={userData.profilePicture}
+                    alt={userData.name}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
+                  <User className="h-8 w-8" />
+                </div>
+              )}
+
               <div>
                 <h1 className="text-2xl font-bold">{userInfo.name}</h1>
                 <p className="text-purple-100">{userInfo.email}</p>
                 <p className="text-sm text-purple-100 mt-1">
                   Member since{" "}
-                  {new Date(userInfo.createdAt).toLocaleDateString()}
+                  {new Date(userData.createdAt).toLocaleDateString()}
                 </p>
               </div>
             </div>

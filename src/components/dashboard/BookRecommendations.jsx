@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const BookRecommendations = ({ books }) => {
   return (
     <div className="space-y-4">
-      {books.slice(0, 5).map((book) => (
+      {books.slice(0, 4).map((book) => (
         <div
           key={book.id}
           className="flex items-start space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors "
@@ -19,19 +19,10 @@ const BookRecommendations = ({ books }) => {
               {book.title}
             </h4>
             <p className="text-xs text-gray-500">{book.author}</p>
-            <div className="flex items-center mt-1">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-3 w-3 ${
-                    i < book.rating
-                      ? "text-yellow-400 fill-yellow-400"
-                      : "text-gray-300"
-                  }`}
-                />
-              ))}
-              <span className="text-xs text-gray-500 ml-1">
-                ({book.reviewCount})
+            <p className="text-gray-500 text-xs ">{book?.description}</p>
+            <div className="flex justify-between items-center">
+              <span className="text-purple-600 font-bold">
+                ${book?.price?.toFixed(2) || "0.00"}
               </span>
             </div>
           </div>
