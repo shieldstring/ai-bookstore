@@ -28,7 +28,7 @@ const UserProfileCard = ({ user, groups, achievements }) => {
               />
             ) : (
               <div className="mx-auto h-20 w-20 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-2xl font-bold mb-4">
-                {user.name.charAt(0)}
+                {user.name.split(" ").map((i) => i.charAt(0))}
               </div>
             )}
             <h3 className="text-lg font-medium text-gray-900">{user.name}</h3>
@@ -96,8 +96,6 @@ const UserProfileCard = ({ user, groups, achievements }) => {
           </span>
         </div>
       </div>
-
-
 
       <div className="border-t border-gray-200 px-6 py-4">
         <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center">

@@ -226,7 +226,10 @@ const DashboardLayout = () => {
         <div className="flex flex-col w-64 border-r border-gray-200 bg-white">
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
             <div className="flex items-center px-4 mb-5 justify-between">
-              <Link to="/" className="flex items-center">
+              <Link
+                to={userInfo.role === "admin" ? "/admin/overview" : "/"}
+                className="flex items-center"
+              >
                 <div className="font-bold text-xl text-purple-700">Book</div>
                 <div className="ml-2 px-2 py-1 bg-purple-600 text-white text-xs font-medium rounded">
                   Store
@@ -254,7 +257,10 @@ const DashboardLayout = () => {
               <span className="sr-only">Open sidebar</span>
               <Menu className="h-6 w-6" />
             </button>
-            <Link to="/" className="flex items-center">
+            <Link
+              to={userInfo.role === "admin" ? "/admin/overview" : "/"}
+              className="flex items-center"
+            >
               <div className="font-bold text-xl text-purple-700">Book</div>
               <div className="ml-2 px-2 py-1 bg-purple-600 text-white text-xs font-medium rounded">
                 Store
