@@ -89,16 +89,6 @@ function App() {
           <Route path="forgot-password" element={<ForgotPassword />} />
         </Route>
 
-        {/* <Route
-          path="/dashboard"
-          element={
-            <AuthRoute>
-              <DashboardLayout>
-                <DashboardRouter />
-              </DashboardLayout>
-            </AuthRoute>
-          }
-        /> */}
 
         {/* Protected Routes */}
         <Route
@@ -137,6 +127,7 @@ function App() {
           <Route path="orders" element={<AdminOrders />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="products" element={<BooksList />} />
+          <Route path="notifications" element={<NotificationsPage />} />
         </Route>
       </Routes>
     </Router>

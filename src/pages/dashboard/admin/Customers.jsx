@@ -14,6 +14,9 @@ import {
   useGetUserByIdQuery,
 } from "../../../redux/slices/authSlice";
 import CustomerDetailsModal from "../../../components/dashboard/admin/CustomerDetailsModal";
+import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
+import ErrorMessage from "../../../components/common/ErrorMessage";
+import SEO from "../../../components/SEO";
 
 const Customers = () => {
   const { data: users = [], isLoading, isError } = useGetAllUsersQuery();
@@ -64,14 +67,22 @@ const Customers = () => {
       user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (isLoading) return <div className="text-center py-8">Loading...</div>;
-  if (isError)
+  if (isLoading)
     return (
-      <div className="text-center py-8 text-red-500">Error loading users</div>
+      <div className="space-y-4">
+        <LoadingSkeleton type={"list"} count={5} />
+      </div>
     );
+  if (isError) return <ErrorMessage error={"Error loading users."} />;
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
+      <SEO
+        title="Customers"
+        description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
+        name="AI-Powered Social-Ecommerce"
+        type="description"
+      />
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <h2 className="text-xl font-bold text-gray-800">Customers</h2>
         <div className="relative mt-4 md:mt-0">

@@ -464,7 +464,7 @@ const BooksPage = () => {
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute bottom-0 right-0 p-2 flex flex-col items-center space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
+                        {/* <button
                           className={`p-2 rounded-full shadow-md ${
                             favorites.includes(book._id)
                               ? "bg-purple-100 text-purple-600"
@@ -477,7 +477,7 @@ const BooksPage = () => {
                               favorites.includes(book._id) ? "fill-current" : ""
                             }`}
                           />
-                        </button>
+                        </button> */}
                         <button
                           onClick={() => addToCart(book._id)}
                           className="bg-white rounded-full p-2 shadow-md text-gray-500 hover:text-purple-600"
@@ -555,7 +555,7 @@ const BooksPage = () => {
                             {formatPrice(book.price)}
                           </span>
                           <div className="flex gap-2">
-                            <button
+                            {/* <button
                               className={`p-2 rounded-full ${
                                 favorites.includes(book._id)
                                   ? "text-purple-600"
@@ -570,7 +570,7 @@ const BooksPage = () => {
                                     : ""
                                 }`}
                               />
-                            </button>
+                            </button> */}
                             <button
                               onClick={() => addToCart(book._id)}
                               className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition flex items-center"
