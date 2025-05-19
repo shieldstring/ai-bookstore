@@ -112,7 +112,14 @@ function App() {
         </Route>
 
         {/* Admin Routes */}
-        <Route path="admin" element={<DashboardLayout />}>
+        <Route
+          path="admin"
+          element={
+            <AuthRoute>
+              <DashboardLayout />
+            </AuthRoute>
+          }
+        >
           <Route path="analytics" element={<Analytics />} />
           <Route path="customers" element={<Customers />} />
           <Route path="orders" element={<AdminOrders />} />
