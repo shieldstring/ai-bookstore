@@ -22,7 +22,6 @@ import AdminOrders from "./pages/dashboard/admin/Orders";
 import AdminSettings from "./pages/dashboard/admin/Settings";
 import UserProfile from "./pages/UserProfile";
 import UserDashboard from "./pages/dashboard/customer/UserDashboard";
-import AdminDashboard from "./pages/dashboard/admin/AdminDashboard";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ForgotPassword from "./pages/auth/ForgotPassword";
@@ -35,6 +34,7 @@ import NotificationsPage from "./pages/dashboard/NotificationsPage";
 import OAuthCallback from "./components/OAuthCallback";
 import CheckoutSuccess from "./components/CheckoutSuccess";
 import BooksList from "./pages/dashboard/admin/BooksList";
+import MLMSettings from "./pages/dashboard/admin/MLMSettings";
 function App() {
   // Initialize FCM and get FCM functionality
   const { isSupported } = useFCM();
@@ -89,7 +89,6 @@ function App() {
           <Route path="forgot-password" element={<ForgotPassword />} />
         </Route>
 
-
         {/* Protected Routes */}
         <Route
           path="dashboard"
@@ -114,19 +113,12 @@ function App() {
 
         {/* Admin Routes */}
         <Route path="admin" element={<DashboardLayout />}>
-          <Route
-            path="overview"
-            element={
-              <AuthRoute>
-                <AdminDashboard />
-              </AuthRoute>
-            }
-          />
           <Route path="analytics" element={<Analytics />} />
           <Route path="customers" element={<Customers />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="products" element={<BooksList />} />
+          <Route path="mlm" element={<MLMSettings />} />
           <Route path="notifications" element={<NotificationsPage />} />
         </Route>
       </Routes>

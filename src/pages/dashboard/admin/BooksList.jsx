@@ -91,13 +91,6 @@ const BooksList = () => {
 
   if (isLoading)
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700"></div>
-      </div>
-    );
-
-  if (isLoading)
-    return (
       <div className="grid grid-cols-1 lg:grid-cols-2">
         <div className="space-y-4">
           <LoadingSkeleton type={"list"} count={3} />
@@ -107,6 +100,7 @@ const BooksList = () => {
         </div>
       </div>
     );
+
   if (error)
     return (
       <ErrorMessage error={"Unable to load books. Please try again later"} />

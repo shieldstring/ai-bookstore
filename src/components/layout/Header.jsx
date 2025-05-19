@@ -152,10 +152,10 @@ const Header = () => {
                 {userInfo.role === "admin" ? (
                   <div className="absolute right-0 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-[100]">
                     <Link
-                      to="/admin/overview"
+                      to="/admin/analytics"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
                     >
-                      Overview
+                    Analytics
                     </Link>
 
                     <Link

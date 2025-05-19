@@ -89,9 +89,9 @@ const DashboardLayout = () => {
 
   const adminNavigation = [
     {
-      name: "Store Overview",
-      path: "/admin/overview",
-      icon: <BarChart2 className="h-5 w-5" />,
+      name: "Analytics",
+      path: "/admin/analytics",
+      icon: <PieChart className="h-5 w-5" />,
     },
     {
       name: "Products",
@@ -109,9 +109,9 @@ const DashboardLayout = () => {
       icon: <Users className="h-5 w-5" />,
     },
     {
-      name: "Analytics",
-      path: "/admin/analytics",
-      icon: <PieChart className="h-5 w-5" />,
+      name: "MLM Tiers",
+      path: "/admin/mlm",
+      icon: <User2Icon className="h-5 w-5" />,
     },
     {
       name: "Settings",

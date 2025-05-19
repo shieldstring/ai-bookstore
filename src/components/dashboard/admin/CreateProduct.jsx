@@ -124,41 +124,52 @@ export default function CreateProduct({ onClose }) {
   /* ---------- Validation ---------- */
   const validateForm = () => {
     const newErrors = {};
-
+  
+    // Required fields
     if (!formData.title.trim()) newErrors.title = "Title is required";
     if (!formData.author.trim()) newErrors.author = "Author is required";
     if (!formData.isbn.trim()) newErrors.isbn = "ISBN is required";
-    if (!formData.publisher.trim())
-      newErrors.publisher = "Publisher is required";
-    if (!formData.publishedDate.trim())
-      newErrors.publishedDate = "Published date is required";
-    if (!formData.description.trim())
-      newErrors.description = "Description is required";
+    if (!formData.publisher.trim()) newErrors.publisher = "Publisher is required";
+    if (!formData.publishedDate) newErrors.publishedDate = "Published date is required";
+    if (!formData.description.trim()) newErrors.description = "Description is required";
     if (!formData.category) newErrors.category = "Category is required";
-
-    if (isNaN(+formData.price) || +formData.price <= 0)
-      newErrors.price = "Price must be a positive number";
-    if (
-      formData.originalPrice &&
-      (isNaN(+formData.originalPrice) || +formData.originalPrice <= 0)
-    )
-      newErrors.originalPrice = "Original price must be a positive number";
-    if (isNaN(+formData.inventory) || +formData.inventory < 0)
-      newErrors.inventory = "inventory must be a non‑negative number";
-    if (formData.pages && (isNaN(+formData.pages) || +formData.pages <= 0))
-      newErrors.pages = "Pages must be a positive number";
-
-    const isbnPattern = /^(?:\d[- ]?){9}[\dXx]$|^(?:\d[- ]?){13}$/;
-    if (formData.isbn && !isbnPattern.test(formData.isbn.replace(/[-\s]/g, "")))
-      newErrors.isbn = "Enter a valid 10‑ or 13‑digit ISBN";
-
-    if (
-      formData.image &&
-      !/^https?:\/\/.*/.test(formData.image) &&
-      !formData.image.startsWith("blob:")
-    )
-      newErrors.image = "Cover image must be a valid URL";
-
+    if (!formData.image) newErrors.image = "Cover image is required";
+  
+    // Numeric validation
+    if (isNaN(+formData.price)) newErrors.price = "Price must be a number";
+    else if (+formData.price <= 0) newErrors.price = "Price must be positive";
+    
+    if (formData.originalPrice && isNaN(+formData.originalPrice)) {
+      newErrors.originalPrice = "Original price must be a number";
+    } else if (formData.originalPrice && +formData.originalPrice <= 0) {
+      newErrors.originalPrice = "Original price must be positive";
+    }
+  
+    if (isNaN(+formData.inventory)) newErrors.inventory = "Inventory must be a number";
+    else if (+formData.inventory < 0) newErrors.inventory = "Inventory cannot be negative";
+  
+    if (formData.pages && isNaN(+formData.pages)) {
+      newErrors.pages = "Pages must be a number";
+    } else if (formData.pages && +formData.pages <= 0) {
+      newErrors.pages = "Pages must be positive";
+    }
+  
+    // ISBN validation
+    const isbnPattern = /^(?:\d{9}[\dXx]|\d{13})$/;
+    if (formData.isbn && !isbnPattern.test(formData.isbn.replace(/[-\s]/g, ""))) {
+      newErrors.isbn = "Enter a valid 10- or 13-digit ISBN";
+    }
+  
+    // Dimensions validation
+    if (formData.dimensions) {
+      const dimParts = formData.dimensions.split('×');
+      if (dimParts.length !== 3) {
+        newErrors.dimensions = "Enter dimensions in format: Height × Width × Thickness";
+      } else if (dimParts.some(part => isNaN(parseFloat(part.trim())))) {
+        newErrors.dimensions = "All dimensions must be numbers";
+      }
+    }
+  
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -167,26 +178,50 @@ export default function CreateProduct({ onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-  
+
     try {
-      // Prepare the data with numeric fields converted to numbers
+      // Prepare dimensions object if provided
+      const dimensions = formData.dimensions
+        ? formData.dimensions.split("×").reduce((obj, val, i) => {
+            const key = ["height", "width", "thickness"][i];
+            obj[key] = parseFloat(val.trim());
+            return obj;
+          }, {})
+        : undefined;
+
+      // Prepare the data with proper transformations
       const productData = {
-        ...formData,
-        isbn: formData.isbn.replace(/[-\s]/g, ''), // Clean ISBN
+        title: formData.title.trim(),
+        author: formData.author.trim(),
+        isbn: formData.isbn.replace(/[-\s]/g, ""), // Clean ISBN
+        publisher: formData.publisher.trim(),
+        publishDate: formData.publishedDate, // Map to model field name
+        description: formData.description.trim(),
         price: Number(formData.price),
-        originalPrice: formData.originalPrice ? Number(formData.originalPrice) : undefined,
+        originalPrice: formData.originalPrice
+          ? Number(formData.originalPrice)
+          : undefined,
         inventory: Number(formData.inventory),
         pages: formData.pages ? Number(formData.pages) : undefined,
+        language: formData.language,
+        category: formData.category,
+        format: formData.format,
+        dimensions, // Now an object
+        weight: formData.weight ? Number(formData.weight) : undefined,
+        image: formData.image,
         featured: Boolean(formData.featured),
       };
-  
-      await createProduct(productData).unwrap();
+
+      console.log("Submitting:", productData); // Debug log
+      const result = await createProduct(productData).unwrap();
+      console.log("Creation result:", result);
+
       setSubmitted(true);
       setTimeout(() => {
         setSubmitted(false);
         onClose();
       }, 3000);
-      
+
       // Reset form
       setFormData({
         title: "",
@@ -209,19 +244,28 @@ export default function CreateProduct({ onClose }) {
       });
     } catch (err) {
       console.error("Create product failed:", err);
-      // You could show the error to the user here
+      if (err.data?.errors) {
+        // Handle field-specific errors from backend
+        const fieldErrors = {};
+        err.data.errors.forEach((error) => {
+          fieldErrors[error.field] = error.message;
+        });
+        setErrors(fieldErrors);
+      }
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4">
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 transition-colors"
-      >
-        <X className="h-6 w-6 text-slate-500" />
-      </button>
-      <div className="max-w-6xl mx-auto pt-8">
+      <div className="flex justify-end">
+        <button
+          onClick={onClose}
+          className=" p-2 rounded-full hover:bg-slate-200 transition-colors"
+        >
+          <X className="h-6 w-6 text-slate-500" />
+        </button>
+      </div>
+      <div className="max-w-6xl mx-auto ">
         {/* Header */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
           <div className="flex items-center justify-between">
@@ -266,6 +310,28 @@ export default function CreateProduct({ onClose }) {
           </div>
         )}
 
+        {/* Error Display */}
+        {Object.keys(errors).length > 0 && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <AlertCircle className="h-5 w-5 text-red-500" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">
+                  There were errors with your submission
+                </h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <ul className="list-disc pl-5 space-y-1">
+                    {Object.entries(errors).map(([field, message]) => (
+                      <li key={field}>{message}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Main Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
