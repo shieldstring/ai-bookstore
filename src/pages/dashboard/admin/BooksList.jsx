@@ -8,15 +8,15 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import {
-  useGetProductsQuery,
-  useDeleteProductMutation,
-} from "../../../redux/slices/productsApiSlice";
 import CreateProduct from "../../../components/dashboard/admin/CreateProduct";
 import EditProduct from "../../../components/dashboard/admin/EditProduct";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import ErrorMessage from "../../../components/common/ErrorMessage";
 import SEO from "../../../components/SEO";
+import {
+  useDeleteBookMutation,
+  useGetBooksQuery,
+} from "../../../redux/slices/bookSlice";
 
 const BooksList = () => {
   const [page, setPage] = useState(1);
@@ -35,9 +35,8 @@ const BooksList = () => {
     search: searchQuery,
   };
 
-  const { data, isLoading, isFetching, error } =
-    useGetProductsQuery(queryParams);
-  const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
+  const { data, isLoading, isFetching, error } = useGetBooksQuery(queryParams);
+  const [deleteProduct, { isLoading: isDeleting }] = useDeleteBookMutation();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
@@ -340,8 +339,10 @@ const BooksList = () => {
 
       {/* Modals */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <CreateProduct onClose={() => setShowCreateModal(false)} />
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+            <CreateProduct onClose={() => setShowCreateModal(false)} />
+          </div>
         </div>
       )}
 
