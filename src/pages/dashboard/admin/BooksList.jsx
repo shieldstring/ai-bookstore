@@ -36,7 +36,8 @@ const BooksList = () => {
     search: searchQuery,
   };
 
-  const { data, isLoading, isFetching, error } = useGetBookListsQuery(queryParams);
+  const { data, isLoading, refetch, isFetching, error } =
+    useGetBookListsQuery(queryParams);
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteBookMutation();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -342,7 +343,10 @@ const BooksList = () => {
       {showCreateModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-            <CreateProduct onClose={() => setShowCreateModal(false)} />
+            <CreateProduct
+              onClose={() => setShowCreateModal(false)}
+              refetch={refetch}
+            />
           </div>
         </div>
       )}
@@ -354,6 +358,7 @@ const BooksList = () => {
               productId={editingProductId}
               details={details}
               onClose={() => setEditingProductId(null)}
+              refetch={refetch}
             />
           </div>
         </div>

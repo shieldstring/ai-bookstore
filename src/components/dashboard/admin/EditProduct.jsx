@@ -17,8 +17,7 @@ import {
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
 import { useUpdateBookMutation } from "../../../redux/slices/bookSlice";
 
-export default function EditProduct({ productId, onClose, details }) {
-  console.log(productId);
+export default function EditProduct({ productId, onClose, details, refetch }) {
   const [updateProduct, { isLoading: isUpdating }] = useUpdateBookMutation();
   const [formData, setFormData] = useState({
     title: details.title || "",
@@ -123,7 +122,6 @@ export default function EditProduct({ productId, onClose, details }) {
     }
   };
 
-  /* ---------- Validation ---------- */
   const validateForm = () => {
     const newErrors = {};
 
@@ -133,31 +131,50 @@ export default function EditProduct({ productId, onClose, details }) {
     if (!formData.isbn.trim()) newErrors.isbn = "ISBN is required";
     if (!formData.publisher.trim())
       newErrors.publisher = "Publisher is required";
-    if (!formData.publishedDate)
-      newErrors.publishedDate = "Published date is required";
     if (!formData.description.trim())
       newErrors.description = "Description is required";
     if (!formData.category) newErrors.category = "Category is required";
     if (!formData.image) newErrors.image = "Cover image is required";
 
-    // Numeric validation
-    if (isNaN(formData.price)) newErrors.price = "Price must be a number";
-    else if (parseFloat(formData.price) <= 0)
-      newErrors.price = "Price must be positive";
-
-    if (formData.originalPrice && isNaN(formData.originalPrice)) {
-      newErrors.originalPrice = "Original price must be a number";
-    } else if (
-      formData.originalPrice &&
-      parseFloat(formData.originalPrice) <= 0
-    ) {
-      newErrors.originalPrice = "Original price must be positive";
+    // Price validation
+    if (formData.price === "") {
+      newErrors.price = "Price is required";
+    } else if (isNaN(formData.price)) {
+      newErrors.price = "Price must be a number";
+    } else {
+      const price = parseInt(formData.price);
+      if (price <= 0) newErrors.price = "Price must be positive";
+      if (!Number.isInteger(price)) {
+        newErrors.price = "Price must be a whole number";
+      }
     }
 
-    if (isNaN(formData.inventory))
+    // Original price validation
+    if (formData.originalPrice && formData.originalPrice !== "") {
+      if (isNaN(formData.originalPrice)) {
+        newErrors.originalPrice = "Original price must be a number";
+      } else {
+        const originalPrice = parseInt(formData.originalPrice);
+        const price = parseInt(formData.price);
+
+        if (originalPrice <= 0) {
+          newErrors.originalPrice = "Original price must be positive";
+        } else if (!Number.isInteger(originalPrice)) {
+          newErrors.originalPrice = "Original price must be a whole number";
+        } else if (originalPrice < price) {
+          newErrors.originalPrice = "Original price must be ≥ current price";
+        }
+      }
+    }
+
+    // Inventory validation
+    if (formData.inventory === "") {
+      newErrors.inventory = "Inventory is required";
+    } else if (isNaN(formData.inventory)) {
       newErrors.inventory = "Inventory must be a number";
-    else if (parseInt(formData.inventory) < 0)
+    } else if (parseInt(formData.inventory) < 0) {
       newErrors.inventory = "Inventory cannot be negative";
+    }
 
     // ISBN validation
     const cleanIsbn = formData.isbn.replace(/[-\s]/g, "");
@@ -167,7 +184,6 @@ export default function EditProduct({ productId, onClose, details }) {
 
     // Dimensions validation
     if (formData.dimensions) {
-      // Handle both string and object cases
       if (typeof formData.dimensions === "string") {
         const dimParts = formData.dimensions.split("×");
         if (dimParts.length !== 3) {
@@ -175,16 +191,6 @@ export default function EditProduct({ productId, onClose, details }) {
             "Enter dimensions as Height × Width × Thickness";
         } else if (dimParts.some((part) => isNaN(parseFloat(part.trim())))) {
           newErrors.dimensions = "All dimensions must be numbers";
-        }
-      } else if (typeof formData.dimensions === "object") {
-        // If it's already an object, no need to validate the format
-        if (
-          !formData.dimensions.height ||
-          !formData.dimensions.width ||
-          !formData.dimensions.thickness
-        ) {
-          newErrors.dimensions =
-            "Dimensions must include height, width, and thickness";
         }
       }
     }
@@ -195,37 +201,43 @@ export default function EditProduct({ productId, onClose, details }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({});
+
     if (!validateForm()) return;
 
     try {
-      // Transform dimensions from string "H × W × T" to object if needed
+      // Process dimensions
       let dimensions;
       if (formData.dimensions) {
         if (typeof formData.dimensions === "string") {
-          dimensions = formData.dimensions.split("×").reduce((obj, val, i) => {
-            const key = ["height", "width", "thickness"][i];
-            obj[key] = parseFloat(val.trim());
-            return obj;
-          }, {});
+          const dimParts = formData.dimensions
+            .split("×")
+            .map((part) => parseFloat(part.trim()));
+          if (dimParts.length === 3) {
+            dimensions = {
+              height: dimParts[0],
+              width: dimParts[1],
+              thickness: dimParts[2],
+            };
+          }
         } else {
-          // It's already an object
           dimensions = formData.dimensions;
         }
       }
 
-      // Prepare the complete book data
+      // Prepare book data with proper type conversion
       const bookData = {
         title: formData.title.trim(),
         author: formData.author.trim(),
         description: formData.description.trim(),
-        price: parseFloat(formData.price),
+        price: parseInt(formData.price),
         originalPrice: formData.originalPrice
-          ? parseFloat(formData.originalPrice)
+          ? parseInt(formData.originalPrice)
           : undefined,
-        isbn: formData.isbn.replace(/[-\s]/g, ""), // Clean ISBN
+        isbn: formData.isbn.replace(/[-\s]/g, ""),
         language: formData.language,
         format: formData.format,
-        publishDate: formData.publishedDate, // Matches model field name
+        publishDate: formData.publishedDate,
         publisher: formData.publisher.trim(),
         image: formData.image,
         category: formData.category,
@@ -234,53 +246,49 @@ export default function EditProduct({ productId, onClose, details }) {
         dimensions,
         weight: formData.weight ? parseFloat(formData.weight) : undefined,
         featured: formData.featured,
-        isActive: parseInt(formData.inventory) > 0, // Set based on inventory
+        isActive: parseInt(formData.inventory) > 0,
       };
 
-      console.log("Submitting book data:", bookData);
       const response = await updateProduct({
         productId,
         data: bookData,
       }).unwrap();
-      console.log("Book created successfully:", response);
 
       setSubmitted(true);
+
       setTimeout(() => {
         setSubmitted(false);
         onClose();
       }, 2000);
-
-      // Reset form
-      setFormData({
-        title: "",
-        author: "",
-        isbn: "",
-        publisher: "",
-        publishedDate: "",
-        description: "",
-        price: "",
-        originalPrice: "",
-        inventory: "",
-        pages: "",
-        language: "English",
-        category: "",
-        format: "Paperback",
-        dimensions: "",
-        weight: "",
-        image: "",
-        featured: false,
-      });
+      refetch();
     } catch (err) {
-      console.error("Book creation failed:", err);
+      console.error("Update failed:", err);
+
       if (err.data?.errors) {
-        // Handle field-specific errors from backend
-        const fieldErrors = {};
-        err.data.errors.forEach((error) => {
-          fieldErrors[error.path] = error.message;
+        if (
+          typeof err.data.errors === "object" &&
+          !Array.isArray(err.data.errors)
+        ) {
+          setErrors(err.data.errors);
+        } else if (Array.isArray(err.data.errors)) {
+          const fieldErrors = {};
+          err.data.errors.forEach((error) => {
+            fieldErrors[error.path] = error.message;
+          });
+          setErrors(fieldErrors);
+        }
+      } else if (err.data?.message?.includes("Original price")) {
+        setErrors({
+          originalPrice: err.data.message,
         });
-        setErrors(fieldErrors);
+      } else if (err.code === 11000 || err.data?.code === 11000) {
+        setErrors({
+          isbn: "A book with this ISBN already exists",
+        });
       } else {
-        setErrors({ submit: err.message || "Failed to create book" });
+        setErrors({
+          submit: err.message || "Failed to update book",
+        });
       }
     }
   };
@@ -677,7 +685,7 @@ export default function EditProduct({ productId, onClose, details }) {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Price */}
+                  {/* Price Input */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-700">
                       Price ($) <span className="text-red-500">*</span>
@@ -688,11 +696,16 @@ export default function EditProduct({ productId, onClose, details }) {
                         type="number"
                         name="price"
                         value={formData.price}
-                        onChange={handleChange}
-                        step="0.01"
-                        min="0"
-                        placeholder="0.00"
-                        className={`w-full pl-10 pr-4 py-3 rounded-lg border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === "" || /^\d*$/.test(value)) {
+                            handleChange(e);
+                          }
+                        }}
+                        min="1"
+                        step="1"
+                        placeholder="0"
+                        className={`w-full pl-10 pr-4 py-3 rounded-lg border-2 transition-colors ${
                           errors.price
                             ? "border-red-300 bg-red-50"
                             : "border-slate-200 hover:border-slate-300 focus:border-blue-500"
@@ -707,7 +720,7 @@ export default function EditProduct({ productId, onClose, details }) {
                     )}
                   </div>
 
-                  {/* Original Price */}
+                  {/* Original Price Input */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-700">
                       Original Price ($)
@@ -718,11 +731,16 @@ export default function EditProduct({ productId, onClose, details }) {
                         type="number"
                         name="originalPrice"
                         value={formData.originalPrice}
-                        onChange={handleChange}
-                        step="0.01"
-                        min="0"
-                        placeholder="0.00"
-                        className={`w-full pl-10 pr-4 py-3 rounded-lg border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === "" || /^\d*$/.test(value)) {
+                            handleChange(e);
+                          }
+                        }}
+                        min="1"
+                        step="1"
+                        placeholder="0"
+                        className={`w-full pl-10 pr-4 py-3 rounded-lg border-2 transition-colors ${
                           errors.originalPrice
                             ? "border-red-300 bg-red-50"
                             : "border-slate-200 hover:border-slate-300 focus:border-blue-500"

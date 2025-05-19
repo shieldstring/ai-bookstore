@@ -17,7 +17,7 @@ import {
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
 import { useAddBookMutation } from "../../../redux/slices/bookSlice";
 
-export default function CreateProduct({ onClose }) {
+export default function CreateProduct({ onClose,  refetch }) {
   const [createProduct, { isLoading: isCreating }] = useAddBookMutation();
 
   const [formData, setFormData] = useState({
@@ -245,6 +245,8 @@ export default function CreateProduct({ onClose }) {
         image: "",
         featured: false,
       });
+
+      refetch();
     } catch (err) {
       console.error("Book creation failed:", err);
       if (err.data?.errors) {
