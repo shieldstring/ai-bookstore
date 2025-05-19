@@ -15,7 +15,7 @@ import ErrorMessage from "../../../components/common/ErrorMessage";
 import SEO from "../../../components/SEO";
 import {
   useDeleteBookMutation,
-  useGetBooksQuery,
+  useGetBookListsQuery,
 } from "../../../redux/slices/bookSlice";
 
 const BooksList = () => {
@@ -25,6 +25,7 @@ const BooksList = () => {
   const [genre, setGenre] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [details, setDetails] = useState([]);
 
   // Query params for the API
   const queryParams = {
@@ -35,7 +36,7 @@ const BooksList = () => {
     search: searchQuery,
   };
 
-  const { data, isLoading, isFetching, error } = useGetBooksQuery(queryParams);
+  const { data, isLoading, isFetching, error } = useGetBookListsQuery(queryParams);
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteBookMutation();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -89,7 +90,7 @@ const BooksList = () => {
   const books = data?.data || [];
   const totalPages = data?.pages || 0;
 
-  if (isLoading)
+  if (isLoading || isFetching)
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2">
         <div className="space-y-4">
@@ -106,6 +107,9 @@ const BooksList = () => {
       <ErrorMessage error={"Unable to load books. Please try again later"} />
     );
 
+  function truncate(str, n) {
+    return str?.length > n ? str.substr(0, n - 1) + "..." : str;
+  }
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <SEO
@@ -205,7 +209,7 @@ const BooksList = () => {
                       <Book className="flex-shrink-0 h-10 w-10 text-purple-500 mr-4" />
                     )}
                     <div className="text-sm font-medium text-gray-900">
-                      {book.title}
+                      {truncate(book.title, 27)}
                     </div>
                   </div>
                 </td>
@@ -238,7 +242,10 @@ const BooksList = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <button
-                    onClick={() => setEditingProductId(book._id)}
+                    onClick={() => {
+                      setEditingProductId(book._id);
+                      setDetails(book);
+                    }}
                     className="text-purple-600 hover:text-purple-900 mr-3"
                     title="Edit book"
                   >
@@ -341,11 +348,14 @@ const BooksList = () => {
       )}
 
       {editingProductId && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <EditProduct
-            productId={editingProductId}
-            onClose={() => setEditingProductId(null)}
-          />
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+            <EditProduct
+              productId={editingProductId}
+              details={details}
+              onClose={() => setEditingProductId(null)}
+            />
+          </div>
         </div>
       )}
     </div>

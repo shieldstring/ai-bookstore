@@ -124,63 +124,65 @@ export default function CreateProduct({ onClose }) {
   /* ---------- Validation ---------- */
   const validateForm = () => {
     const newErrors = {};
-  
-    // Required fields
+
+    // Required fields validation
     if (!formData.title.trim()) newErrors.title = "Title is required";
     if (!formData.author.trim()) newErrors.author = "Author is required";
     if (!formData.isbn.trim()) newErrors.isbn = "ISBN is required";
-    if (!formData.publisher.trim()) newErrors.publisher = "Publisher is required";
-    if (!formData.publishedDate) newErrors.publishedDate = "Published date is required";
-    if (!formData.description.trim()) newErrors.description = "Description is required";
+    if (!formData.publisher.trim())
+      newErrors.publisher = "Publisher is required";
+    if (!formData.publishedDate)
+      newErrors.publishedDate = "Published date is required";
+    if (!formData.description.trim())
+      newErrors.description = "Description is required";
     if (!formData.category) newErrors.category = "Category is required";
     if (!formData.image) newErrors.image = "Cover image is required";
-  
+
     // Numeric validation
-    if (isNaN(+formData.price)) newErrors.price = "Price must be a number";
-    else if (+formData.price <= 0) newErrors.price = "Price must be positive";
-    
-    if (formData.originalPrice && isNaN(+formData.originalPrice)) {
+    if (isNaN(formData.price)) newErrors.price = "Price must be a number";
+    else if (parseFloat(formData.price) <= 0)
+      newErrors.price = "Price must be positive";
+
+    if (formData.originalPrice && isNaN(formData.originalPrice)) {
       newErrors.originalPrice = "Original price must be a number";
-    } else if (formData.originalPrice && +formData.originalPrice <= 0) {
+    } else if (
+      formData.originalPrice &&
+      parseFloat(formData.originalPrice) <= 0
+    ) {
       newErrors.originalPrice = "Original price must be positive";
     }
-  
-    if (isNaN(+formData.inventory)) newErrors.inventory = "Inventory must be a number";
-    else if (+formData.inventory < 0) newErrors.inventory = "Inventory cannot be negative";
-  
-    if (formData.pages && isNaN(+formData.pages)) {
-      newErrors.pages = "Pages must be a number";
-    } else if (formData.pages && +formData.pages <= 0) {
-      newErrors.pages = "Pages must be positive";
-    }
-  
+
+    if (isNaN(formData.inventory))
+      newErrors.inventory = "Inventory must be a number";
+    else if (parseInt(formData.inventory) < 0)
+      newErrors.inventory = "Inventory cannot be negative";
+
     // ISBN validation
-    const isbnPattern = /^(?:\d{9}[\dXx]|\d{13})$/;
-    if (formData.isbn && !isbnPattern.test(formData.isbn.replace(/[-\s]/g, ""))) {
+    const cleanIsbn = formData.isbn.replace(/[-\s]/g, "");
+    if (!/^(?:\d{9}[\dXx]|\d{13})$/.test(cleanIsbn)) {
       newErrors.isbn = "Enter a valid 10- or 13-digit ISBN";
     }
-  
+
     // Dimensions validation
     if (formData.dimensions) {
-      const dimParts = formData.dimensions.split('×');
+      const dimParts = formData.dimensions.split("×");
       if (dimParts.length !== 3) {
-        newErrors.dimensions = "Enter dimensions in format: Height × Width × Thickness";
-      } else if (dimParts.some(part => isNaN(parseFloat(part.trim())))) {
+        newErrors.dimensions = "Enter dimensions as Height × Width × Thickness";
+      } else if (dimParts.some((part) => isNaN(parseFloat(part.trim())))) {
         newErrors.dimensions = "All dimensions must be numbers";
       }
     }
-  
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  /* ---------- Submit ---------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     try {
-      // Prepare dimensions object if provided
+      // Transform dimensions from string "H × W × T" to object
       const dimensions = formData.dimensions
         ? formData.dimensions.split("×").reduce((obj, val, i) => {
             const key = ["height", "width", "thickness"][i];
@@ -189,38 +191,39 @@ export default function CreateProduct({ onClose }) {
           }, {})
         : undefined;
 
-      // Prepare the data with proper transformations
-      const productData = {
+      // Prepare the complete book data
+      const bookData = {
         title: formData.title.trim(),
         author: formData.author.trim(),
-        isbn: formData.isbn.replace(/[-\s]/g, ""), // Clean ISBN
-        publisher: formData.publisher.trim(),
-        publishDate: formData.publishedDate, // Map to model field name
         description: formData.description.trim(),
-        price: Number(formData.price),
+        price: parseFloat(formData.price),
         originalPrice: formData.originalPrice
-          ? Number(formData.originalPrice)
+          ? parseFloat(formData.originalPrice)
           : undefined,
-        inventory: Number(formData.inventory),
-        pages: formData.pages ? Number(formData.pages) : undefined,
+        isbn: formData.isbn.replace(/[-\s]/g, ""), // Clean ISBN
         language: formData.language,
-        category: formData.category,
         format: formData.format,
-        dimensions, // Now an object
-        weight: formData.weight ? Number(formData.weight) : undefined,
+        publishDate: formData.publishedDate, // Matches model field name
+        publisher: formData.publisher.trim(),
         image: formData.image,
-        featured: Boolean(formData.featured),
+        category: formData.category,
+        inventory: parseInt(formData.inventory),
+        pageCount: formData.pages ? parseInt(formData.pages) : undefined,
+        dimensions,
+        weight: formData.weight ? parseFloat(formData.weight) : undefined,
+        featured: formData.featured,
+        isActive: parseInt(formData.inventory) > 0, // Set based on inventory
       };
 
-      console.log("Submitting:", productData); // Debug log
-      const result = await createProduct(productData).unwrap();
-      console.log("Creation result:", result);
+      console.log("Submitting book data:", bookData);
+      const response = await createProduct(bookData).unwrap();
+      console.log("Book created successfully:", response);
 
       setSubmitted(true);
       setTimeout(() => {
         setSubmitted(false);
         onClose();
-      }, 3000);
+      }, 2000);
 
       // Reset form
       setFormData({
@@ -243,14 +246,16 @@ export default function CreateProduct({ onClose }) {
         featured: false,
       });
     } catch (err) {
-      console.error("Create product failed:", err);
+      console.error("Book creation failed:", err);
       if (err.data?.errors) {
         // Handle field-specific errors from backend
         const fieldErrors = {};
         err.data.errors.forEach((error) => {
-          fieldErrors[error.field] = error.message;
+          fieldErrors[error.path] = error.message;
         });
         setErrors(fieldErrors);
+      } else {
+        setErrors({ submit: err.message || "Failed to create book" });
       }
     }
   };

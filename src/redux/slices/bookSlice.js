@@ -52,7 +52,11 @@ export const bookApiSlice = apiOne.injectEndpoints({
   }),
 });
 
-export const { useGetBooksQuery, useGetBookListsQuery, useGetBookDetailsQuery } = bookApiSlice;
+export const {
+  useGetBooksQuery,
+  useGetBookListsQuery,
+  useGetBookDetailsQuery,
+} = bookApiSlice;
 
 export const bookAuthApiSlice = apiTwo.injectEndpoints({
   endpoints: (builder) => ({
@@ -69,14 +73,15 @@ export const bookAuthApiSlice = apiTwo.injectEndpoints({
       invalidatesTags: [{ type: "Book", id: "LIST" }], // Invalidate the book list cache
     }),
     updateBook: builder.mutation({
-      query: ({ bookId, updatedBook }) => ({
-        url: `books/${bookId}`,
+      query: ({ productId, data }) => ({
+        url: `books/${productId}`,
         method: "PUT",
-        body: updatedBook,
+        body: data,
       }),
-      invalidatesTags: (result, error, arg) => [
-        { type: "Book", id: arg.bookId },
-      ], // Invalidate the specific book cache
+      invalidatesTags: (result, error, { productId }) => [
+        { type: "Book", id: productId },
+        { type: "Book", id: "LIST" }, // Optional: Invalidate the list cache if needed
+      ],
     }),
     deleteBook: builder.mutation({
       query: (bookId) => ({

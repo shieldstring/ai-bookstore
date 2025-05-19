@@ -15,78 +15,35 @@ import {
   X,
 } from "lucide-react";
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
+import { useUpdateBookMutation } from "../../../redux/slices/bookSlice";
 
-// Mock function for demonstration
-const useUpdateProductMutation = () => [
-  async (id, data) => ({ unwrap: () => Promise.resolve({ id, ...data }) }),
-  { isLoading: false },
-];
-
-export default function EditProduct({ productId, onClose }) {
-  const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
+export default function EditProduct({ productId, onClose, details }) {
+  console.log(productId);
+  const [updateProduct, { isLoading: isUpdating }] = useUpdateBookMutation();
   const [formData, setFormData] = useState({
-    title: "",
-    author: "",
-    isbn: "",
-    publisher: "",
-    publishedDate: "",
-    description: "",
-    price: "",
-    originalPrice: "",
-    stock: "",
-    pages: "",
-    language: "English",
-    category: "",
-    format: "Paperback",
-    dimensions: "",
-    weight: "",
-    image: "",
-    featured: false,
+    title: details.title || "",
+    author: details.author || "",
+    isbn: details.isbn || "",
+    publisher: details.publisher || "",
+    publishedDate: details.publishedDate || "",
+    description: details.description || "",
+    price: details.price || "",
+    originalPrice: details.originalPrice || "",
+    inventory: details.inventory || "",
+    pages: details.pages || "",
+    language: details.language || "English",
+    category: details.category || "",
+    format: details.format || "Paperback",
+    dimensions: details.dimensions
+      ? `${details.dimensions.height} × ${details.dimensions.width} × ${details.dimensions.thickness}`
+      : "",
+    weight: details.weight || "",
+    image: details.image || "",
+    featured: details.featured || false,
   });
 
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Mock fetch product data
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        // In a real app, you would fetch the product data here
-        setIsLoading(true);
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        const mockProduct = {
-          title: "Sample Book Title",
-          author: "John Doe",
-          isbn: "978-3-16-148410-0",
-          publisher: "Example Publishing",
-          publishedDate: "2023-01-15",
-          description: "This is a sample book description.",
-          price: "19.99",
-          originalPrice: "24.99",
-          stock: "100",
-          pages: "320",
-          language: "English",
-          category: "Fiction",
-          format: "Paperback",
-          dimensions: "8 × 5 × 1 in",
-          weight: "1.2 lb",
-          image: "https://via.placeholder.com/300x400",
-          featured: true,
-        };
-        setFormData(mockProduct);
-      } catch (err) {
-        console.error("Failed to fetch product:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (productId) {
-      fetchProduct();
-    }
-  }, [productId]);
 
   const bookCategories = [
     "Fiction",
@@ -170,58 +127,161 @@ export default function EditProduct({ productId, onClose }) {
   const validateForm = () => {
     const newErrors = {};
 
+    // Required fields validation
     if (!formData.title.trim()) newErrors.title = "Title is required";
     if (!formData.author.trim()) newErrors.author = "Author is required";
     if (!formData.isbn.trim()) newErrors.isbn = "ISBN is required";
     if (!formData.publisher.trim())
       newErrors.publisher = "Publisher is required";
-    if (!formData.publishedDate.trim())
+    if (!formData.publishedDate)
       newErrors.publishedDate = "Published date is required";
     if (!formData.description.trim())
       newErrors.description = "Description is required";
     if (!formData.category) newErrors.category = "Category is required";
+    if (!formData.image) newErrors.image = "Cover image is required";
 
-    if (isNaN(+formData.price) || +formData.price <= 0)
-      newErrors.price = "Price must be a positive number";
-    if (
+    // Numeric validation
+    if (isNaN(formData.price)) newErrors.price = "Price must be a number";
+    else if (parseFloat(formData.price) <= 0)
+      newErrors.price = "Price must be positive";
+
+    if (formData.originalPrice && isNaN(formData.originalPrice)) {
+      newErrors.originalPrice = "Original price must be a number";
+    } else if (
       formData.originalPrice &&
-      (isNaN(+formData.originalPrice) || +formData.originalPrice <= 0)
-    )
-      newErrors.originalPrice = "Original price must be a positive number";
-    if (isNaN(+formData.stock) || +formData.stock < 0)
-      newErrors.stock = "Stock must be a non‑negative number";
-    if (formData.pages && (isNaN(+formData.pages) || +formData.pages <= 0))
-      newErrors.pages = "Pages must be a positive number";
+      parseFloat(formData.originalPrice) <= 0
+    ) {
+      newErrors.originalPrice = "Original price must be positive";
+    }
 
-    const isbnPattern = /^(?:\d[- ]?){9}[\dXx]$|^(?:\d[- ]?){13}$/;
-    if (formData.isbn && !isbnPattern.test(formData.isbn.replace(/[-\s]/g, "")))
-      newErrors.isbn = "Enter a valid 10‑ or 13‑digit ISBN";
+    if (isNaN(formData.inventory))
+      newErrors.inventory = "Inventory must be a number";
+    else if (parseInt(formData.inventory) < 0)
+      newErrors.inventory = "Inventory cannot be negative";
 
-    if (
-      formData.image &&
-      !/^https?:\/\/.*/.test(formData.image) &&
-      !formData.image.startsWith("blob:")
-    )
-      newErrors.image = "Cover image must be a valid URL";
+    // ISBN validation
+    const cleanIsbn = formData.isbn.replace(/[-\s]/g, "");
+    if (!/^(?:\d{9}[\dXx]|\d{13})$/.test(cleanIsbn)) {
+      newErrors.isbn = "Enter a valid 10- or 13-digit ISBN";
+    }
+
+    // Dimensions validation
+    if (formData.dimensions) {
+      // Handle both string and object cases
+      if (typeof formData.dimensions === "string") {
+        const dimParts = formData.dimensions.split("×");
+        if (dimParts.length !== 3) {
+          newErrors.dimensions =
+            "Enter dimensions as Height × Width × Thickness";
+        } else if (dimParts.some((part) => isNaN(parseFloat(part.trim())))) {
+          newErrors.dimensions = "All dimensions must be numbers";
+        }
+      } else if (typeof formData.dimensions === "object") {
+        // If it's already an object, no need to validate the format
+        if (
+          !formData.dimensions.height ||
+          !formData.dimensions.width ||
+          !formData.dimensions.thickness
+        ) {
+          newErrors.dimensions =
+            "Dimensions must include height, width, and thickness";
+        }
+      }
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  /* ---------- Submit ---------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     try {
-      await updateProduct(productId, formData).unwrap();
+      // Transform dimensions from string "H × W × T" to object if needed
+      let dimensions;
+      if (formData.dimensions) {
+        if (typeof formData.dimensions === "string") {
+          dimensions = formData.dimensions.split("×").reduce((obj, val, i) => {
+            const key = ["height", "width", "thickness"][i];
+            obj[key] = parseFloat(val.trim());
+            return obj;
+          }, {});
+        } else {
+          // It's already an object
+          dimensions = formData.dimensions;
+        }
+      }
+
+      // Prepare the complete book data
+      const bookData = {
+        title: formData.title.trim(),
+        author: formData.author.trim(),
+        description: formData.description.trim(),
+        price: parseFloat(formData.price),
+        originalPrice: formData.originalPrice
+          ? parseFloat(formData.originalPrice)
+          : undefined,
+        isbn: formData.isbn.replace(/[-\s]/g, ""), // Clean ISBN
+        language: formData.language,
+        format: formData.format,
+        publishDate: formData.publishedDate, // Matches model field name
+        publisher: formData.publisher.trim(),
+        image: formData.image,
+        category: formData.category,
+        inventory: parseInt(formData.inventory),
+        pageCount: formData.pages ? parseInt(formData.pages) : undefined,
+        dimensions,
+        weight: formData.weight ? parseFloat(formData.weight) : undefined,
+        featured: formData.featured,
+        isActive: parseInt(formData.inventory) > 0, // Set based on inventory
+      };
+
+      console.log("Submitting book data:", bookData);
+      const response = await updateProduct({
+        productId,
+        data: bookData,
+      }).unwrap();
+      console.log("Book created successfully:", response);
+
       setSubmitted(true);
       setTimeout(() => {
         setSubmitted(false);
         onClose();
       }, 2000);
+
+      // Reset form
+      setFormData({
+        title: "",
+        author: "",
+        isbn: "",
+        publisher: "",
+        publishedDate: "",
+        description: "",
+        price: "",
+        originalPrice: "",
+        inventory: "",
+        pages: "",
+        language: "English",
+        category: "",
+        format: "Paperback",
+        dimensions: "",
+        weight: "",
+        image: "",
+        featured: false,
+      });
     } catch (err) {
-      console.error("Update product failed:", err);
+      console.error("Book creation failed:", err);
+      if (err.data?.errors) {
+        // Handle field-specific errors from backend
+        const fieldErrors = {};
+        err.data.errors.forEach((error) => {
+          fieldErrors[error.path] = error.message;
+        });
+        setErrors(fieldErrors);
+      } else {
+        setErrors({ submit: err.message || "Failed to create book" });
+      }
     }
   };
 
@@ -273,7 +333,31 @@ export default function EditProduct({ productId, onClose }) {
           </div>
         )}
 
+        {/* Error Display */}
+        {Object.keys(errors).length > 0 && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <AlertCircle className="h-5 w-5 text-red-500" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">
+                  There were errors with your submission
+                </h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <ul className="list-disc pl-5 space-y-1">
+                    {Object.entries(errors).map(([field, message]) => (
+                      <li key={field}>{message}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Main Form */}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Basic Information */}
@@ -653,31 +737,31 @@ export default function EditProduct({ productId, onClose }) {
                     )}
                   </div>
 
-                  {/* Stock */}
+                  {/* inventory */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-700">
-                      Stock Quantity <span className="text-red-500">*</span>
+                      inventory Quantity <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <Package2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <input
                         type="number"
-                        name="stock"
-                        value={formData.stock}
+                        name="inventory"
+                        value={formData.inventory}
                         onChange={handleChange}
                         min="0"
                         placeholder="0"
                         className={`w-full pl-10 pr-4 py-3 rounded-lg border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors.stock
+                          errors.inventory
                             ? "border-red-300 bg-red-50"
                             : "border-slate-200 hover:border-slate-300 focus:border-blue-500"
                         }`}
                       />
                     </div>
-                    {errors.stock && (
+                    {errors.inventory && (
                       <p className="text-red-600 text-sm flex items-center">
                         <AlertCircle className="h-4 w-4 mr-1" />
-                        {errors.stock}
+                        {errors.inventory}
                       </p>
                     )}
                   </div>
@@ -883,12 +967,12 @@ export default function EditProduct({ productId, onClose }) {
                     </span>
                     <span
                       className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        formData.price && formData.stock !== ""
+                        formData.price && formData.inventory !== ""
                           ? "bg-green-100 text-green-800"
                           : "bg-slate-100 text-slate-600"
                       }`}
                     >
-                      {formData.price && formData.stock !== ""
+                      {formData.price && formData.inventory !== ""
                         ? "Complete"
                         : "Incomplete"}
                     </span>
@@ -909,7 +993,7 @@ export default function EditProduct({ productId, onClose }) {
                         (formData.publisher && formData.publishedDate
                           ? 33
                           : 0) +
-                        (formData.price && formData.stock !== "" ? 34 : 0)
+                        (formData.price && formData.inventory !== "" ? 34 : 0)
                       }%`,
                     }}
                   ></div>
@@ -942,7 +1026,7 @@ export default function EditProduct({ productId, onClose }) {
                       description: "",
                       price: "",
                       originalPrice: "",
-                      stock: "",
+                      inventory: "",
                       pages: "",
                       language: "English",
                       category: "",
@@ -960,13 +1044,13 @@ export default function EditProduct({ productId, onClose }) {
                 </button>
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isUpdating}
                   className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 active:scale-95"
                 >
-                  {isLoading ? (
+                  {isUpdating ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2 inline-block"></div>
-                      Adding Book...
+                      Updating Book...
                     </>
                   ) : (
                     <>
