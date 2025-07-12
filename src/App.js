@@ -37,6 +37,7 @@ import BooksList from "./pages/dashboard/admin/BooksList";
 import MLMSettings from "./pages/dashboard/admin/MLMSettings";
 import PostsFeed from "./pages/PostsFeed";
 import SinglePostPage from "./pages/SinglePostPage";
+import SavedPosts from "./pages/dashboard/SavedPosts";
 function App() {
   // Initialize FCM and get FCM functionality
   const { isSupported } = useFCM();
@@ -106,10 +107,11 @@ function App() {
           <Route path="groups" element={<Groups />} />
           <Route path="groups/:groupId" element={<GroupChat />} />
           <Route path="chats" element={<ChatLists />} />
-          <Route path="social" element={"<SocialFeed />"} />
+          <Route path="saved-posts" element={<SavedPosts />} />
           <Route path="mlm" element={<MLMDashboard />} />
           <Route path="account" element={<MyAccount />} />
           <Route path="orders" element={<MyOrders />} />
+
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="recommendations" element={<Recommendations />} />
           <Route path="notifications" element={<NotificationsPage />} />

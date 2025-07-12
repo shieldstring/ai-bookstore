@@ -19,6 +19,8 @@ import {
   User2Icon,
   MessageCircle,
   Bell,
+  Rss,
+  Bookmark,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slices/authSlice";
@@ -54,11 +56,18 @@ const DashboardLayout = () => {
       path: "/dashboard/mlm",
       icon: <User2Icon className="h-5 w-5" />,
     },
-    // {
-    //   name: "Wishlist",
-    //   path: "/dashboard/wishlist",
-    //   icon: <Heart className="h-5 w-5" />,
-    // },
+    {
+      name: "My Feeds",
+      path: "/feeds",
+      icon: <Rss className="h-5 w-5" />,
+    },
+    
+
+    {
+      name: "Saved Posts",
+      path: "/dashboard/saved-posts",
+      icon: <Bookmark className="h-5 w-5" />,
+    },
     {
       name: "Groups",
       path: "/dashboard/groups",

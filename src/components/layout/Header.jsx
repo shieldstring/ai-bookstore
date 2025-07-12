@@ -212,6 +212,13 @@ const Header = () => {
                     >
                       My Feeds
                     </Link>
+
+                    <Link
+                      to="/dashboard/saved-posts"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      Saved Posts
+                    </Link>
                     <button
                       onClick={handleUserLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"

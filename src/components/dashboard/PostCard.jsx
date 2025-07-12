@@ -663,7 +663,7 @@ const PostCard = ({
                   {post.user?.level && (
                     <>
                       <span className="hidden sm:inline">•</span>
-                      <div className="flex items-center gap-1 hidden sm:flex">
+                      <div className=" items-center gap-1 hidden sm:flex">
                         <Star size={12} />
                         <span>Level {post.user.level}</span>
                       </div>
