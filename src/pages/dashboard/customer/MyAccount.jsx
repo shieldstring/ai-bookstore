@@ -161,11 +161,11 @@ const MyAccount = () => {
           <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-8 text-white">
             <div className="flex items-center space-x-4">
               {userData.profilePicture ? (
-                <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
+                <div className="h-16 lg:h-20  lg:w-20 rounded-full border-4 border-white bg-white/20 flex items-center justify-center">
                   <img
                     src={userData.profilePicture}
                     alt={userData.name}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full rounded-full  object-cover"
                   />
                 </div>
               ) : (

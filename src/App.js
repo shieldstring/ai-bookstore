@@ -35,6 +35,7 @@ import OAuthCallback from "./components/OAuthCallback";
 import CheckoutSuccess from "./components/CheckoutSuccess";
 import BooksList from "./pages/dashboard/admin/BooksList";
 import MLMSettings from "./pages/dashboard/admin/MLMSettings";
+import PostsFeed from "./pages/PostsFeed";
 function App() {
   // Initialize FCM and get FCM functionality
   const { isSupported } = useFCM();
@@ -67,6 +68,8 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
           <Route index element={<HomePage />} />
           <Route path="books" element={<BooksPage />} />
+          <Route path="feeds" element={<PostsFeed />} />
+          <Route path="feeds/:id" element={<PostsFeed />} />
           <Route path="books/:id" element={<BookDetailPage />} />
           <Route path="profile/:userId" element={<UserProfile />} />
           <Route path="groups/:groupId" element={"<GroupPage />"} />

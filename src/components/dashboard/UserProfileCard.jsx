@@ -24,7 +24,7 @@ const UserProfileCard = ({ user, groups, achievements }) => {
               <img
                 src={user.profilePicture}
                 alt={user.name}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover rounded-full lg:h-32 border-4"
               />
             ) : (
               <div className="mx-auto h-20 w-20 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-2xl font-bold mb-4">
