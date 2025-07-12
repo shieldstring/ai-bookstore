@@ -1,15 +1,16 @@
 // SinglePostPage.jsx
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Assuming you use React Router
+import React from "react";
+import { useParams, useNavigate } from "react-router-dom"; // Assuming you use React Router
 import {
   useGetPostByIdQuery,
   useLikeUnlikePostMutation,
   useAddCommentToPostMutation,
   useDeleteCommentFromPostMutation,
-} from '../redux/slices/postsApiSlice';
+} from "../redux/slices/postsApiSlice";
 import { useGetUserDashboardQuery } from "../redux/slices/authSlice";
-import { BookOpen, ArrowLeft } from 'lucide-react'; // Import icons
-import PostCard from '../components/dashboard/PostCard';
+import { BookOpen, ArrowLeft } from "lucide-react"; // Import icons
+import PostCard from "../components/dashboard/PostCard";
+import SEO from "../components/SEO";
 
 const SinglePostPage = () => {
   const { postId } = useParams(); // Get postId from the URL parameters
@@ -60,7 +61,8 @@ const SinglePostPage = () => {
             <p className="text-lg font-semibold">Error Loading Post</p>
           </div>
           <p className="text-gray-600 mb-6">
-            {error?.data?.message || "Something went wrong while loading the post."}
+            {error?.data?.message ||
+              "Something went wrong while loading the post."}
             <br /> It might not exist or there was a network issue.
           </p>
           <button
@@ -98,6 +100,11 @@ const SinglePostPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-6">
+      <SEO
+        title={post.content?.text}
+        description={post.content?.text}
+        image={post.content?.imageUrl}
+      />
       <div className="max-w-2xl mx-auto px-4 space-y-6">
         <button
           onClick={() => navigate(-1)}
