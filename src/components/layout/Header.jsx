@@ -155,7 +155,7 @@ const Header = () => {
                       to="/admin/analytics"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
                     >
-                    Analytics
+                      Analytics
                     </Link>
 
                     <Link
@@ -205,6 +205,12 @@ const Header = () => {
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
                     >
                       My Network
+                    </Link>
+                    <Link
+                      to="/feeds"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      My Feeds
                     </Link>
                     <button
                       onClick={handleUserLogout}
@@ -319,6 +325,21 @@ const Header = () => {
                   Recommendations
                 </NavLink>
               </li>
+
+              <li>
+                <NavLink
+                  to="/login?redirect=/feeds"
+                  className={({ isActive }) =>
+                    `font-semibold   ${
+                      isActive
+                        ? " text-[#fce7f3]"
+                        : "text-gray-100 hover:text-[#fce7f3]"
+                    }`
+                  }
+                >
+                  Feeds
+                </NavLink>
+              </li>
             </ul>
           </div>
         </nav>
@@ -374,6 +395,16 @@ const Header = () => {
                   onClick={toggleSidebar}
                 >
                   Recommendations
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  to="/login?redirect=/feeds"
+                  className="block py-2 text-gray-800 hover:text-purple-700"
+                  onClick={toggleSidebar}
+                >
+                  Feeds
                 </Link>
               </li>
 

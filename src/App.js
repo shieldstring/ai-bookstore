@@ -36,6 +36,7 @@ import CheckoutSuccess from "./components/CheckoutSuccess";
 import BooksList from "./pages/dashboard/admin/BooksList";
 import MLMSettings from "./pages/dashboard/admin/MLMSettings";
 import PostsFeed from "./pages/PostsFeed";
+import SinglePostPage from "./pages/SinglePostPage";
 function App() {
   // Initialize FCM and get FCM functionality
   const { isSupported } = useFCM();
@@ -69,7 +70,7 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="books" element={<BooksPage />} />
           <Route path="feeds" element={<PostsFeed />} />
-          <Route path="feeds/:id" element={<PostsFeed />} />
+          <Route path="feeds/:postId" element={<SinglePostPage />} />
           <Route path="books/:id" element={<BookDetailPage />} />
           <Route path="profile/:userId" element={<UserProfile />} />
           <Route path="groups/:groupId" element={"<GroupPage />"} />
