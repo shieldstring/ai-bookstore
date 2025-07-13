@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BookOpen, ShoppingCart, Bookmark } from "lucide-react";
+import { BookOpen, ShoppingCart, Bookmark, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   useGetPostsQuery,
@@ -104,9 +104,16 @@ const CreatePostCard = ({ onCreatePost, currentUser }) => {
                   <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
                     >
-                      <BookOpen size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
+                      <BookOpen
+                        size={14}
+                        className="sm:w-4 sm:h-4 flex-shrink-0"
+                      />
                     </motion.div>
                     <span className="truncate">
                       Share book recommendations & reviews
@@ -153,15 +160,18 @@ const PostsFeed = () => {
       behavior: "smooth",
     });
   }, []);
+
   const [limit] = useState(10);
   const [skip] = useState(0);
   const [showSavedPosts, setShowSavedPosts] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Fetch current user data (includes savedPosts array)
   const {
     data: currentUser,
     isLoading: isUserLoading,
     error: userError,
+    refetch: refetchUser,
   } = useGetUserDashboardQuery();
 
   // Query for all posts
@@ -170,6 +180,7 @@ const PostsFeed = () => {
     isLoading: arePostsLoading,
     isError: isPostsError,
     error: postsError,
+    refetch: refetchPosts,
   } = useGetPostsQuery({ limit, skip }, { skip: showSavedPosts });
 
   // Query for saved posts
@@ -178,6 +189,7 @@ const PostsFeed = () => {
     isLoading: areSavedPostsLoading,
     isError: isSavedPostsError,
     error: savedPostsError,
+    refetch: refetchSavedPosts,
   } = useGetSavedPostsQuery(undefined, { skip: !showSavedPosts });
 
   const [createPost] = useCreatePostMutation();
@@ -189,6 +201,26 @@ const PostsFeed = () => {
   const isLoading = isUserLoading || arePostsLoading || areSavedPostsLoading;
   const isError = isPostsError || userError || isSavedPostsError;
   const error = postsError || userError || savedPostsError;
+
+  // Handle refresh functionality
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      // Always refetch user data
+      await refetchUser();
+
+      // Refetch appropriate posts based on current view
+      if (showSavedPosts) {
+        await refetchSavedPosts();
+      } else {
+        await refetchPosts();
+      }
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -269,10 +301,7 @@ const PostsFeed = () => {
         <div className="max-w-2xl mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <BookOpen className="text-blue-600 flex-shrink-0" size={24} />
               </motion.div>
               <div className="min-w-0 flex-1">
@@ -297,6 +326,35 @@ const PostsFeed = () => {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Refresh Button */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className={`flex items-center gap-1 px-2 py-2 rounded-lg transition-colors ${
+                  isRefreshing
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                }`}
+                title="Refresh posts"
+              >
+                <motion.div
+                  animate={isRefreshing ? { rotate: 360 } : {}}
+                  transition={{
+                    duration: 1,
+                    repeat: isRefreshing ? Infinity : 0,
+                    ease: "linear",
+                  }}
+                >
+                  <RefreshCw size={16} className="flex-shrink-0" />
+                </motion.div>
+              </motion.button>
+
+              {/* Saved Posts Toggle */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -421,10 +479,10 @@ const PostsFeed = () => {
                     key={post._id}
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ 
-                      duration: 0.5, 
+                    transition={{
+                      duration: 0.5,
                       delay: index * 0.1,
-                      ease: "easeOut"
+                      ease: "easeOut",
                     }}
                     whileHover={{ y: -5 }}
                   >

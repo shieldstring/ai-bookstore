@@ -70,8 +70,22 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
           <Route index element={<HomePage />} />
           <Route path="books" element={<BooksPage />} />
-          <Route path="feeds" element={<PostsFeed />} />
-          <Route path="feeds/:postId" element={<SinglePostPage />} />
+          <Route
+            path="feeds"
+            element={
+              <AuthRoute>
+                <PostsFeed />
+              </AuthRoute>
+            }
+          />
+          <Route
+            path="feeds/:postId"
+            element={
+              <AuthRoute>
+                <SinglePostPage />
+              </AuthRoute>
+            }
+          />
           <Route path="books/:id" element={<BookDetailPage />} />
           <Route path="profile/:userId" element={<UserProfile />} />
           <Route path="groups/:groupId" element={"<GroupPage />"} />
