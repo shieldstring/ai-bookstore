@@ -34,6 +34,7 @@ const DashboardLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { data: unreadCount = 0 } = useGetUnreadCountQuery();
   const isAdmin = userInfo?.role === "admin";
+  const isSeller = userInfo?.role === "seller";
 
   const userNavigation = [
     {
@@ -96,6 +97,35 @@ const DashboardLayout = () => {
     },
   ];
 
+  const sellerNavigation = [
+    {
+      name: "Dashboard",
+      path: "/seller/index",
+      icon: <PieChart className="h-5 w-5" />,
+    },
+    {
+      name: "Products",
+      path: "/seller/products",
+      icon: <Grid className="h-5 w-5" />,
+    },
+    {
+      name: "Orders",
+      path: "/seller/orders",
+      icon: <ShoppingCart className="h-5 w-5" />,
+    },
+    {
+      name: "Notifications",
+      path: "/seller/notifications",
+      icon: <Bell className="h-5 w-5" />,
+      count:
+        unreadCount > 0 ? (
+          <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+            {unreadCount > 9 ? "9+" : unreadCount}
+          </span>
+        ) : null,
+    },
+  ];
+  
   const adminNavigation = [
     {
       name: "Analytics",
@@ -140,7 +170,8 @@ const DashboardLayout = () => {
     },
   ];
 
-  const navItems = isAdmin ? adminNavigation : userNavigation;
+  // Navigation logic with priority: admin > seller > user
+  const navItems = isAdmin ? adminNavigation : isSeller ? sellerNavigation : userNavigation;
 
   const NavLink = ({ item }) => (
     <Link
@@ -189,6 +220,14 @@ const DashboardLayout = () => {
     dispatch(logout());
     dispatch(handleLogout());
   };
+
+  // Helper function to get the appropriate home route
+  const getHomeRoute = () => {
+    if (isAdmin) return "/admin/overview";
+    if (isSeller) return "/seller/index";
+    return "/";
+  };
+
   return (
     <div className="h-screen flex overflow-hidden bg-gray-50">
       {/* Mobile sidebar */}
@@ -213,7 +252,7 @@ const DashboardLayout = () => {
           </div>
           <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
             <div className="flex-shrink-0 flex items-center px-4">
-              <Link to="/" className="flex items-center">
+              <Link to={getHomeRoute()} className="flex items-center">
                 <div className="font-bold text-xl text-purple-700">Book</div>
                 <div className="ml-2 px-2 py-1 bg-purple-600 text-white text-xs font-medium rounded">
                   Store
@@ -236,7 +275,7 @@ const DashboardLayout = () => {
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
             <div className="flex items-center px-4 mb-5 justify-between">
               <Link
-                to={userInfo.role === "admin" ? "/admin/overview" : "/"}
+                to={getHomeRoute()}
                 className="flex items-center"
               >
                 <div className="font-bold text-xl text-purple-700">Book</div>
@@ -267,7 +306,7 @@ const DashboardLayout = () => {
               <Menu className="h-6 w-6" />
             </button>
             <Link
-              to={userInfo.role === "admin" ? "/admin/overview" : "/"}
+              to={getHomeRoute()}
               className="flex items-center"
             >
               <div className="font-bold text-xl text-purple-700">Book</div>

@@ -38,6 +38,7 @@ import MLMSettings from "./pages/dashboard/admin/MLMSettings";
 import PostsFeed from "./pages/PostsFeed";
 import SinglePostPage from "./pages/SinglePostPage";
 import SavedPosts from "./pages/dashboard/SavedPosts";
+import SellerDashboardPage from "./pages/dashboard/seller/SellerDashboardPage";
 function App() {
   // Initialize FCM and get FCM functionality
   const { isSupported } = useFCM();
@@ -128,6 +129,21 @@ function App() {
 
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="recommendations" element={<Recommendations />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+        </Route>
+
+        {/* Seller Routes */}
+        <Route
+          path="seller"
+          element={
+            <AuthRoute>
+              <DashboardLayout />
+            </AuthRoute>
+          }
+        >
+          <Route path="index" element={<SellerDashboardPage />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="products" element={<BooksList />} />
           <Route path="notifications" element={<NotificationsPage />} />
         </Route>
 
