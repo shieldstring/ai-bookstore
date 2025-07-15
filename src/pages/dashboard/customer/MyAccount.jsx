@@ -320,11 +320,11 @@ const MyAccount = () => {
                               {uploading ? "Uploading..." : "Upload Image"}
                             </button>
                           </div>
-                          {formData.profilePicture && (
+                          {/* {formData.profilePicture && (
                             <p className="mt-2 text-xs text-gray-500 truncate">
                               {formData.profilePicture}
                             </p>
-                          )}
+                          )} */}
                         </div>
                       </div>
                     </div>
