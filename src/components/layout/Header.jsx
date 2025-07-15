@@ -13,6 +13,7 @@ const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const isSeller = userInfo?.role === "seller";
 
   // Initialize search query from URL when component mounts or location changes
   useEffect(() => {
@@ -175,6 +176,41 @@ const Header = () => {
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
                     >
                       Products
+                    </Link>
+
+                    <button
+                      onClick={handleUserLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                ) : isSeller ? (
+                  <div className="absolute right-0 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-[100]">
+                    <Link
+                      to="/seller/index"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      Dashboard
+                    </Link>
+
+                    <Link
+                      to="/seller/products"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      My Products
+                    </Link>
+                    <Link
+                      to="/seller/orders"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      My Orders
+                    </Link>
+                    <Link
+                      to="/seller/notifications"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                    >
+                      Notifications
                     </Link>
 
                     <button

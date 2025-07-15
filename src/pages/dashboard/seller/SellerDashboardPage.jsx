@@ -1,11 +1,11 @@
 // src/pages/SellerDashboardPage.jsx (or components/SellerDashboardPage.jsx)
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   useGetSellerDashboardQuery,
   useEditSellerProfileMutation,
   useDeleteSellerProfileMutation,
   useRequestReapprovalMutation,
-} from '../redux/slices/sellerApiSlice'; // Adjust path as needed
+} from "../../../redux/slices/sellerApiSlice"; // Adjust path as needed
 import {
   LayoutDashboard,
   Store,
@@ -20,40 +20,43 @@ import {
   XCircle,
   Info,
   ExternalLink,
-} from 'lucide-react'; // Example icons
+  ShoppingCart,
+} from "lucide-react"; // Example icons
 
 // --- Reusable Components (can be in separate files) ---
 
 // Seller Status Badge Component
 const SellerStatusBadge = ({ status }) => {
-  let colorClass = '';
-  let statusText = '';
+  let colorClass = "";
+  let statusText = "";
   let Icon = Info;
 
   switch (status) {
-    case 'pending':
-      colorClass = 'bg-yellow-100 text-yellow-800';
-      statusText = 'Pending Approval';
+    case "pending":
+      colorClass = "bg-yellow-100 text-yellow-800";
+      statusText = "Pending Approval";
       Icon = Clock;
       break;
-    case 'approved':
-      colorClass = 'bg-green-100 text-green-800';
-      statusText = 'Approved';
+    case "approved":
+      colorClass = "bg-green-100 text-green-800";
+      statusText = "Approved";
       Icon = CheckCircle;
       break;
-    case 'rejected':
-      colorClass = 'bg-red-100 text-red-800';
-      statusText = 'Rejected';
+    case "rejected":
+      colorClass = "bg-red-100 text-red-800";
+      statusText = "Rejected";
       Icon = XCircle;
       break;
     default:
-      colorClass = 'bg-gray-100 text-gray-800';
-      statusText = 'Unknown Status';
+      colorClass = "bg-gray-100 text-gray-800";
+      statusText = "Unknown Status";
       Icon = Info;
   }
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${colorClass}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${colorClass}`}
+    >
       <Icon size={16} /> {statusText}
     </span>
   );
@@ -61,10 +64,12 @@ const SellerStatusBadge = ({ status }) => {
 
 // Edit Profile Modal Component
 const EditProfileModal = ({ profile, onClose, onSave, isSaving }) => {
-  const [storeName, setStoreName] = useState(profile?.storeName || '');
-  const [storeDescription, setStoreDescription] = useState(profile?.storeDescription || '');
-  const [contactEmail, setContactEmail] = useState(profile?.contactEmail || '');
-  const [storeUrl, setStoreUrl] = useState(profile?.storeUrl || ''); // Assuming storeUrl can be edited
+  const [storeName, setStoreName] = useState(profile?.storeName || "");
+  const [storeDescription, setStoreDescription] = useState(
+    profile?.storeDescription || ""
+  );
+  const [contactEmail, setContactEmail] = useState(profile?.contactEmail || "");
+  const [storeUrl, setStoreUrl] = useState(profile?.storeUrl || ""); // Assuming storeUrl can be edited
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -74,10 +79,17 @@ const EditProfileModal = ({ profile, onClose, onSave, isSaving }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Edit Seller Profile</h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">
+          Edit Seller Profile
+        </h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="storeName" className="block text-sm font-medium text-gray-700 mb-1">Store Name</label>
+            <label
+              htmlFor="storeName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Store Name
+            </label>
             <input
               type="text"
               id="storeName"
@@ -88,7 +100,12 @@ const EditProfileModal = ({ profile, onClose, onSave, isSaving }) => {
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="storeDescription" className="block text-sm font-medium text-gray-700 mb-1">Store Description</label>
+            <label
+              htmlFor="storeDescription"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Store Description
+            </label>
             <textarea
               id="storeDescription"
               value={storeDescription}
@@ -98,7 +115,12 @@ const EditProfileModal = ({ profile, onClose, onSave, isSaving }) => {
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700 mb-1">Contact Email</label>
+            <label
+              htmlFor="contactEmail"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Contact Email
+            </label>
             <input
               type="email"
               id="contactEmail"
@@ -109,7 +131,12 @@ const EditProfileModal = ({ profile, onClose, onSave, isSaving }) => {
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="storeUrl" className="block text-sm font-medium text-gray-700 mb-1">Store URL (Optional)</label>
+            <label
+              htmlFor="storeUrl"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Store URL (Optional)
+            </label>
             <input
               type="url"
               id="storeUrl"
@@ -133,7 +160,7 @@ const EditProfileModal = ({ profile, onClose, onSave, isSaving }) => {
               disabled={isSaving}
               className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              {isSaving ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>
@@ -142,55 +169,74 @@ const EditProfileModal = ({ profile, onClose, onSave, isSaving }) => {
   );
 };
 
-
 // Main Seller Dashboard Component
 const SellerDashboardPage = () => {
-  const { data: dashboardData, isLoading, isError, error, refetch } = useGetSellerDashboardQuery();
-  const [editSellerProfile, { isLoading: isSavingProfile }] = useEditSellerProfileMutation();
-  const [deleteSellerProfile, { isLoading: isDeletingProfile }] = useDeleteSellerProfileMutation();
-  const [requestReapproval, { isLoading: isRequestingReapproval }] = useRequestReapprovalMutation();
+  const {
+    data: dashboardData,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useGetSellerDashboardQuery();
+  const [editSellerProfile, { isLoading: isSavingProfile }] =
+    useEditSellerProfileMutation();
+  const [deleteSellerProfile, { isLoading: isDeletingProfile }] =
+    useDeleteSellerProfileMutation();
+  const [requestReapproval, { isLoading: isRequestingReapproval }] =
+    useRequestReapprovalMutation();
 
   const [showEditModal, setShowEditModal] = useState(false);
 
   const handleEditProfile = async (profileData) => {
     try {
       await editSellerProfile(profileData).unwrap();
-      alert('Profile updated successfully!');
+      alert("Profile updated successfully!");
       setShowEditModal(false); // Close modal on success
       refetch(); // Refetch dashboard data to show updates
     } catch (err) {
-      console.error('Failed to update profile:', err);
+      console.error("Failed to update profile:", err);
       alert(`Failed to update profile: ${err.data?.message || err.error}`);
     }
   };
 
   const handleDeleteProfile = async () => {
-    if (window.confirm("Are you sure you want to delete your seller profile? This action is irreversible and will remove all your seller data.")) {
+    if (
+      window.confirm(
+        "Are you sure you want to delete your seller profile? This action is irreversible and will remove all your seller data."
+      )
+    ) {
       try {
         await deleteSellerProfile().unwrap();
-        alert('Seller profile deleted successfully!');
+        alert("Seller profile deleted successfully!");
         // Redirect to a non-seller page or home after deletion
         // Example: navigate('/') if using react-router-dom
       } catch (err) {
-        console.error('Failed to delete profile:', err);
+        console.error("Failed to delete profile:", err);
         alert(`Failed to delete profile: ${err.data?.message || err.error}`);
       }
     }
   };
 
   const handleRequestReapproval = async () => {
-    if (window.confirm("Are you sure you want to request re-approval for your seller profile?")) {
+    if (
+      window.confirm(
+        "Are you sure you want to request re-approval for your seller profile?"
+      )
+    ) {
       try {
         await requestReapproval().unwrap();
-        alert('Re-approval request submitted successfully! Please wait for admin review.');
+        alert(
+          "Re-approval request submitted successfully! Please wait for admin review."
+        );
         refetch(); // Refetch to potentially update status
       } catch (err) {
-        console.error('Failed to request re-approval:', err);
-        alert(`Failed to request re-approval: ${err.data?.message || err.error}`);
+        console.error("Failed to request re-approval:", err);
+        alert(
+          `Failed to request re-approval: ${err.data?.message || err.error}`
+        );
       }
     }
   };
-
 
   if (isLoading) {
     return (
@@ -207,8 +253,12 @@ const SellerDashboardPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center bg-white p-8 rounded-xl shadow-md">
-          <h2 className="text-xl font-bold text-red-600 mb-4">Error Loading Dashboard</h2>
-          <p className="text-gray-600 mb-6">{error?.data?.message || "An unexpected error occurred."}</p>
+          <h2 className="text-xl font-bold text-red-600 mb-4">
+            Error Loading Dashboard
+          </h2>
+          <p className="text-gray-600 mb-6">
+            {error?.data?.message || "An unexpected error occurred."}
+          </p>
           <button
             onClick={() => window.location.reload()}
             className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
@@ -225,9 +275,12 @@ const SellerDashboardPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center bg-white p-8 rounded-xl shadow-md">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Not a Registered Seller</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-4">
+            Not a Registered Seller
+          </h2>
           <p className="text-gray-600 mb-6">
-            It looks like you don't have a seller profile yet. Register to start selling!
+            It looks like you don't have a seller profile yet. Register to start
+            selling!
           </p>
           {/* You would typically have a button to navigate to the seller registration page here */}
           <button
@@ -261,20 +314,35 @@ const SellerDashboardPage = () => {
         {/* Left Sidebar / Navigation (Can be expanded with more routes) */}
         <aside className="md:col-span-1 bg-white rounded-xl shadow-sm p-6 space-y-4 h-fit sticky top-24">
           <nav className="space-y-2">
-            <a href="#" className="flex items-center gap-3 px-4 py-2 rounded-lg text-blue-600 bg-blue-50 font-medium hover:bg-blue-100 transition-colors">
+            <a
+              href="#"
+              className="flex items-center gap-3 px-4 py-2 rounded-lg text-blue-600 bg-blue-50 font-medium hover:bg-blue-100 transition-colors"
+            >
               <LayoutDashboard size={20} /> Dashboard Home
             </a>
-            <a href="#" className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+            <a
+              href="#"
+              className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+            >
               <User size={20} /> My Profile
             </a>
             {/* You'd add links to product management, orders, etc. here */}
-            <a href="#" className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors opacity-70 cursor-not-allowed">
+            <a
+              href="#"
+              className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors opacity-70 cursor-not-allowed"
+            >
               <Package size={20} /> My Products (Coming Soon)
             </a>
-            <a href="#" className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors opacity-70 cursor-not-allowed">
+            <a
+              href="#"
+              className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors opacity-70 cursor-not-allowed"
+            >
               <ShoppingCart size={20} /> Orders (Coming Soon)
             </a>
-            <a href="#" className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors opacity-70 cursor-not-allowed">
+            <a
+              href="#"
+              className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors opacity-70 cursor-not-allowed"
+            >
               <Settings size={20} /> Settings (Coming Soon)
             </a>
           </nav>
@@ -286,7 +354,7 @@ const SellerDashboardPage = () => {
           <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-100">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                <User size={24} className="text-purple-600"/>
+                <User size={24} className="text-purple-600" />
                 My Profile
               </h2>
               <div className="flex gap-3">
@@ -296,13 +364,16 @@ const SellerDashboardPage = () => {
                 >
                   <Pencil size={18} /> Edit Profile
                 </button>
-                {sellerProfile.status === 'rejected' && (
+                {sellerProfile.status === "rejected" && (
                   <button
                     onClick={handleRequestReapproval}
                     disabled={isRequestingReapproval}
                     className="inline-flex items-center gap-2 px-4 py-2 border border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <RefreshCcw size={18} /> {isRequestingReapproval ? 'Requesting...' : 'Request Re-approval'}
+                    <RefreshCcw size={18} />{" "}
+                    {isRequestingReapproval
+                      ? "Requesting..."
+                      : "Request Re-approval"}
                   </button>
                 )}
                 <button
@@ -310,7 +381,8 @@ const SellerDashboardPage = () => {
                   disabled={isDeletingProfile}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Trash2 size={18} /> {isDeletingProfile ? 'Deleting...' : 'Delete Profile'}
+                  <Trash2 size={18} />{" "}
+                  {isDeletingProfile ? "Deleting..." : "Delete Profile"}
                 </button>
               </div>
             </div>
@@ -318,19 +390,29 @@ const SellerDashboardPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-gray-700">
               <div>
                 <p className="text-sm font-medium text-gray-500">Store Name</p>
-                <p className="text-lg font-semibold">{sellerProfile.storeName}</p>
+                <p className="text-lg font-semibold">
+                  {sellerProfile.storeName}
+                </p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Contact Email</p>
+                <p className="text-sm font-medium text-gray-500">
+                  Contact Email
+                </p>
                 <p className="text-lg">{sellerProfile.contactEmail}</p>
               </div>
               <div className="sm:col-span-2">
-                <p className="text-sm font-medium text-gray-500">Store Description</p>
-                <p className="text-lg">{sellerProfile.storeDescription || 'No description provided.'}</p>
+                <p className="text-sm font-medium text-gray-500">
+                  Store Description
+                </p>
+                <p className="text-lg">
+                  {sellerProfile.storeDescription || "No description provided."}
+                </p>
               </div>
               {sellerProfile.storeUrl && (
                 <div className="sm:col-span-2">
-                  <p className="text-sm font-medium text-gray-500">Storefront URL</p>
+                  <p className="text-sm font-medium text-gray-500">
+                    Storefront URL
+                  </p>
                   <a
                     href={sellerProfile.storeUrl}
                     target="_blank"
@@ -342,21 +424,36 @@ const SellerDashboardPage = () => {
                 </div>
               )}
             </div>
-            {sellerProfile.status === 'pending' && (
+            {sellerProfile.status === "pending" && (
               <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-3">
-                <Info size={20} className="text-yellow-600 flex-shrink-0 mt-0.5" />
+                <Info
+                  size={20}
+                  className="text-yellow-600 flex-shrink-0 mt-0.5"
+                />
                 <div>
-                  <p className="font-semibold text-yellow-800">Profile Under Review</p>
-                  <p className="text-sm text-yellow-700">Your seller profile is currently pending approval by our administrators. We will notify you once a decision has been made.</p>
+                  <p className="font-semibold text-yellow-800">
+                    Profile Under Review
+                  </p>
+                  <p className="text-sm text-yellow-700">
+                    Your seller profile is currently pending approval by our
+                    administrators. We will notify you once a decision has been
+                    made.
+                  </p>
                 </div>
               </div>
             )}
-             {sellerProfile.status === 'rejected' && (
+            {sellerProfile.status === "rejected" && (
               <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-                <XCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+                <XCircle
+                  size={20}
+                  className="text-red-600 flex-shrink-0 mt-0.5"
+                />
                 <div>
                   <p className="font-semibold text-red-800">Profile Rejected</p>
-                  <p className="text-sm text-red-700">Unfortunately, your seller profile was not approved. Please review your information or request re-approval.</p>
+                  <p className="text-sm text-red-700">
+                    Unfortunately, your seller profile was not approved. Please
+                    review your information or request re-approval.
+                  </p>
                 </div>
               </div>
             )}
@@ -371,16 +468,28 @@ const SellerDashboardPage = () => {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="bg-blue-50 p-6 rounded-lg text-center">
-                  <p className="text-sm font-medium text-blue-700">Total Sales</p>
-                  <p className="text-3xl font-bold text-blue-900 mt-1">${sellerMetrics.totalSales?.toFixed(2) || '0.00'}</p>
+                  <p className="text-sm font-medium text-blue-700">
+                    Total Sales
+                  </p>
+                  <p className="text-3xl font-bold text-blue-900 mt-1">
+                    ${sellerMetrics.totalSales?.toFixed(2) || "0.00"}
+                  </p>
                 </div>
                 <div className="bg-green-50 p-6 rounded-lg text-center">
-                  <p className="text-sm font-medium text-green-700">Total Orders</p>
-                  <p className="text-3xl font-bold text-green-900 mt-1">{sellerMetrics.totalOrders || 0}</p>
+                  <p className="text-sm font-medium text-green-700">
+                    Total Orders
+                  </p>
+                  <p className="text-3xl font-bold text-green-900 mt-1">
+                    {sellerMetrics.totalOrders || 0}
+                  </p>
                 </div>
                 <div className="bg-purple-50 p-6 rounded-lg text-center">
-                  <p className="text-sm font-medium text-purple-700">Average Rating</p>
-                  <p className="text-3xl font-bold text-purple-900 mt-1">{sellerMetrics.averageRating?.toFixed(1) || 'N/A'}</p>
+                  <p className="text-sm font-medium text-purple-700">
+                    Average Rating
+                  </p>
+                  <p className="text-3xl font-bold text-purple-900 mt-1">
+                    {sellerMetrics.averageRating?.toFixed(1) || "N/A"}
+                  </p>
                 </div>
                 {/* Add more metrics as needed */}
               </div>

@@ -98,7 +98,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/social"
+                  to="/login?redirect=/feeds"
                   className="text-gray-600 hover:text-purple-600 text-sm"
                 >
                   Social
@@ -106,7 +106,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/mlm"
+                  to="/login?redirect=/dashboard/mlm"
                   className="text-gray-600 hover:text-purple-600 text-sm"
                 >
                   Earn Rewards
@@ -114,7 +114,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/groups"
+                  to="/login?redirect=/dashboard/groups"
                   className="text-gray-600 hover:text-purple-600 text-sm"
                 >
                   Groups
