@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
@@ -10,6 +10,7 @@ import {
   Search,
   AlertCircle,
   Loader2,
+  X,
 } from "lucide-react";
 
 import {
@@ -29,28 +30,41 @@ const Sellers = () => {
   const [selectedSeller, setSelectedSeller] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [actionType, setActionType] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [rejectionReason, setRejectionReason] = useState("");
 
   // API hooks
   const {
     data: pendingSellers,
     isLoading: pendingLoading,
     error: pendingError,
+    refetch: refetchPending,
   } = useGetPendingSellersQuery();
   const {
     data: approvedSellers,
     isLoading: approvedLoading,
     error: approvedError,
+    refetch: refetchApproved,
   } = useGetApprovedSellersQuery();
   const { data: metrics, isLoading: metricsLoading } =
     useGetAdminSellerMetricsQuery();
 
   // Mutations
-  const [approveSeller, { isLoading: approvingLoading }] =
-    useApproveSellerMutation();
-  const [rejectSeller, { isLoading: rejectingLoading }] =
-    useRejectSellerMutation();
-  const [deleteSeller, { isLoading: deletingLoading }] =
-    useDeleteSellerByAdminMutation();
+  const [approveSeller] = useApproveSellerMutation();
+  const [rejectSeller] = useRejectSellerMutation();
+  const [deleteSeller] = useDeleteSellerByAdminMutation();
+
+  // Clear messages after 5 seconds
+  useEffect(() => {
+    if (errorMessage || successMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage("");
+        setSuccessMessage("");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage, successMessage]);
 
   const handleApprove = (sellerId) => {
     setSelectedSeller(sellerId);
@@ -74,16 +88,34 @@ const Sellers = () => {
     try {
       if (actionType === "approve") {
         await approveSeller(selectedSeller).unwrap();
+        setSuccessMessage("Seller approved successfully!");
       } else if (actionType === "reject") {
-        await rejectSeller(selectedSeller).unwrap();
+        await rejectSeller({
+          id: selectedSeller,
+          reason: rejectionReason,
+        }).unwrap();
+        setSuccessMessage("Seller rejected successfully!");
       } else if (actionType === "delete") {
         await deleteSeller(selectedSeller).unwrap();
+        setSuccessMessage("Seller deleted successfully!");
       }
+
+      // Refetch data
+      if (actionType === "approve" || actionType === "reject") {
+        refetchPending();
+      }
+      if (actionType === "delete") {
+        refetchApproved();
+      }
+
       setShowModal(false);
       setSelectedSeller(null);
       setActionType("");
+      setRejectionReason("");
     } catch (error) {
-      console.error("Error performing action:", error);
+      console.error(`Error ${actionType}ing seller:`, error);
+      setErrorMessage(error?.data?.message || `Failed to ${actionType} seller`);
+      setShowModal(false);
     }
   };
 
@@ -103,8 +135,6 @@ const Sellers = () => {
         seller.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         seller.user?.email?.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
-
-  const isLoading = approvingLoading || rejectingLoading || deletingLoading;
 
   const MetricCard = ({
     title,
@@ -161,10 +191,10 @@ const Sellers = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <SEO
-        title="Sellers"
-        description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
-        name="AI-Powered Social-Ecommerce"
-        type="description"
+        title="Seller Management"
+        description="Manage seller applications and monitor performance"
+        name="Seller Management"
+        type="website"
       />
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -180,6 +210,32 @@ const Sellers = () => {
             Manage seller applications and monitor performance
           </p>
         </motion.div>
+
+        {/* Status Messages */}
+        {errorMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative"
+          >
+            <div className="flex items-center">
+              <AlertCircle className="w-5 h-5 mr-2" />
+              <span>{errorMessage}</span>
+            </div>
+          </motion.div>
+        )}
+        {successMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative"
+          >
+            <div className="flex items-center">
+              <UserCheck className="w-5 h-5 mr-2" />
+              <span>{successMessage}</span>
+            </div>
+          </motion.div>
+        )}
 
         {/* Navigation Tabs */}
         <motion.div
@@ -358,6 +414,8 @@ const Sellers = () => {
                       key={seller._id}
                       seller={seller}
                       isPending={true}
+                      onApprove={() => handleApprove(seller._id)}
+                      onReject={() => handleReject(seller._id)}
                     />
                   ))}
                 </div>
@@ -429,6 +487,7 @@ const Sellers = () => {
                       key={seller._id}
                       seller={seller}
                       isPending={false}
+                      onDelete={() => handleDelete(seller._id)}
                     />
                   ))}
                 </div>
@@ -452,22 +511,56 @@ const Sellers = () => {
                 exit={{ scale: 0.9, opacity: 0 }}
                 className="bg-white rounded-xl p-6 max-w-md w-full"
               >
-                <div className="flex items-center mb-4">
-                  <AlertCircle className="w-6 h-6 text-orange-500 mr-3" />
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Confirm{" "}
-                    {actionType.charAt(0).toUpperCase() + actionType.slice(1)}
-                  </h3>
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center">
+                    <AlertCircle className="w-6 h-6 text-orange-500 mr-3" />
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {actionType === "approve" && "Approve Seller"}
+                      {actionType === "reject" && "Reject Application"}
+                      {actionType === "delete" && "Delete Seller"}
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowModal(false);
+                      setRejectionReason("");
+                    }}
+                    className="text-gray-400 hover:text-gray-500"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-                <p className="text-gray-600 mb-6">
-                  Are you sure you want to {actionType} this seller? This action
-                  cannot be undone.
+
+                <p className="text-gray-600 mb-4">
+                  {actionType === "approve" &&
+                    "Are you sure you want to approve this seller?"}
+                  {actionType === "reject" &&
+                    "Please provide a reason for rejecting this seller:"}
+                  {actionType === "delete" &&
+                    "Are you sure you want to delete this seller? This action cannot be undone."}
                 </p>
+
+                {actionType === "reject" && (
+                  <div className="mb-4">
+                    <textarea
+                      value={rejectionReason}
+                      onChange={(e) => setRejectionReason(e.target.value)}
+                      placeholder="Enter rejection reason..."
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      rows="3"
+                      required
+                    />
+                  </div>
+                )}
+
                 <div className="flex space-x-3">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => setShowModal(false)}
+                    onClick={() => {
+                      setShowModal(false);
+                      setRejectionReason("");
+                    }}
                     className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
                   >
                     Cancel
@@ -476,17 +569,20 @@ const Sellers = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={confirmAction}
+                    disabled={
+                      actionType === "reject" && !rejectionReason.trim()
+                    }
                     className={`flex-1 px-4 py-2 text-white rounded-lg transition-colors ${
                       actionType === "approve"
                         ? "bg-green-500 hover:bg-green-600"
                         : "bg-red-500 hover:bg-red-600"
-                    }`}
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {actionType === "approve"
-                      ? "Approve"
+                      ? "Confirm Approval"
                       : actionType === "reject"
-                      ? "Reject"
-                      : "Delete"}
+                      ? "Confirm Rejection"
+                      : "Confirm Deletion"}
                   </motion.button>
                 </div>
               </motion.div>

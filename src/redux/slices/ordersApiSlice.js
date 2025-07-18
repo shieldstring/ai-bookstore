@@ -2,7 +2,6 @@ import { apiTwo } from "./apiSlice";
 
 export const ordersApiSlice = apiTwo.injectEndpoints({
   endpoints: (builder) => ({
-    // Payment related endpoints
     createCheckoutSession: builder.mutation({
       query: (data) => ({
         url: "payment/create-checkout-session",
@@ -12,20 +11,6 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
       invalidatesTags: ["Cart"],
     }),
 
-    handlePaymentWebhook: builder.mutation({
-      query: (webhookData) => ({
-        url: "payment/webhook",
-        method: "POST",
-        body: webhookData,
-      }),
-    }),
-
-    verifyCheckoutStatus: builder.query({
-      query: (paymentId) => `payment/checkout-status/${paymentId}`,
-      providesTags: ["Payment"],
-    }),
-
-    // Order creation and verification
     createOrder: builder.mutation({
       query: (orderData) => ({
         url: "orders",
@@ -35,15 +20,6 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
       invalidatesTags: ["Order", "Cart", "Book"],
     }),
 
-    verifyPayment: builder.mutation({
-      query: (data) => ({
-        url: "orders/verify-payment",
-        method: "POST",
-        body: data,
-      }),
-    }),
-
-    // User order endpoints
     getOrders: builder.query({
       query: ({ page = 1, limit = 10 } = {}) =>
         `orders?page=${page}&limit=${limit}`,
@@ -67,12 +43,6 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
       providesTags: (result, error, arg) => [{ type: "Order", id: arg }],
     }),
 
-    getOrderStatusSummary: builder.query({
-      query: (orderId) => `orders/${orderId}/summary`,
-      providesTags: (result, error, arg) => [{ type: "Order", id: arg }],
-    }),
-
-    // Admin/Seller order endpoints
     getAllOrders: builder.query({
       query: ({
         page = 1,
@@ -80,9 +50,8 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
         status,
         sortField = "createdAt",
         sortOrder = "desc",
-        userType = "admin", // 'admin' or 'seller'
       } = {}) => {
-        let url = `orders/${userType}/all?page=${page}&limit=${limit}&sortField=${sortField}&sortOrder=${sortOrder}`;
+        let url = `orders/admin/all?page=${page}&limit=${limit}&sortField=${sortField}&sortOrder=${sortOrder}`;
         if (status) url += `&status=${status}`;
         return url;
       },
@@ -102,8 +71,8 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
     }),
 
     updateOrderStatus: builder.mutation({
-      query: ({ orderId, bookId, status }) => ({
-        url: `orders/${orderId}/item/${bookId}/status`,
+      query: ({ orderId, status }) => ({
+        url: `orders/${orderId}/status`,
         method: "PUT",
         body: { status },
       }),
@@ -131,6 +100,27 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
       invalidatesTags: (result, error, arg) => [{ type: "Order", id: arg }],
     }),
 
+    handlePaymentWebhook: builder.mutation({
+      query: (webhookData) => ({
+        url: "payment/webhook",
+        method: "POST",
+        body: webhookData,
+      }),
+    }),
+
+    verifyCheckoutStatus: builder.query({
+      query: (paymentId) => `payment/checkout-status/${paymentId}`,
+      providesTags: ["Payment"],
+    }),
+
+    verifyPayment: builder.mutation({
+      query: (data) => ({
+        url: "orders/verify-payment",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    
     updateOrderPaymentStatus: builder.mutation({
       query: ({ orderId, paymentData }) => ({
         url: `orders/${orderId}/payment-status`,
@@ -158,5 +148,4 @@ export const {
   useCancelOrderMutation,
   useDeleteOrderMutation,
   useVerifyPaymentMutation,
-  useGetOrderStatusSummaryQuery,
 } = ordersApiSlice;

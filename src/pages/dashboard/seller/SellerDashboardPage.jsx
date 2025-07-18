@@ -30,7 +30,10 @@ const SellerDashboardPage = () => {
     isError,
     error,
     refetch,
-  } = useGetSellerDashboardQuery();
+  } = useGetSellerDashboardQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
+  
   const [editSellerProfile, { isLoading: isSavingProfile }] =
     useEditSellerProfileMutation();
   const [deleteSellerProfile, { isLoading: isDeletingProfile }] =
@@ -44,8 +47,8 @@ const SellerDashboardPage = () => {
     try {
       await editSellerProfile(profileData).unwrap();
       alert("Profile updated successfully!");
-      setShowEditModal(false); // Close modal on success
-      refetch(); // Refetch dashboard data to show updates
+      setShowEditModal(false);
+      refetch();
     } catch (err) {
       console.error("Failed to update profile:", err);
       alert(`Failed to update profile: ${err.data?.message || err.error}`);
@@ -61,8 +64,8 @@ const SellerDashboardPage = () => {
       try {
         await deleteSellerProfile().unwrap();
         alert("Seller profile deleted successfully!");
-        // Redirect to a non-seller page or home after deletion
-        // Example: navigate('/') if using react-router-dom
+        // Redirect to home or appropriate page after deletion
+        window.location.href = '/';
       } catch (err) {
         console.error("Failed to delete profile:", err);
         alert(`Failed to delete profile: ${err.data?.message || err.error}`);
@@ -81,7 +84,7 @@ const SellerDashboardPage = () => {
         alert(
           "Re-approval request submitted successfully! Please wait for admin review."
         );
-        refetch(); // Refetch to potentially update status
+        refetch();
       } catch (err) {
         console.error("Failed to request re-approval:", err);
         alert(
@@ -113,7 +116,7 @@ const SellerDashboardPage = () => {
             {error?.data?.message || "An unexpected error occurred."}
           </p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => refetch()}
             className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
           >
             Try Again
@@ -123,8 +126,7 @@ const SellerDashboardPage = () => {
     );
   }
 
-  // If dashboardData is null/undefined, it means the user is not registered as a seller
-  if (!dashboardData || !dashboardData.sellerProfile) {
+  if (!dashboardData?.sellerProfile) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center bg-white p-8 rounded-xl shadow-md">
@@ -135,9 +137,8 @@ const SellerDashboardPage = () => {
             It looks like you don't have a seller profile yet. Register to start
             selling!
           </p>
-          {/* You would typically have a button to navigate to the seller registration page here */}
           <button
-            onClick={() => alert("Navigate to seller registration page")} // Replace with actual navigation
+            onClick={() => window.location.href = '/seller/register'}
             className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
           >
             Become a Seller
@@ -153,10 +154,11 @@ const SellerDashboardPage = () => {
     <div className="min-h-screen bg-gray-50">
       <SEO
         title="Seller Dashboard"
-        description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
-        name="AI-Powered Social-Ecommerce"
-        type="description"
+        description="Manage your seller profile, view metrics, and track your sales performance"
+        name="Seller Dashboard"
+        type="website"
       />
+      
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
@@ -170,7 +172,7 @@ const SellerDashboardPage = () => {
 
       {/* Main Content Area */}
       <div className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Left Sidebar / Navigation (Can be expanded with more routes) */}
+        {/* Left Sidebar */}
         <aside className="md:col-span-1 bg-white rounded-xl shadow-sm p-6 space-y-4 h-fit sticky top-24">
           <nav className="space-y-2">
             <a
@@ -185,7 +187,6 @@ const SellerDashboardPage = () => {
             >
               <User size={20} /> My Profile
             </a>
-            {/* You'd add links to product management, orders, etc. here */}
             <a
               href="#"
               className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors opacity-70 cursor-not-allowed"
@@ -220,6 +221,7 @@ const SellerDashboardPage = () => {
                 <button
                   onClick={() => setShowEditModal(true)}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  disabled={sellerProfile.status === 'pending'}
                 >
                   <Pencil size={18} /> Edit Profile
                 </button>
@@ -267,22 +269,24 @@ const SellerDashboardPage = () => {
                   {sellerProfile.storeDescription || "No description provided."}
                 </p>
               </div>
-              {sellerProfile.storeUrl && (
+              {sellerProfile.slug && (
                 <div className="sm:col-span-2">
                   <p className="text-sm font-medium text-gray-500">
                     Storefront URL
                   </p>
                   <a
-                    href={sellerProfile.storeUrl}
+                    href={`/seller/store/${sellerProfile.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-blue-600 hover:underline"
                   >
-                    {sellerProfile.storeUrl} <ExternalLink size={16} />
+                    {`${window.location.origin}/seller/store/${sellerProfile.slug}`}
+                    <ExternalLink size={16} />
                   </a>
                 </div>
               )}
             </div>
+
             {sellerProfile.status === "pending" && (
               <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-3">
                 <Info
@@ -301,6 +305,7 @@ const SellerDashboardPage = () => {
                 </div>
               </div>
             )}
+
             {sellerProfile.status === "rejected" && (
               <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
                 <XCircle
@@ -309,16 +314,20 @@ const SellerDashboardPage = () => {
                 />
                 <div>
                   <p className="font-semibold text-red-800">Profile Rejected</p>
+                  {sellerProfile.rejectionReason && (
+                    <p className="text-sm text-red-700 mb-2">
+                      <span className="font-medium">Reason:</span> {sellerProfile.rejectionReason}
+                    </p>
+                  )}
                   <p className="text-sm text-red-700">
-                    Unfortunately, your seller profile was not approved. Please
-                    review your information or request re-approval.
+                    Please review your information and request re-approval after making necessary changes.
                   </p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Seller Metrics Card (if sellerMetrics exist and are relevant) */}
+          {/* Seller Metrics Card */}
           {sellerMetrics && (
             <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-100">
               <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2 mb-6">
@@ -350,16 +359,13 @@ const SellerDashboardPage = () => {
                     {sellerMetrics.averageRating?.toFixed(1) || "N/A"}
                   </p>
                 </div>
-                {/* Add more metrics as needed */}
               </div>
             </div>
           )}
-
-          {/* Additional Sections (e.g., Recent Orders, Product Summary) */}
-          {/* These would require more data from your API */}
         </main>
       </div>
 
+      {/* Edit Profile Modal */}
       {showEditModal && (
         <EditProfileModal
           profile={sellerProfile}

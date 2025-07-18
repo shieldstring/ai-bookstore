@@ -2,10 +2,10 @@ import { apiTwo } from "./apiSlice";
 
 export const sellerApiSlice = apiTwo.injectEndpoints({
   endpoints: (builder) => ({
-    // Public Routes
+    // Public Storefront Route
     getSellerStorefront: builder.query({
-      query: (id) => `seller/store/${id}`,
-      providesTags: (result, error, id) => [{ type: 'SellerStorefront', id }],
+      query: (idOrSlug) => `seller/store/${idOrSlug}`,
+      providesTags: (result, error, idOrSlug) => [{ type: 'SellerStorefront', id: idOrSlug }],
     }),
 
     // Seller Protected Routes
@@ -72,41 +72,41 @@ export const sellerApiSlice = apiTwo.injectEndpoints({
     }),
 
     approveSeller: builder.mutation({
-      query: (id) => ({
-        url: `seller/admin/approve/${id}`,
+      query: (idOrSlug) => ({
+        url: `seller/admin/approve/${idOrSlug}`,
         method: 'PUT',
       }),
-      invalidatesTags: (result, error, id) => [
-        { type: 'Seller', id },
+      invalidatesTags: (result, error, idOrSlug) => [
+        { type: 'Seller', id: idOrSlug },
         { type: 'Seller', id: 'PENDING' },
         { type: 'Seller', id: 'APPROVED' },
       ],
     }),
 
     rejectSeller: builder.mutation({
-      query: (id) => ({
-        url: `seller/admin/reject/${id}`,
+      query: (idOrSlug) => ({
+        url: `seller/admin/reject/${idOrSlug}`,
         method: 'PUT',
       }),
-      invalidatesTags: (result, error, id) => [
-        { type: 'Seller', id },
+      invalidatesTags: (result, error, idOrSlug) => [
+        { type: 'Seller', id: idOrSlug },
         { type: 'Seller', id: 'PENDING' },
       ],
     }),
 
     deleteSellerByAdmin: builder.mutation({
-      query: (id) => ({
-        url: `seller/admin/delete/${id}`,
+      query: (idOrSlug) => ({
+        url: `seller/admin/delete/${idOrSlug}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, id) => [
-        { type: 'Seller', id },
+      invalidatesTags: (result, error, idOrSlug) => [
+        { type: 'Seller', id: idOrSlug },
         { type: 'Seller', id: 'APPROVED' },
       ],
     }),
 
     getAdminSellerMetrics: builder.query({
-      query: () => 'seller/admin/',
+      query: () => 'seller/admin',
       providesTags: ['SellerMetrics'],
     }),
   }),

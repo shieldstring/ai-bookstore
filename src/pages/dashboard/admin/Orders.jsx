@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Search,
-  MoreVertical,
+  Download,
   Loader2,
   ChevronUp,
   ChevronDown,
+  Eye,
+  Edit,
+  Trash2,
+  X,
+  AlertCircle,
 } from "lucide-react";
 import {
   useGetAllOrdersQuery,
@@ -16,6 +21,8 @@ import { format } from "date-fns";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import ErrorMessage from "../../../components/common/ErrorMessage";
 import SEO from "../../../components/SEO";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const statusOptions = [
   { value: "", label: "All Statuses" },
@@ -32,6 +39,7 @@ const AdminOrders = () => {
   const [page, setPage] = useState(1);
   const [sortField, setSortField] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("desc");
+  const [userType] = useState("admin"); // Can be 'admin' or 'seller'
   const limit = 10;
 
   // Dialog states
@@ -40,21 +48,55 @@ const AdminOrders = () => {
   const [statusUpdateOpen, setStatusUpdateOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
   const [newStatus, setNewStatus] = useState("");
+  const [newItemStatus, setNewItemStatus] = useState("");
+
+  // Error and success states
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   // RTK Query hooks
-  const { data, isLoading, isError, refetch } = useGetAllOrdersQuery({
+  const {
+    data,
+    isLoading,
+    isError,
+    error: queryError,
+    refetch,
+  } = useGetAllOrdersQuery({
     page,
     limit,
     status: statusFilter,
     sortField,
     sortOrder,
+    userType,
   });
 
   const [updateStatus, { isLoading: isUpdatingStatus }] =
     useUpdateOrderStatusMutation();
+
   const [cancelOrder, { isLoading: isCanceling }] = useCancelOrderMutation();
   const [deleteOrder, { isLoading: isDeleting }] = useDeleteOrderMutation();
+
+  // Filter orders based on search term
+  const filteredOrders =
+    data?.data?.filter(
+      (order) =>
+        order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.user?.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
+
+  // Clear messages after 5 seconds
+  useEffect(() => {
+    if (error || success) {
+      const timer = setTimeout(() => {
+        setError("");
+        setSuccess("");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, success]);
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-2 py-1 text-xs font-semibold rounded-full";
@@ -93,35 +135,48 @@ const AdminOrders = () => {
   };
 
   const handleStatusUpdate = async () => {
+    if (!newStatus || !selectedOrder) return;
+
     try {
       await updateStatus({
         orderId: selectedOrder._id,
         status: newStatus,
       }).unwrap();
       setStatusUpdateOpen(false);
+      setSuccess("Order status updated successfully!");
+      setNewStatus("");
       refetch();
-    } catch (error) {
-      console.error("Failed to update status:", error);
+    } catch (err) {
+      setError(err?.data?.message || "Failed to update order status");
+      console.error("Failed to update status:", err);
     }
   };
 
   const handleCancelOrder = async () => {
+    if (!selectedOrder) return;
+
     try {
       await cancelOrder(selectedOrder._id).unwrap();
       setCancelDialogOpen(false);
+      setSuccess("Order canceled successfully!");
       refetch();
-    } catch (error) {
-      console.error("Failed to cancel order:", error);
+    } catch (err) {
+      setError(err?.data?.message || "Failed to cancel order");
+      console.error("Failed to cancel order:", err);
     }
   };
 
   const handleDeleteOrder = async () => {
+    if (!selectedOrder) return;
+
     try {
       await deleteOrder(selectedOrder._id).unwrap();
       setDeleteDialogOpen(false);
+      setSuccess("Order deleted successfully!");
       refetch();
-    } catch (error) {
-      console.error("Failed to delete order:", error);
+    } catch (err) {
+      setError(err?.data?.message || "Failed to delete order");
+      console.error("Failed to delete order:", err);
     }
   };
 
@@ -143,24 +198,171 @@ const AdminOrders = () => {
     );
   };
 
-  if (isLoading)
+  const openDetailsModal = (order) => {
+    setSelectedOrder(order);
+    setDetailsOpen(true);
+  };
+
+  const openStatusUpdateModal = (order) => {
+    setSelectedOrder(order);
+    setNewStatus(order.status);
+    setStatusUpdateOpen(true);
+  };
+
+  const openCancelModal = (order) => {
+    setSelectedOrder(order);
+    setCancelDialogOpen(true);
+  };
+
+  const openDeleteModal = (order) => {
+    setSelectedOrder(order);
+    setDeleteDialogOpen(true);
+  };
+
+  const openItemStatusModal = (order, item) => {
+    setSelectedOrder(order);
+    setSelectedItem(item);
+    setNewItemStatus(item.status || "pending");
+  };
+
+  const closeAllModals = () => {
+    setDetailsOpen(false);
+    setStatusUpdateOpen(false);
+    setCancelDialogOpen(false);
+    setDeleteDialogOpen(false);
+    setSelectedOrder(null);
+    setSelectedItem(null);
+    setNewStatus("");
+    setNewItemStatus("");
+  };
+
+  const exportToExcel = () => {
+    if (!data?.data) return;
+
+    // Prepare data for export
+    const exportData = data.data.flatMap((order) =>
+      order.orderItems.map((item) => ({
+        "Order ID": order._id,
+        "Order Date": format(new Date(order.createdAt), "MMM dd, yyyy HH:mm"),
+        Customer: order.user?.name || "Guest",
+        "Product Name": item.name,
+        SKU: item.book?._id.slice(-6) || "",
+        Quantity: item.quantity,
+        "Unit Price": `$${item.price.toFixed(2)}`,
+        Total: `$${(item.price * item.quantity).toFixed(2)}`,
+        "Order Status": order.status,
+        "Item Status": item.status || "pending",
+        "Payment Method": order.paymentMethod,
+        "Total Amount": `$${order.totalPrice.toFixed(2)}`,
+        Status: order.status,
+        "Payment Status": order.isPaid ? "Paid" : "Not Paid",
+        "Shipping Address": order.shippingAddress
+          ? `${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.postalCode}, ${order.shippingAddress.country}`
+          : "N/A",
+        "Items Count": order.orderItems.length,
+      }))
+    );
+
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+
+    // Generate Excel file
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const dataBlob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    // Save the file
+    saveAs(dataBlob, `orders_${new Date().toISOString().split("T")[0]}.xlsx`);
+  };
+
+  // Add this function for CSV export
+  const exportToCSV = () => {
+    if (!data?.data) return;
+
+    const exportData = data.data.map((order) => ({
+      "Order ID": order._id,
+      Date: format(new Date(order.createdAt), "MMM dd, yyyy HH:mm"),
+      "Customer Name": order.user?.name || "Guest",
+      "Customer Email": order.user?.email || "",
+      "Total Amount": `$${order.totalPrice.toFixed(2)}`,
+      Status: order.status,
+      "Payment Method": order.paymentMethod,
+      "Payment Status": order.isPaid ? "Paid" : "Not Paid",
+      "Shipping Address": order.shippingAddress
+        ? `${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.postalCode}, ${order.shippingAddress.country}`
+        : "N/A",
+      "Items Count": order.orderItems.length,
+    }));
+
+    const csv = XLSX.utils.json_to_sheet(exportData);
+    const csvOutput = XLSX.utils.sheet_to_csv(csv);
+    const blob = new Blob([csvOutput], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, `orders_${new Date().toISOString().split("T")[0]}.csv`);
+  };
+
+  if (isLoading) {
     return (
       <div className="space-y-4">
-        <LoadingSkeleton type={"list"} count={5} />
+        <LoadingSkeleton type="list" count={5} />
       </div>
     );
-  if (isError) return <ErrorMessage error={"Failed to load order"} />;
+  }
+
+  if (isError) {
+    return (
+      <ErrorMessage
+        error={queryError?.data?.message || "Failed to load orders"}
+      />
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
       <SEO
-        title="Orders"
-        description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
+        title="Orders Management"
+        description="Manage and track orders in your AI-Powered Social-Ecommerce Platform"
         name="AI-Powered Social-Ecommerce"
         type="description"
       />
+
+      {/* Success/Error Messages */}
+      {success && (
+        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
+          <div className="flex items-center">
+            <div className="text-green-600 text-sm">{success}</div>
+            <button
+              onClick={() => setSuccess("")}
+              className="ml-auto text-green-600 hover:text-green-800"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+          <div className="flex items-center">
+            <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
+            <div className="text-red-600 text-sm">{error}</div>
+            <button
+              onClick={() => setError("")}
+              className="ml-auto text-red-600 hover:text-red-800"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-        <h2 className="text-xl font-bold text-gray-800">Orders</h2>
+        <h2 className="text-xl font-bold text-gray-800">Orders Management</h2>
 
         <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
           <div className="relative">
@@ -185,6 +387,28 @@ const AdminOrders = () => {
               </option>
             ))}
           </select>
+          <div className="relative">
+            <button className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+              <Download className="w-4 h-4" />
+              Export
+            </button>
+            <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10 hidden group-hover:block">
+              <div className="py-1">
+                <button
+                  onClick={exportToExcel}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Export to Excel
+                </button>
+                <button
+                  onClick={exportToCSV}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Export to CSV
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -225,7 +449,7 @@ const AdminOrders = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {data?.data?.map((order) => (
+            {filteredOrders.map((order) => (
               <tr key={order._id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {format(new Date(order.createdAt), "MMM dd, yyyy HH:mm")}
@@ -243,15 +467,34 @@ const AdminOrders = () => {
                   {getStatusBadge(order.status)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="relative">
+                  <div className="flex items-center space-x-2">
                     <button
-                      className="text-gray-500 hover:text-gray-700"
-                      onClick={() => {
-                        setSelectedOrder(order);
-                        setDetailsOpen(true);
-                      }}
+                      onClick={() => openDetailsModal(order)}
+                      className="text-blue-600 hover:text-blue-800"
+                      title="View Details"
                     >
-                      <MoreVertical className="h-5 w-5" />
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => openStatusUpdateModal(order)}
+                      className="text-yellow-600 hover:text-yellow-800"
+                      title="Update Status"
+                      disabled={
+                        order.status === "canceled" ||
+                        order.status === "delivered"
+                      }
+                    >
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => openDeleteModal(order)}
+                      className="text-red-600 hover:text-red-800"
+                      title="Delete Order"
+                      disabled={["processing", "shipped"].includes(
+                        order.status
+                      )}
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 </td>
@@ -260,15 +503,21 @@ const AdminOrders = () => {
           </tbody>
         </table>
 
-        {data?.data?.length === 0 && (
-          <div className="text-center py-8 text-gray-500">No orders found</div>
+        {filteredOrders.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            {searchTerm
+              ? "No orders found matching your search"
+              : "No orders found"}
+          </div>
         )}
       </div>
 
+      {/* Pagination */}
       {data?.totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <div className="text-sm text-gray-500">
-            Showing page {page} of {data.totalPages}
+            Showing page {page} of {data.totalPages} ({data.totalOrders} total
+            orders)
           </div>
           <div className="flex gap-2">
             <button
@@ -290,12 +539,8 @@ const AdminOrders = () => {
       )}
 
       {/* Order Details Modal */}
-      {selectedOrder && (
-        <div
-          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ${
-            detailsOpen ? "block" : "hidden"
-          }`}
-        >
+      {selectedOrder && detailsOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-start">
@@ -303,23 +548,10 @@ const AdminOrders = () => {
                   Order Details #{selectedOrder._id.slice(-6).toUpperCase()}
                 </h3>
                 <button
-                  onClick={() => setDetailsOpen(false)}
+                  onClick={closeAllModals}
                   className="text-gray-400 hover:text-gray-500"
                 >
-                  <span className="sr-only">Close</span>
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
+                  <X className="h-6 w-6" />
                 </button>
               </div>
 
@@ -380,7 +612,7 @@ const AdminOrders = () => {
                     </p>
                     <p>
                       <span className="font-medium">Status:</span>{" "}
-                      {selectedOrder.status}
+                      {getStatusBadge(selectedOrder.status)}
                     </p>
                     <p>
                       <span className="font-medium">Payment Method:</span>{" "}
@@ -390,7 +622,7 @@ const AdminOrders = () => {
                       <span className="font-medium">Payment Status:</span>{" "}
                       {selectedOrder.isPaid ? "Paid" : "Not Paid"}
                     </p>
-                    {selectedOrder.isPaid && (
+                    {selectedOrder.isPaid && selectedOrder.paidAt && (
                       <p>
                         <span className="font-medium">Paid At:</span>{" "}
                         {format(
@@ -445,6 +677,12 @@ const AdminOrders = () => {
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Total
                         </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
@@ -478,6 +716,23 @@ const AdminOrders = () => {
                           <td className="px-4 py-3 text-sm text-gray-500">
                             ${(item.price * item.quantity).toFixed(2)}
                           </td>
+                          <td className="px-4 py-3">
+                            {getStatusBadge(item.status || "pending")}
+                          </td>
+                          <td className="px-4 py-3">
+                            <button
+                              onClick={() =>
+                                openItemStatusModal(selectedOrder, item)
+                              }
+                              className="text-blue-600 hover:text-blue-800 text-sm"
+                              disabled={
+                                selectedOrder.status === "canceled" ||
+                                selectedOrder.status === "delivered"
+                              }
+                            >
+                              Update Status
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -488,9 +743,8 @@ const AdminOrders = () => {
               <div className="mt-6 flex justify-end space-x-3">
                 <button
                   onClick={() => {
-                    setDetailsOpen(false);
-                    setSelectedOrder(selectedOrder);
-                    setStatusUpdateOpen(true);
+                    closeAllModals();
+                    openStatusUpdateModal(selectedOrder);
                   }}
                   disabled={
                     selectedOrder.status === "canceled" ||
@@ -502,9 +756,8 @@ const AdminOrders = () => {
                 </button>
                 <button
                   onClick={() => {
-                    setDetailsOpen(false);
-                    setSelectedOrder(selectedOrder);
-                    setCancelDialogOpen(true);
+                    closeAllModals();
+                    openCancelModal(selectedOrder);
                   }}
                   disabled={
                     selectedOrder.status === "canceled" ||
@@ -514,19 +767,6 @@ const AdminOrders = () => {
                 >
                   Cancel Order
                 </button>
-                <button
-                  onClick={() => {
-                    setDetailsOpen(false);
-                    setSelectedOrder(selectedOrder);
-                    setDeleteDialogOpen(true);
-                  }}
-                  disabled={["processing", "shipped"].includes(
-                    selectedOrder.status
-                  )}
-                  className="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
-                >
-                  Delete Order
-                </button>
               </div>
             </div>
           </div>
@@ -534,12 +774,8 @@ const AdminOrders = () => {
       )}
 
       {/* Status Update Modal */}
-      {selectedOrder && (
-        <div
-          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ${
-            statusUpdateOpen ? "block" : "hidden"
-          }`}
-        >
+      {selectedOrder && statusUpdateOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
             <div className="p-6">
               <div className="flex justify-between items-start">
@@ -547,23 +783,10 @@ const AdminOrders = () => {
                   Update Order Status
                 </h3>
                 <button
-                  onClick={() => setStatusUpdateOpen(false)}
+                  onClick={closeAllModals}
                   className="text-gray-400 hover:text-gray-500"
                 >
-                  <span className="sr-only">Close</span>
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
+                  <X className="h-6 w-6" />
                 </button>
               </div>
 
@@ -590,7 +813,7 @@ const AdminOrders = () => {
 
               <div className="mt-6 flex justify-end space-x-3">
                 <button
-                  onClick={() => setStatusUpdateOpen(false)}
+                  onClick={closeAllModals}
                   className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
