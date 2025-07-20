@@ -98,7 +98,7 @@ const EditProfileModal = ({ profile, onClose, onSave, isSaving }) => {
               name="storeName"
               value={formData.storeName}
               onChange={handleChange}
-              className={`w-full p-3 border ${errors.storeName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-blue-500 focus:border-blue-500`}
+              className={`w-full p-3 border ${errors.storeName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-purple-500 focus:border-purple-500`}
               required
             />
             {errors.storeName && (
@@ -119,7 +119,7 @@ const EditProfileModal = ({ profile, onClose, onSave, isSaving }) => {
               value={formData.storeDescription}
               onChange={handleChange}
               rows="4"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
             />
           </div>
 
@@ -136,7 +136,7 @@ const EditProfileModal = ({ profile, onClose, onSave, isSaving }) => {
               name="contactEmail"
               value={formData.contactEmail}
               onChange={handleChange}
-              className={`w-full p-3 border ${errors.contactEmail ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-blue-500 focus:border-blue-500`}
+              className={`w-full p-3 border ${errors.contactEmail ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-purple-500 focus:border-purple-500`}
               required
             />
             {errors.contactEmail && (
@@ -158,7 +158,7 @@ const EditProfileModal = ({ profile, onClose, onSave, isSaving }) => {
               name="slug"
               value={formData.slug}
               onChange={handleChange}
-              className={`w-full p-3 border ${errors.slug ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-blue-500 focus:border-blue-500`}
+              className={`w-full p-3 border ${errors.slug ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-purple-500 focus:border-purple-500`}
               placeholder="my-store-name"
             />
             {errors.slug && (
@@ -184,7 +184,7 @@ const EditProfileModal = ({ profile, onClose, onSave, isSaving }) => {
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
               placeholder="+1234567890"
             />
           </div>
@@ -202,7 +202,7 @@ const EditProfileModal = ({ profile, onClose, onSave, isSaving }) => {
               value={formData.address}
               onChange={handleChange}
               rows="3"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
               placeholder="Street, City, Country"
             />
           </div>
@@ -219,7 +219,7 @@ const EditProfileModal = ({ profile, onClose, onSave, isSaving }) => {
             <button
               type="submit"
               disabled={isSaving}
-              className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>

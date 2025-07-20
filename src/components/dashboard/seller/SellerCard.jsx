@@ -40,7 +40,7 @@ const SellerCard = ({
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center overflow-hidden">
+          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center overflow-hidden">
             {seller.logo ? (
               <img
                 src={seller.logo}
@@ -111,7 +111,7 @@ const SellerCard = ({
             </div>
             <div className="text-center">
               <div className="flex items-center justify-center">
-                <ShoppingCart className="w-3 h-3 text-blue-500 mr-1" />
+                <ShoppingCart className="w-3 h-3 text-purple-500 mr-1" />
                 <span className="text-xs text-gray-500">Orders</span>
               </div>
               <p className="text-sm font-medium">

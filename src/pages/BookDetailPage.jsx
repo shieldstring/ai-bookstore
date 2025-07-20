@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Star, ShoppingCart, Heart } from "lucide-react";
+import { Star, ShoppingCart, Heart, Store } from "lucide-react";
 import Newsletter from "../components/common/Newsletter";
 import ValueProps from "../components/common/ValueProps";
 import SEO from "../components/SEO";
@@ -17,6 +17,7 @@ import LoadingSkeleton from "../components/preloader/LoadingSkeleton";
 import FormattedDate from "../components/FormattedDate";
 import { toast } from "react-toastify";
 import { addToCartWithSync } from "../redux/slices/cartThunks";
+import { useGetSellerStorefrontQuery } from "../redux/slices/sellerApiSlice";
 
 function BookDetailPage() {
   useEffect(() => {
@@ -35,12 +36,25 @@ function BookDetailPage() {
   const [addReview, { isLoading: isAddingReview }] = useAddReviewMutation();
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
+  const [sellerData, setSellerData] = useState("");
+
+  // Fetch seller information if book has a seller
+  const { data: seller } = useGetSellerStorefrontQuery(
+    book?.seller || book?.seller,
+    {
+      skip: !book?.seller && !book?.seller,
+    }
+  );
 
   useEffect(() => {
     if (data) {
       setBook(data.data);
     }
-  }, [data]);
+    if (seller) {
+      setSellerData(seller.data.sellerProfile);
+    }
+  }, [data, seller]);
+
 
   // Rating distribution
   const ratingDistribution = [
@@ -66,8 +80,7 @@ function BookDetailPage() {
           quantity,
         })
       );
-      // Show success message or notification
-      toast.success("Sucessfully added Book Cart");
+      toast.success("Successfully added Book to Cart");
     } catch (err) {
       toast.error(err);
       console.log(err);
@@ -88,8 +101,10 @@ function BookDetailPage() {
       }).unwrap();
       setRating(0);
       setReviewText("");
+      toast.success("Review submitted successfully");
     } catch (err) {
       console.error("Failed to add review:", err);
+      toast.error(err?.data?.message || "Failed to submit review");
     }
   };
 
@@ -163,6 +178,53 @@ function BookDetailPage() {
               <h1 className="text-2xl font-bold mb-2">{book.title}</h1>
               <p className="text-gray-600 mb-6">by {book.author}</p>
 
+              {/* Seller Information */}
+              {(book?.seller || sellerData) && (
+                <div className="mb-4">
+                  <Link
+                    to={`/seller/store/${
+                      book.seller?.slug ||
+                      sellerData?.slug ||
+                      book.seller?._id ||
+                      sellerData?._id
+                    }`}
+                    className="inline-flex items-center text-purple-600 hover:underline"
+                  >
+                    <Store className="w-4 h-4 mr-1" />
+                    <span>
+                      {book.seller?.storeName || sellerData?.storeName}
+                    </span>
+                  </Link>
+                  {(book.seller?.rating || sellerData?.rating) && (
+                    <div className="flex items-center mt-1 text-sm text-gray-600">
+                      <div className="flex mr-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={
+                              i <
+                              Math.floor(
+                                book.seller?.rating || sellerData?.rating || 0
+                              )
+                                ? "text-yellow-400 fill-yellow-400"
+                                : "text-gray-300"
+                            }
+                            size={14}
+                          />
+                        ))}
+                      </div>
+                      <span>
+                        (
+                        {book.seller?.reviewCount ||
+                          sellerData?.reviewCount ||
+                          0}{" "}
+                        reviews)
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="mb-6">
                 <p className="text-gray-600 mb-4">{book.description}</p>
               </div>
@@ -171,12 +233,17 @@ function BookDetailPage() {
                 <span className="text-purple-600 text-2xl font-bold">
                   ${book.price}
                 </span>
-                <span className="text-gray-400 line-through">
-                  ${book.originalPrice}
-                </span>
-                <span className="bg-orange-400 text-white text-xs px-2 py-1 rounded">
-                  20% Off
-                </span>
+                {book.originalPrice && (
+                  <>
+                    <span className="text-gray-400 line-through">
+                      ${book.originalPrice}
+                    </span>
+                    <span className="bg-orange-400 text-white text-xs px-2 py-1 rounded">
+                      {Math.round((1 - book.price / book.originalPrice) * 100)}%
+                      Off
+                    </span>
+                  </>
+                )}
               </div>
 
               <div className="flex gap-4 mb-6">
@@ -199,7 +266,7 @@ function BookDetailPage() {
                 <button
                   onClick={handleAddToCart}
                   disabled={isAdding}
-                  className=" px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                  className="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
                 >
                   {isAdding ? (
                     <LoadingSpinner />
@@ -210,10 +277,6 @@ function BookDetailPage() {
                     </span>
                   )}
                 </button>
-
-                {/* <button className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-md hover:bg-gray-100">
-                  <Heart size={16} />
-                </button> */}
               </div>
             </div>
           </div>
@@ -241,6 +304,18 @@ function BookDetailPage() {
               >
                 Customer Reviews ({book.reviewCount})
               </button>
+              {(book?.seller || sellerData) && (
+                <button
+                  className={`py-3 font-medium ${
+                    activeTab === "seller"
+                      ? "text-purple-600 border-b-2 border-purple-600"
+                      : "text-gray-600"
+                  }`}
+                  onClick={() => setActiveTab("seller")}
+                >
+                  Seller Information
+                </button>
+              )}
             </div>
           </div>
 
@@ -342,15 +417,15 @@ function BookDetailPage() {
                       reviewText={reviewText}
                       setReviewText={setReviewText}
                       onSubmit={handleReviewSubmit}
-                      user={userInfo || "9086"}
+                      user={userInfo}
                     />
                   ) : (
-                    <div className="bg-blue-50 p-4 rounded-md mb-6">
-                      <p className="text-blue-800">
+                    <div className="bg-purple-50 p-4 rounded-md mb-6">
+                      <p className="text-purple-800">
                         Please{" "}
                         <Link
                           to="/login"
-                          className="text-blue-600 font-medium hover:underline"
+                          className="text-purple-600 font-medium hover:underline"
                         >
                           sign in
                         </Link>{" "}
@@ -360,6 +435,101 @@ function BookDetailPage() {
                   )}
 
                   <ReviewList reviews={book.reviews} />
+                </div>
+              )}
+
+              {activeTab === "seller" && (book?.seller || sellerData) && (
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center">
+                      <Store className="w-8 h-8 text-purple-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">
+                        {book.seller?.storeName || sellerData?.storeName}
+                      </h3>
+                      <div className="flex items-center mt-1">
+                        <div className="flex mr-2">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={
+                                i <
+                                Math.floor(
+                                  book.seller?.rating || sellerData?.rating || 0
+                                )
+                                  ? "text-yellow-400 fill-yellow-400"
+                                  : "text-gray-300"
+                              }
+                              size={16}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-sm text-gray-600">
+                          (
+                          {book.seller?.reviewCount ||
+                            sellerData?.reviewCount ||
+                            0}{" "}
+                          reviews)
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        About This Seller
+                      </h4>
+                      <p className="text-gray-600">
+                        {book.seller?.bio ||
+                          sellerData?.bio ||
+                          "No description provided."}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        Contact Information
+                      </h4>
+                      <ul className="text-gray-600 space-y-1">
+                        <li>
+                          Email:{" "}
+                          {book.seller?.contactEmail ||
+                            sellerData?.contactEmail}
+                        </li>
+                        {(book.seller?.phoneNumber ||
+                          sellerData?.phoneNumber) && (
+                          <li>
+                            Phone:{" "}
+                            {book.seller?.phoneNumber ||
+                              sellerData?.phoneNumber}
+                          </li>
+                        )}
+                        {(book.seller?.address || sellerData?.address) && (
+                          <li>
+                            Address:{" "}
+                            {book.seller?.address || sellerData?.address}
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <Link
+                      to={`/seller/store/${
+                        book.seller?.slug ||
+                        sellerData?.slug ||
+                        book.seller?._id ||
+                        sellerData?._id
+                      }`}
+                      className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                    >
+                      <Store className="w-4 h-4 mr-2" />
+                      Visit Store
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
@@ -373,4 +543,5 @@ function BookDetailPage() {
     </div>
   );
 }
+
 export default BookDetailPage;

@@ -33,7 +33,7 @@ const SellerDashboardPage = () => {
   } = useGetSellerDashboardQuery(undefined, {
     refetchOnMountOrArgChange: true,
   });
-  
+
   const [editSellerProfile, { isLoading: isSavingProfile }] =
     useEditSellerProfileMutation();
   const [deleteSellerProfile, { isLoading: isDeletingProfile }] =
@@ -65,7 +65,7 @@ const SellerDashboardPage = () => {
         await deleteSellerProfile().unwrap();
         alert("Seller profile deleted successfully!");
         // Redirect to home or appropriate page after deletion
-        window.location.href = '/';
+        window.location.href = "/";
       } catch (err) {
         console.error("Failed to delete profile:", err);
         alert(`Failed to delete profile: ${err.data?.message || err.error}`);
@@ -98,7 +98,7 @@ const SellerDashboardPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading seller dashboard...</p>
         </div>
       </div>
@@ -117,7 +117,7 @@ const SellerDashboardPage = () => {
           </p>
           <button
             onClick={() => refetch()}
-            className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="px-5 py-2.5 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
           >
             Try Again
           </button>
@@ -138,8 +138,8 @@ const SellerDashboardPage = () => {
             selling!
           </p>
           <button
-            onClick={() => window.location.href = '/seller/register'}
-            className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            onClick={() => (window.location.href = "/seller/register")}
+            className="px-5 py-2.5 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
           >
             Become a Seller
           </button>
@@ -158,12 +158,12 @@ const SellerDashboardPage = () => {
         name="Seller Dashboard"
         type="website"
       />
-      
+
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <LayoutDashboard size={32} className="text-blue-600" />
+            <LayoutDashboard size={32} className="text-purple-600" />
             Seller Dashboard
           </h1>
           <SellerStatusBadge status={sellerProfile.status} />
@@ -177,7 +177,7 @@ const SellerDashboardPage = () => {
           <nav className="space-y-2">
             <a
               href="#"
-              className="flex items-center gap-3 px-4 py-2 rounded-lg text-blue-600 bg-blue-50 font-medium hover:bg-blue-100 transition-colors"
+              className="flex items-center gap-3 px-4 py-2 rounded-lg text-purple-600 bg-purple-50 font-medium hover:bg-purple-100 transition-colors"
             >
               <LayoutDashboard size={20} /> Dashboard Home
             </a>
@@ -220,8 +220,8 @@ const SellerDashboardPage = () => {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowEditModal(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                  disabled={sellerProfile.status === 'pending'}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
+                  disabled={sellerProfile.status === "pending"}
                 >
                   <Pencil size={18} /> Edit Profile
                 </button>
@@ -229,7 +229,7 @@ const SellerDashboardPage = () => {
                   <button
                     onClick={handleRequestReapproval}
                     disabled={isRequestingReapproval}
-                    className="inline-flex items-center gap-2 px-4 py-2 border border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-2 px-4 py-2 border border-purple-600 text-purple-600 rounded-lg font-medium hover:bg-purple-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <RefreshCcw size={18} />{" "}
                     {isRequestingReapproval
@@ -278,7 +278,7 @@ const SellerDashboardPage = () => {
                     href={`/seller/store/${sellerProfile.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-blue-600 hover:underline"
+                    className="flex items-center gap-1.5 text-purple-600 hover:underline"
                   >
                     {`${window.location.origin}/seller/store/${sellerProfile.slug}`}
                     <ExternalLink size={16} />
@@ -316,11 +316,13 @@ const SellerDashboardPage = () => {
                   <p className="font-semibold text-red-800">Profile Rejected</p>
                   {sellerProfile.rejectionReason && (
                     <p className="text-sm text-red-700 mb-2">
-                      <span className="font-medium">Reason:</span> {sellerProfile.rejectionReason}
+                      <span className="font-medium">Reason:</span>{" "}
+                      {sellerProfile.rejectionReason}
                     </p>
                   )}
                   <p className="text-sm text-red-700">
-                    Please review your information and request re-approval after making necessary changes.
+                    Please review your information and request re-approval after
+                    making necessary changes.
                   </p>
                 </div>
               </div>
@@ -335,11 +337,11 @@ const SellerDashboardPage = () => {
                 Dashboard Overview
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-blue-50 p-6 rounded-lg text-center">
-                  <p className="text-sm font-medium text-blue-700">
+                <div className="bg-purple-50 p-6 rounded-lg text-center">
+                  <p className="text-sm font-medium text-purple-700">
                     Total Sales
                   </p>
-                  <p className="text-3xl font-bold text-blue-900 mt-1">
+                  <p className="text-3xl font-bold text-purple-900 mt-1">
                     ${sellerMetrics.totalSales?.toFixed(2) || "0.00"}
                   </p>
                 </div>

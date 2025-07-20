@@ -40,6 +40,7 @@ import SinglePostPage from "./pages/SinglePostPage";
 import SavedPosts from "./pages/dashboard/SavedPosts";
 import SellerDashboardPage from "./pages/dashboard/seller/SellerDashboardPage";
 import SellerRegistrationPage from "./pages/auth/SellerRegistrationPage";
+import SellerStorefrontPage from "./pages/SellerStorefrontPage";
 function App() {
   // Initialize FCM and get FCM functionality
   const { isSupported } = useFCM();
@@ -90,7 +91,10 @@ function App() {
           />
           <Route path="books/:id" element={<BookDetailPage />} />
           <Route path="profile/:userId" element={<UserProfile />} />
-          <Route path="groups/:groupId" element={"<GroupPage />"} />
+          <Route
+            path="seller/store/:idOrSlug"
+            element={<SellerStorefrontPage />}
+          />
           <Route path="cart" element={<CartPage />} />
           <Route path="checkout/success" element={<CheckoutSuccess />} />
 

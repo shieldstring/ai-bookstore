@@ -86,8 +86,8 @@ const SellerRegistrationPage = () => {
             notify you once your account is approved.
           </p>
           <button
-            onClick={() => navigate("/seller/dashboard")}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            onClick={() => navigate("/seller/index")}
+            className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
           >
             Go to Dashboard
           </button>
@@ -111,10 +111,10 @@ const SellerRegistrationPage = () => {
         className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl"
       >
         <div className="md:flex">
-          <div className="md:flex-shrink-0 bg-gradient-to-br from-blue-600 to-purple-600 md:w-1/3 flex items-center justify-center p-8">
+          <div className="md:flex-shrink-0 bg-gradient-to-br from-purple-600 to-purple-600 md:w-1/3 flex items-center justify-center p-8">
             <div className="text-white text-center">
               <h2 className="text-2xl font-bold mb-2">Join Our Marketplace</h2>
-              <p className="text-blue-100">
+              <p className="text-purple-100">
                 Start selling to thousands of customers
               </p>
             </div>
@@ -153,7 +153,7 @@ const SellerRegistrationPage = () => {
                   onChange={handleChange}
                   className={`w-full px-3 py-2 border ${
                     errors.storeName ? "border-red-500" : "border-gray-300"
-                  } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                  } rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500`}
                   required
                 />
                 {errors.storeName && (
@@ -176,7 +176,7 @@ const SellerRegistrationPage = () => {
                   value={formData.storeDescription}
                   onChange={handleChange}
                   rows="3"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                 />
               </div>
 
@@ -195,7 +195,7 @@ const SellerRegistrationPage = () => {
                   onChange={handleChange}
                   className={`w-full px-3 py-2 border ${
                     errors.contactEmail ? "border-red-500" : "border-gray-300"
-                  } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                  } rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500`}
                   required
                 />
                 {errors.contactEmail && (
@@ -227,7 +227,7 @@ const SellerRegistrationPage = () => {
                     onChange={handleChange}
                     className={`flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border ${
                       errors.slug ? "border-red-500" : "border-gray-300"
-                    } focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                    } focus:outline-none focus:ring-purple-500 focus:border-purple-500`}
                     placeholder="your-store"
                   />
                 </div>
@@ -249,7 +249,7 @@ const SellerRegistrationPage = () => {
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                   placeholder="+1234567890"
                 />
               </div>
@@ -267,7 +267,7 @@ const SellerRegistrationPage = () => {
                   value={formData.address}
                   onChange={handleChange}
                   rows="2"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                   placeholder="Street, City, Country"
                 />
               </div>
@@ -276,7 +276,7 @@ const SellerRegistrationPage = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <>
