@@ -53,7 +53,9 @@ const SellerCard = ({
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">{seller.storeName}</h3>
-            <p className="text-sm text-gray-600">{seller.user?.name || "N/A"}</p>
+            <p className="text-sm text-gray-600">
+              {seller.user?.name || "N/A"}
+            </p>
           </div>
         </div>
         <div className="flex items-center space-x-2">

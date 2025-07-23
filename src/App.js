@@ -111,7 +111,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="/oauth-callback" element={<OAuthCallback />} />
           <Route path="register" element={<Register />} />
-          <Route path="register-seller" element={<SellerRegistrationPage />} />
+          <Route path="seller/register" element={<SellerRegistrationPage />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
         </Route>
 

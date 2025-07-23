@@ -12,6 +12,7 @@ import {
 
 import { useGetUserDashboardQuery } from "../redux/slices/authSlice";
 import PostCard from "../components/dashboard/PostCard";
+import SEO from "../components/SEO";
 
 const CreatePostCard = ({ onCreatePost, currentUser }) => {
   const [postText, setPostText] = useState("");
@@ -291,6 +292,16 @@ const PostsFeed = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEO
+        title={showSavedPosts ? "Saved Posts" : "Community Feed"}
+        description={
+          showSavedPosts
+            ? "Your bookmarked posts"
+            : "Connect, share, and discover books together"
+        }
+        name={showSavedPosts ? "Saved Posts" : "Community Feed"}
+        type="website"
+      />
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

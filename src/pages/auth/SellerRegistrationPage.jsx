@@ -1,34 +1,86 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRegisterSellerMutation } from "../../redux/slices/sellerApiSlice";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import SEO from "../../components/SEO";
+import { uploadToCloudinary } from "../../utils/cloudinaryUpload";
+import { useDispatch } from "react-redux";
+import { setCredential } from "../../redux/slices/authSlice";
 
 const SellerRegistrationPage = () => {
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
   const [formData, setFormData] = useState({
     storeName: "",
-    storeDescription: "",
+    bio: "",
+    banner: "",
+    logo: "",
     contactEmail: "",
-    phoneNumber: "",
+    contactPhone: "",
     address: "",
-    slug: "",
+    payoutDetails: {
+      bankName: "",
+      accountNumber: "",
+      accountName: "",
+    },
   });
 
   const [errors, setErrors] = useState({});
+  const [uploading, setUploading] = useState(false);
   const [registerSeller, { isLoading, isSuccess, error }] =
     useRegisterSellerMutation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+
+    // Handle nested payoutDetails fields
+    if (name.startsWith("payoutDetails.")) {
+      const field = name.split(".")[1];
+      setFormData((prev) => ({
+        ...prev,
+        payoutDetails: {
+          ...prev.payoutDetails,
+          [field]: value,
+        },
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
 
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleImageUpload = async (e, fieldName) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const imageUrl = await uploadToCloudinary(file);
+      setFormData((prev) => ({
+        ...prev,
+        [fieldName]: imageUrl,
+      }));
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      setErrors((prev) => ({
+        ...prev,
+        [fieldName]: "Failed to upload image. Please try again.",
+      }));
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -45,9 +97,21 @@ const SellerRegistrationPage = () => {
       newErrors.contactEmail = "Invalid email format";
     }
 
-    if (formData.slug && !/^[a-z0-9-]+$/.test(formData.slug)) {
-      newErrors.slug =
-        "Slug can only contain lowercase letters, numbers, and hyphens";
+    // Validate payout details if any field is filled
+    if (
+      formData.payoutDetails.bankName ||
+      formData.payoutDetails.accountNumber ||
+      formData.payoutDetails.accountName
+    ) {
+      if (!formData.payoutDetails.bankName.trim()) {
+        newErrors["payoutDetails.bankName"] = "Bank name is required";
+      }
+      if (!formData.payoutDetails.accountNumber.trim()) {
+        newErrors["payoutDetails.accountNumber"] = "Account number is required";
+      }
+      if (!formData.payoutDetails.accountName.trim()) {
+        newErrors["payoutDetails.accountName"] = "Account name is required";
+      }
     }
 
     setErrors(newErrors);
@@ -60,10 +124,27 @@ const SellerRegistrationPage = () => {
     if (!validateForm()) return;
 
     try {
-      await registerSeller(formData).unwrap();
-      // Success state is handled by isSuccess
+      const response = await registerSeller(formData).unwrap();
+      // Update user credentials in Redux store after successful registration
+      if (response.user) {
+        dispatch(
+          setCredential({
+            ...response.user,
+            role: "seller", // Ensure the role is updated to 'seller'
+          })
+        );
+      }
+
+      // Update localStorage as well
+      localStorage.setItem(
+        "userInfo",
+        JSON.stringify({
+          ...JSON.parse(localStorage.getItem("userInfo") || "{}"),
+          role: "seller",
+        })
+      );
     } catch (err) {
-      // Error state is handled by error
+      console.error("Registration failed:", err);
     }
   };
 
@@ -108,7 +189,7 @@ const SellerRegistrationPage = () => {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl"
+        className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-4xl"
       >
         <div className="md:flex">
           <div className="md:flex-shrink-0 bg-gradient-to-br from-purple-600 to-purple-600 md:w-1/3 flex items-center justify-center p-8">
@@ -138,6 +219,7 @@ const SellerRegistrationPage = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Store Information */}
               <div>
                 <label
                   htmlFor="storeName"
@@ -165,21 +247,79 @@ const SellerRegistrationPage = () => {
 
               <div>
                 <label
-                  htmlFor="storeDescription"
+                  htmlFor="bio"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Store Description
+                  Store Bio
                 </label>
                 <textarea
-                  id="storeDescription"
-                  name="storeDescription"
-                  value={formData.storeDescription}
+                  id="bio"
+                  name="bio"
+                  value={formData.bio}
                   onChange={handleChange}
                   rows="3"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                  placeholder="Tell us about your store"
                 />
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="logo"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Store Logo
+                  </label>
+                  <input
+                    type="file"
+                    id="logo"
+                    name="logo"
+                    onChange={(e) => handleImageUpload(e, "logo")}
+                    accept="image/*"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                    disabled={uploading}
+                  />
+                  {formData.logo && (
+                    <div className="mt-2">
+                      <img
+                        src={formData.logo}
+                        alt="Logo preview"
+                        className="h-16 w-16 object-cover rounded-full"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="banner"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Store Banner
+                  </label>
+                  <input
+                    type="file"
+                    id="banner"
+                    name="banner"
+                    onChange={(e) => handleImageUpload(e, "banner")}
+                    accept="image/*"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                    disabled={uploading}
+                  />
+                  {formData.banner && (
+                    <div className="mt-2">
+                      <img
+                        src={formData.banner}
+                        alt="Banner preview"
+                        className="h-16 w-full object-cover rounded"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Contact Information */}
               <div>
                 <label
                   htmlFor="contactEmail"
@@ -207,47 +347,16 @@ const SellerRegistrationPage = () => {
 
               <div>
                 <label
-                  htmlFor="slug"
+                  htmlFor="contactPhone"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Store URL Slug
-                  <span className="text-xs text-gray-500 ml-1">
-                    (letters, numbers, hyphens only)
-                  </span>
-                </label>
-                <div className="mt-1 flex rounded-md shadow-sm">
-                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                    yourstore.com/seller/
-                  </span>
-                  <input
-                    type="text"
-                    id="slug"
-                    name="slug"
-                    value={formData.slug}
-                    onChange={handleChange}
-                    className={`flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border ${
-                      errors.slug ? "border-red-500" : "border-gray-300"
-                    } focus:outline-none focus:ring-purple-500 focus:border-purple-500`}
-                    placeholder="your-store"
-                  />
-                </div>
-                {errors.slug && (
-                  <p className="mt-1 text-sm text-red-600">{errors.slug}</p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="phoneNumber"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Phone Number
+                  Contact Phone
                 </label>
                 <input
                   type="tel"
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
+                  id="contactPhone"
+                  name="contactPhone"
+                  value={formData.contactPhone}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                   placeholder="+1234567890"
@@ -272,16 +381,103 @@ const SellerRegistrationPage = () => {
                 />
               </div>
 
+              {/* Payout Information */}
+              <div className="pt-4 border-t border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900 mb-3">
+                  Payout Information
+                </h3>
+
+                <div>
+                  <label
+                    htmlFor="bankName"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Bank Name
+                  </label>
+                  <input
+                    type="text"
+                    id="bankName"
+                    name="payoutDetails.bankName"
+                    value={formData.payoutDetails.bankName}
+                    onChange={handleChange}
+                    className={`w-full px-3 py-2 border ${
+                      errors["payoutDetails.bankName"]
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    } rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500`}
+                  />
+                  {errors["payoutDetails.bankName"] && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors["payoutDetails.bankName"]}
+                    </p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      htmlFor="accountNumber"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Account Number
+                    </label>
+                    <input
+                      type="text"
+                      id="accountNumber"
+                      name="payoutDetails.accountNumber"
+                      value={formData.payoutDetails.accountNumber}
+                      onChange={handleChange}
+                      className={`w-full px-3 py-2 border ${
+                        errors["payoutDetails.accountNumber"]
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      } rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500`}
+                    />
+                    {errors["payoutDetails.accountNumber"] && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors["payoutDetails.accountNumber"]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="accountName"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Account Name
+                    </label>
+                    <input
+                      type="text"
+                      id="accountName"
+                      name="payoutDetails.accountName"
+                      value={formData.payoutDetails.accountName}
+                      onChange={handleChange}
+                      className={`w-full px-3 py-2 border ${
+                        errors["payoutDetails.accountName"]
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      } rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500`}
+                    />
+                    {errors["payoutDetails.accountName"] && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors["payoutDetails.accountName"]}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div className="pt-4">
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || uploading}
                   className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? (
+                  {isLoading || uploading ? (
                     <>
                       <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
-                      Processing...
+                      {uploading ? "Uploading..." : "Processing..."}
                     </>
                   ) : (
                     "Register as Seller"

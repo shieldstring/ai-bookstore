@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useGetSellerStorefrontQuery } from "../redux/slices/sellerApiSlice";
 import { Star, Heart, ShoppingCart, Share2 } from "lucide-react";
 import SEO from "../components/SEO";
@@ -10,13 +10,19 @@ import { toast } from "react-toastify";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const SellerStorefrontPage = () => {
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
   const { idOrSlug } = useParams();
   const dispatch = useDispatch();
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isWishlist, setIsWishlist] = useState(false);
   const [seller, setSeller] = useState("");
   const [booksData, setBooksData] = useState([]);
-  
+
   // Fetch seller info
   const {
     data: sellerData,
@@ -40,11 +46,11 @@ const SellerStorefrontPage = () => {
           bookId,
           quantity: 1,
         })
-      ).unwrap();
+      );
       toast.success("Book added to cart");
     } catch (error) {
       console.error("Failed to add to cart:", error);
-      toast.error(error?.data?.message || "Failed to add to cart");
+      toast.error(error?.message || "Failed to add to cart");
     } finally {
       setIsAddingToCart(false);
     }
@@ -53,7 +59,8 @@ const SellerStorefrontPage = () => {
   const handleShare = async () => {
     const shareData = {
       title: seller.storeName,
-      text: seller.storeDescription || `Check out ${seller.storeName}'s book store`,
+      text:
+        seller.storeDescription || `Check out ${seller.storeName}'s book store`,
       url: window.location.href,
     };
 
@@ -66,14 +73,14 @@ const SellerStorefrontPage = () => {
         toast.success("Link copied to clipboard!");
       }
     } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.error('Error sharing:', err);
+      if (err.name !== "AbortError") {
+        console.error("Error sharing:", err);
         // Fallback to copy to clipboard if sharing fails
         try {
           await navigator.clipboard.writeText(window.location.href);
           toast.success("Link copied to clipboard!");
         } catch (copyErr) {
-          console.error('Failed to copy:', copyErr);
+          console.error("Failed to copy:", copyErr);
           toast.error("Failed to share. Please copy the URL manually.");
         }
       }
@@ -129,7 +136,7 @@ const SellerStorefrontPage = () => {
       <SEO
         title={seller.storeName}
         description={
-          seller.storeDescription || `Shop books at ${seller.storeName}'s store`
+          seller.bio || `Shop books at ${seller.storeName}'s store`
         }
         name={seller.storeName}
         type="website"
@@ -143,10 +150,10 @@ const SellerStorefrontPage = () => {
               <h1 className="text-2xl font-bold text-gray-900">
                 {seller.storeName}
               </h1>
-              <p className="text-gray-600">{seller.storeDescription}</p>
+              <p className="text-gray-600">{seller.bio}</p>
             </div>
             <div className="flex items-center space-x-4">
-              <button 
+              <button
                 onClick={handleShare}
                 className="flex items-center text-gray-600 hover:text-gray-900"
               >
@@ -172,7 +179,7 @@ const SellerStorefrontPage = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto px-2 py-8 sm:px-6 lg:px-8">
         {/* All Books Section */}
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-6">
@@ -239,10 +246,14 @@ const SellerStorefrontPage = () => {
                     </div>
                   </div>
 
-                  <div className="p-4">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+                  <div className="p-2 sm:p-4">
+                    <Link
+                      to={`/books/${book._id}`}
+                      className="text-base sm:text-lg font-semibold
+                      text-gray-900"
+                    >
                       {book.title}
-                    </h3>
+                    </Link>
                     <p className="text-sm text-gray-600">{book.author}</p>
                     <div className="flex items-center mt-1">
                       <div className="flex items-center">

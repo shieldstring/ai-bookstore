@@ -19,6 +19,7 @@ import {
 } from "../../redux/slices/postsApiSlice";
 import { useGetUserDashboardQuery } from "../../redux/slices/authSlice";
 import PostCard from "../../components/dashboard/PostCard";
+import SEO from "../../components/SEO";
 
 const SavedPosts = () => {
   const navigate = useNavigate();
@@ -168,6 +169,12 @@ const SavedPosts = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEO
+        title="Saved Posts"
+        description="Your bookmarked posts"
+        name="Saved Posts"
+        type="website"
+      />
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
