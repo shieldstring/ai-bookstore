@@ -1,14 +1,14 @@
-import { Heart, ShoppingCart, X } from "lucide-react";
+import { ShoppingCart, X } from "lucide-react";
 import SEO from "../../../components/SEO";
 import { useEffect } from "react";
 
 const Wishlist = () => {
-   useEffect(() => {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    }, []);
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
   const items = [
     {
       id: 1,

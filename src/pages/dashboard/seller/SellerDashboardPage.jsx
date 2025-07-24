@@ -194,9 +194,9 @@ const SellerDashboardPage = () => {
       />
 
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+          <h1 className="sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
             <LayoutDashboard size={32} className="text-purple-600" />
             Seller Dashboard
           </h1>
@@ -205,15 +205,15 @@ const SellerDashboardPage = () => {
       </div>
 
       {/* Main Dashboard Content */}
-      <main className="max-w-5xl px-4 py-8 space-y-8">
+      <main className="max-w-5xl px-2 sm:px-4 py-8 space-y-8">
         {/* Seller Profile Card */}
-        <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-100">
-          <div className="flex justify-between items-center mb-6">
+        <div className="bg-white rounded-xl shadow-sm p-4 md:p-8 border border-gray-100">
+          <div className="sm:flex space-y-3 gap-2 justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
               <User size={24} className="text-purple-600" />
               My Profile
             </h2>
-            <div className="flex gap-3">
+            <div className="flex text-sm md:text-base gap-3">
               <button
                 onClick={() => setShowEditModal(true)}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
@@ -324,7 +324,7 @@ const SellerDashboardPage = () => {
         {/* Seller Metrics Card */}
         {sellerMetrics && (
           <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-100">
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2 mb-6">
+            <h2 className="sm:text-2xl font-bold text-gray-800 flex items-center gap-2 mb-6">
               <LayoutDashboard size={24} className="text-teal-600" />
               Dashboard Overview
             </h2>

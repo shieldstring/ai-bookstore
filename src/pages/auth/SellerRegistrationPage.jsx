@@ -5,16 +5,21 @@ import { useNavigate } from "react-router-dom";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import SEO from "../../components/SEO";
 import { uploadToCloudinary } from "../../utils/cloudinaryUpload";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setCredential } from "../../redux/slices/authSlice";
 
 const SellerRegistrationPage = () => {
+  const { userInfo } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
   useEffect(() => {
+    if (userInfo && userInfo.role === "seller") {
+      navigate("/seller/index"); 
+    }
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
-  }, []);
+  }, [userInfo, navigate]);
   const [formData, setFormData] = useState({
     storeName: "",
     bio: "",
@@ -34,7 +39,7 @@ const SellerRegistrationPage = () => {
   const [uploading, setUploading] = useState(false);
   const [registerSeller, { isLoading, isSuccess, error }] =
     useRegisterSellerMutation();
-  const navigate = useNavigate();
+
   const dispatch = useDispatch();
 
   const handleChange = (e) => {
