@@ -94,7 +94,7 @@ function App() {
           />
 
           <Route
-            path="users/:userId/follow"
+            path="users/:userId"
             element={
               <AuthRoute>
                 <FollowPage />

@@ -675,13 +675,33 @@ const PostCard = ({
               <motion.img
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{
+                  delay: 0.1,
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 10,
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (post?.user?._id) {
+                    navigate(`/users/${post.user._id}`);
+                  }
+                }}
                 src={
-                  post.user?.profilePicture ||
-                  `https://ui-avatars.com/api/?name=${post.user?.name}&background=3B82F6&color=fff`
+                  post?.user?.profilePicture ||
+                  `https://ui-avatars.com/api/?name=${
+                    post?.user?.name || "User"
+                  }&background=3B82F6&color=fff`
                 }
-                alt={post.user?.name}
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0"
+                alt={post?.user?.name || "User profile"}
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0 cursor-pointer border-2 border-white shadow-sm"
+                onError={(e) => {
+                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${
+                    post?.user?.name || "User"
+                  }&background=3B82F6&color=fff`;
+                }}
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 mb-1">
@@ -800,7 +820,9 @@ const PostCard = ({
                     >
                       <Bookmark
                         size={14}
-                        className={isSaved ? "fill-current text-purple-500" : ""}
+                        className={
+                          isSaved ? "fill-current text-purple-500" : ""
+                        }
                       />
                       {isSaved ? "Unsave Post" : "Save Post"}
                     </motion.button>

@@ -254,7 +254,7 @@ const Header = () => {
                       to="/dashboard/followers"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
                     >
-                      Followers
+                     My Followers
                     </Link>
 
                     <Link
