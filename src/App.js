@@ -41,6 +41,9 @@ import SavedPosts from "./pages/dashboard/SavedPosts";
 import SellerDashboardPage from "./pages/dashboard/seller/SellerDashboardPage";
 import SellerRegistrationPage from "./pages/auth/SellerRegistrationPage";
 import SellerStorefrontPage from "./pages/SellerStorefrontPage";
+import FollowPage from "./pages/FollowPage";
+import FollowDashboard from "./pages/dashboard/customer/FollowDashboard";
+
 function App() {
   // Initialize FCM and get FCM functionality
   const { isSupported } = useFCM();
@@ -89,6 +92,16 @@ function App() {
               </AuthRoute>
             }
           />
+
+          <Route
+            path="users/:userId/follow"
+            element={
+              <AuthRoute>
+                <FollowPage />
+              </AuthRoute>
+            }
+          />
+
           <Route path="books/:id" element={<BookDetailPage />} />
           <Route path="profile/:userId" element={<UserProfile />} />
           <Route
@@ -127,6 +140,7 @@ function App() {
           <Route path="" element={<UserDashboard />} />
           <Route path="groups" element={<Groups />} />
           <Route path="groups/:groupId" element={<GroupChat />} />
+          <Route path="followers" element={<FollowDashboard/>} />
           <Route path="chats" element={<ChatLists />} />
           <Route path="saved-posts" element={<SavedPosts />} />
           <Route path="mlm" element={<MLMDashboard />} />

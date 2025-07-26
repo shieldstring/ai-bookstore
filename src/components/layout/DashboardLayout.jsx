@@ -22,6 +22,7 @@ import {
   Rss,
   Bookmark,
   Package,
+  Users2,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slices/authSlice";
@@ -78,6 +79,12 @@ const DashboardLayout = () => {
       name: "Chats",
       path: "/dashboard/chats",
       icon: <MessageCircle className="h-5 w-5" />,
+    },
+
+    {
+      name: "Followers",
+      path: "/dashboard/followers",
+      icon: <Users2 className="h-5 w-5" />,
     },
     {
       name: "Recommendations",

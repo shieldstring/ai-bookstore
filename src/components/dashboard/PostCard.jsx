@@ -12,6 +12,8 @@ import {
   Trash2,
   Flag,
   Bookmark,
+  UserMinus,
+  UserPlus,
 } from "lucide-react";
 import {
   useLikeUnlikeCommentMutation,
@@ -21,7 +23,11 @@ import {
   useToggleSavePostMutation,
   useEditPostMutation,
 } from "../../redux/slices/postsApiSlice";
-
+import {
+  useFollowUserMutation,
+  useUnfollowUserMutation,
+  useCheckFollowStatusQuery,
+} from "../../redux/slices/followApiSlice";
 import { useNavigate } from "react-router-dom";
 
 // Animation variants
@@ -149,7 +155,7 @@ const EditPostModal = ({ post, onClose, onSave }) => {
             transition={{ delay: 0.1 }}
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+            className="w-full p-3 border border-gray-300 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
             rows="4"
             placeholder="Edit your post content..."
           />
@@ -160,7 +166,7 @@ const EditPostModal = ({ post, onClose, onSave }) => {
             type="url"
             value={editImageUrl}
             onChange={(e) => setEditImageUrl(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+            className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
             placeholder="Edit image URL (optional)"
           />
           <motion.div
@@ -181,7 +187,7 @@ const EditPostModal = ({ post, onClose, onSave }) => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleSubmit}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm sm:text-base"
               disabled={!editText.trim() && !editImageUrl}
             >
               Save Changes
@@ -399,12 +405,12 @@ const PostCard = ({
 
     let processedText = text.replace(
       /#(\w+)/g,
-      '<span class="text-blue-600 font-medium cursor-pointer hover:underline">#$1</span>'
+      '<span class="text-purple-600 font-medium cursor-pointer hover:underline">#$1</span>'
     );
 
     processedText = processedText.replace(
       /@\[([^\]]+)\]\([^)]+\)/g,
-      '<span class="text-blue-600 font-medium cursor-pointer hover:underline">@$1</span>'
+      '<span class="text-purple-600 font-medium cursor-pointer hover:underline">@$1</span>'
     );
 
     return processedText;
@@ -415,7 +421,7 @@ const PostCard = ({
     const colors = {
       0: "bg-gray-100 text-gray-700",
       1: "bg-green-100 text-green-700",
-      2: "bg-blue-100 text-blue-700",
+      2: "bg-purple-100 text-purple-700",
       3: "bg-purple-100 text-purple-700",
       4: "bg-yellow-100 text-yellow-700",
       5: "bg-red-100 text-red-700",
@@ -477,7 +483,7 @@ const PostCard = ({
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.3 }}
-                    className="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium flex-shrink-0"
+                    className="px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium flex-shrink-0"
                   >
                     T{comment.user.mlmTier}
                   </motion.span>
@@ -506,7 +512,7 @@ const PostCard = ({
                 className={`transition-colors flex items-center gap-1 ${
                   comment.likes?.includes(currentUser?._id)
                     ? "text-red-500 hover:text-red-700"
-                    : "text-gray-500 hover:text-blue-600"
+                    : "text-gray-500 hover:text-purple-600"
                 }`}
               >
                 <motion.div
@@ -525,7 +531,8 @@ const PostCard = ({
                     }`}
                   />
                 </motion.div>
-                <span className="hidden sm:inline">Like</span> ({comment.likes?.length || 0})
+                <span className="hidden sm:inline">Like</span> (
+                {comment.likes?.length || 0})
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -534,7 +541,7 @@ const PostCard = ({
                   setReplyingTo(comment._id);
                   setCommentText(`@${comment.user?.name} `);
                 }}
-                className="text-gray-500 hover:text-blue-600 transition-colors"
+                className="text-gray-500 hover:text-purple-600 transition-colors"
               >
                 Reply
               </motion.button>
@@ -564,7 +571,7 @@ const PostCard = ({
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     placeholder={`Replying to ${comment.user?.name}...`}
-                    className="flex-1 px-3 py-2 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-xs sm:text-sm"
+                    className="flex-1 px-3 py-2 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white text-xs sm:text-sm"
                   />
                   <div className="flex gap-2">
                     <motion.button
@@ -572,7 +579,7 @@ const PostCard = ({
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleReplyComment(comment._id)}
                       disabled={!commentText.trim()}
-                      className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="p-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <Send size={14} />
                     </motion.button>
@@ -613,6 +620,41 @@ const PostCard = ({
     navigate(`/feeds/${post._id}`);
   };
 
+  // Follow / UNFollow User
+  const [followUser] = useFollowUserMutation();
+  const [unfollowUser] = useUnfollowUserMutation();
+  const { data: followStatus } = useCheckFollowStatusQuery(post.user?._id);
+
+  // Add this state to track follow status locally
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  // Update follow status when data loads
+  useEffect(() => {
+    if (followStatus) {
+      setIsFollowing(followStatus.isFollowing);
+    }
+  }, [followStatus]);
+
+  // Add these handler functions
+  const handleFollow = async () => {
+    const previousStatus = isFollowing;
+    setIsFollowing(true);
+    try {
+      await followUser(post.user?._id).unwrap();
+    } catch (error) {
+      setIsFollowing(previousStatus);
+      console.error("Error following user:", error);
+    }
+  };
+
+  const handleUnfollow = async () => {
+    try {
+      await unfollowUser(post.user?._id).unwrap();
+      setIsFollowing(false);
+    } catch (error) {
+      console.error("Error unfollowing user:", error);
+    }
+  };
   return (
     <>
       <motion.div
@@ -659,7 +701,10 @@ const PostCard = ({
                   transition={{ delay: 0.3 }}
                   className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-500"
                 >
-                  <Calendar size={12} className="sm:w-3.5 sm:h-3.5 flex-shrink-0" />
+                  <Calendar
+                    size={12}
+                    className="sm:w-3.5 sm:h-3.5 flex-shrink-0"
+                  />
                   <span>{formatTime(post.createdAt)}</span>
                   {post.user?.level && (
                     <>
@@ -671,6 +716,20 @@ const PostCard = ({
                     </>
                   )}
                 </motion.div>
+                {currentUser?._id !== post.user?._id && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={isFollowing ? handleUnfollow : handleFollow}
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      isFollowing
+                        ? "bg-gray-100 text-gray-700"
+                        : "bg-purple-600 text-white"
+                    }`}
+                  >
+                    {isFollowing ? "Following" : "Follow"}
+                  </motion.button>
+                )}
               </div>
             </motion.div>
             {/* More Button and Dropdown */}
@@ -692,6 +751,23 @@ const PostCard = ({
                     exit="exit"
                     className="absolute right-0 mt-2 w-44 sm:w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-1"
                   >
+                    {currentUser?._id !== post.user?._id && (
+                      <motion.button
+                        whileHover={{ backgroundColor: "#f3f4f6" }}
+                        onClick={isFollowing ? handleUnfollow : handleFollow}
+                        className="flex items-center gap-2 w-full text-left px-3 sm:px-4 py-2 text-gray-700 text-sm"
+                      >
+                        {isFollowing ? (
+                          <>
+                            <UserMinus size={14} /> Unfollow
+                          </>
+                        ) : (
+                          <>
+                            <UserPlus size={14} /> Follow
+                          </>
+                        )}
+                      </motion.button>
+                    )}
                     {currentUser?._id === post.user?._id && (
                       <>
                         <motion.button
@@ -724,7 +800,7 @@ const PostCard = ({
                     >
                       <Bookmark
                         size={14}
-                        className={isSaved ? "fill-current text-blue-500" : ""}
+                        className={isSaved ? "fill-current text-purple-500" : ""}
                       />
                       {isSaved ? "Unsave Post" : "Save Post"}
                     </motion.button>
@@ -788,7 +864,10 @@ const PostCard = ({
                     : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
-                <Heart size={16} className={`sm:w-5 sm:h-5 ${isLiked ? "fill-current" : ""}`} />
+                <Heart
+                  size={16}
+                  className={`sm:w-5 sm:h-5 ${isLiked ? "fill-current" : ""}`}
+                />
                 <span className="font-medium">{likesCount}</span>
               </motion.button>
 
@@ -851,14 +930,14 @@ const PostCard = ({
                       value={commentText}
                       onChange={(e) => setCommentText(e.target.value)}
                       placeholder="Share your thoughts..."
-                      className="flex-1 px-3 py-2 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-sm"
+                      className="flex-1 px-3 py-2 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white text-sm"
                     />
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={handleComment}
                       disabled={!commentText.trim()}
-                      className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="p-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <Send size={14} className="sm:w-4 sm:h-4" />
                     </motion.button>
@@ -878,9 +957,7 @@ const PostCard = ({
                     No comments yet. Be the first to comment!
                   </motion.p>
                 ) : (
-                  <AnimatePresence>
-                    {renderComments(comments)}
-                  </AnimatePresence>
+                  <AnimatePresence>{renderComments(comments)}</AnimatePresence>
                 )}
               </div>
             </motion.div>
