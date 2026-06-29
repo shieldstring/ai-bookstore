@@ -1098,7 +1098,6 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                 </div>
               )}
             </div>
-            </div>
 
             {/* Right Column - Cover Image */}
             <div className="lg:col-span-1">

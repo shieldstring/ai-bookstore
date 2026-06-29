@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BookOpen, Search, Play, Award, HelpCircle } from "lucide-react";
+import { BookOpen, Search, Play, Award } from "lucide-react";
 import SEO from "../../../components/SEO";
 import { Link } from "react-router-dom";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";

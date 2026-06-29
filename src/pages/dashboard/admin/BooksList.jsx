@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Book,
   Plus,
@@ -22,7 +22,7 @@ import {
 
 const BooksList = () => {
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const limit = 10;
   const [search, setSearch] = useState("");
   const [genre, setGenre] = useState("");
   const [sortBy, setSortBy] = useState("");

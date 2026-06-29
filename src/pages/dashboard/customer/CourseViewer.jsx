@@ -3,16 +3,12 @@ import { useParams, Link } from "react-router-dom";
 import {
   BookOpen,
   CheckCircle,
-  Play,
   ArrowLeft,
   ArrowRight,
   Download,
   Award,
   Video,
   FileText,
-  CheckSquare,
-  Square,
-  Lock,
   ChevronRight,
   Menu,
   X
@@ -22,7 +18,6 @@ import {
   useGetEnrollmentQuery,
   useToggleLessonCompletionMutation,
 } from "../../../redux/slices/enrollmentApiSlice";
-import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import ErrorMessage from "../../../components/common/ErrorMessage";
 
 const CourseViewer = () => {
@@ -82,7 +77,7 @@ const CourseViewer = () => {
     if (!url) return null;
     
     // YouTube Matches
-    let youtubeMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i);
+    let youtubeMatch = url.match(/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/ ]{11})/i);
     if (youtubeMatch) {
       return { type: "iframe", url: `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=0&rel=0` };
     }

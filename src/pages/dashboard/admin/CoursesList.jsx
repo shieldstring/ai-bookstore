@@ -6,9 +6,7 @@ import {
   Trash2,
   Search,
   ChevronLeft,
-  ChevronRight,
-  Video,
-  FileText
+  ChevronRight
 } from "lucide-react";
 import CreateCourse from "../../../components/dashboard/admin/CreateCourse";
 import EditCourse from "../../../components/dashboard/admin/EditCourse";
@@ -24,7 +22,7 @@ import {
 
 const CoursesList = () => {
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const limit = 10;
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [sortBy, setSortBy] = useState("");
