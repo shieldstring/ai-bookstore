@@ -3,12 +3,7 @@ import {
   X,
   BookOpen,
   Camera,
-  AlertCircle,
-  HelpCircle,
-  Play,
-  FileText,
-  Clock,
-  Trash
+  AlertCircle
 } from "lucide-react";
 import { useUpdateCourseMutation } from "../../../redux/slices/courseApiSlice";
 import { toast } from "react-toastify";

@@ -4,11 +4,6 @@ import {
   BookOpen,
   Camera,
   AlertCircle,
-  HelpCircle,
-  Play,
-  FileText,
-  Clock,
-  Trash
 } from "lucide-react";
 import { useAddCourseMutation } from "../../../redux/slices/courseApiSlice";
 import { toast } from "react-toastify";
