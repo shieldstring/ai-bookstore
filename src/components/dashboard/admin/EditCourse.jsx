@@ -13,7 +13,7 @@ import {
 import { useUpdateCourseMutation } from "../../../redux/slices/courseApiSlice";
 import { toast } from "react-toastify";
 import LoadingSpinner from "../../common/LoadingSpinner";
-import { uploadToCloudinary } from "../../../utils/upload";
+import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
 
 export default function EditCourse({ productId, details, onClose, refetch }) {
   const [updateCourse, { isLoading }] = useUpdateCourseMutation();
