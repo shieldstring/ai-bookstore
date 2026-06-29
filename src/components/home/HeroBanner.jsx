@@ -1,190 +1,112 @@
-import { useState, useEffect } from "react";
-import { ShoppingCart } from "lucide-react";
+import { useState } from "react";
+import { Play, Star, ShieldCheck, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useGetBooksQuery } from "../../redux/slices/bookSlice";
-import LoadingSkeleton from "../preloader/LoadingSkeleton";
 
 const HeroBanner = () => {
-  const [activeSlide, setActiveSlide] = useState(0);
   const navigate = useNavigate();
-  const [books, setBooks] = useState([]);
-  const { data, isLoading, isError, error } = useGetBooksQuery();
-
-  useEffect(() => {
-    if (data) {
-      setBooks(data.data);
-    }
-  }, [data]);
-
-  useEffect(() => {
-    if (books && books.length > 0) {
-      const interval = setInterval(() => {
-        setActiveSlide((prev) => (prev + 1) % books.length);
-      }, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [books]);
-
-  const handleDotClick = (index) => {
-    setActiveSlide(index);
-  };
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   const handleBrowseClick = () => {
     navigate("/books");
   };
 
-  // Show error state
-  if (isError) {
-    return (
-      <section className="bg-purple-800 text-white py-12 lg:py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-3xl lg:text-4xl font-bold mb-4">
-            Error Loading Books
-          </h1>
-          <p className="text-purple-200 mb-6">
-            {error?.data?.message ||
-              "Failed to load books. Please check your network connection."}
-          </p>
-          <button
-            onClick={handleBrowseClick}
-            className="bg-pink-600 text-white px-6 py-3 rounded-full font-medium text-sm hover:bg-pink-700 transition"
-          >
-            Browse Books
-          </button>
-        </div>
-      </section>
-    );
-  }
-
-  // Show loading state
-  if (isLoading) {
-    return (
-      <section className="bg-purple-800 text-white py-12 lg:py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div className="text-center md:text-left">
-              <h1 className="text-3xl lg:text-4xl font-bold mb-4">
-                Loading...
-              </h1>
-              <p className="text-purple-200 mb-6">
-                Please wait while we load our featured books.
-              </p>
-              <LoadingSkeleton />
-            </div>
-            <LoadingSkeleton type={"card"} count={3} />
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  // Show empty state or initial state.  Crucially, check if books is *defined*.
-  if (!books || books.length === 0) {
-    return (
-      <section className="bg-purple-800 text-white py-12 lg:py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-3xl lg:text-4xl font-bold mb-4">
-            {books === undefined ? "Loading..." : "No Books Available"}
-          </h1>
-          <p className="text-purple-200 mb-6">
-            {books === undefined
-              ? "Please wait while we load our featured books."
-              : "We're adding new books to our collection. Check back soon!"}
-          </p>
-          <button
-            onClick={handleBrowseClick}
-            className="bg-pink-600 text-white px-6 py-3 rounded-full font-medium text-sm hover:bg-pink-700 transition"
-          >
-            Browse Books
-          </button>
-        </div>
-      </section>
-    );
-  }
-
-  // Render the banner with book data
   return (
-    <section className="bg-purple-800 text-white py-12 lg:py-16">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div className="text-center md:text-left">
-            <h1 className="text-3xl lg:text-4xl font-bold mb-4">
-              Welcome to AI-Powered
-              <br className="hidden lg:block" /> Online Social Book Store
-            </h1>
-            <p className="text-purple-200 mb-6">
-              Discover thousands of books across genres and formats. From
-              bestsellers to indie gems, find your next great read with us.
+    <section className="relative bg-black text-white min-h-[85vh] lg:min-h-[90vh] flex items-center overflow-hidden">
+      {/* Self-contained Font Imports for exact typographic matches */}
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Montserrat:wght@900&family=Plus+Jakarta+Sans:wght@300;450;700&display=swap');
+          
+          .brand-title-heavy {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+          }
+          
+          .signature-font {
+            font-family: 'Caveat', cursive;
+          }
+
+          .body-jakarta {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+          }
+        `}
+      </style>
+
+      {/* Grayscale Stage Presenter Background Image on the right half */}
+      <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[60%] z-0 pointer-events-none">
+        <img
+          src="https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=1200&q=80"
+          alt="Myron Golden styled speaker presenting on stage"
+          className="w-full h-full object-cover object-center grayscale contrast-125 brightness-95 opacity-40 lg:opacity-100"
+        />
+        {/* Right-to-left black gradient mask to blend image into solid black left-column */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 lg:via-black/40 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent lg:hidden"></div>
+      </div>
+
+      <div className="container mx-auto px-6 max-w-6xl relative z-10 py-16 lg:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          {/* Left Column: Bold Personal Brand Typography */}
+          <div className="lg:col-span-6 space-y-7 text-left relative">
+            {/* Pre-header Tagline */}
+            <p className="text-[10px] sm:text-xs font-bold tracking-[0.25em] text-slate-300 uppercase leading-none">
+              ELEVATE YOUR ENDEAVORS WITH
             </p>
 
-            <div className="flex flex-wrap justify-center md:justify-start items-center gap-4 mb-6">
-              <div className="flex items-center">
-                <div className="bg-white rounded-full p-1.5">
-                  <div className="bg-purple-800 rounded-full w-6 h-6 flex items-center justify-center text-xs">
-                    4
-                  </div>
-                </div>
-                <span className="ml-2 text-sm">80.1k</span>
-              </div>
-              <div className="flex items-center">
-                <div className="bg-white rounded-full p-1">
-                  <ShoppingCart className="h-4 w-4 text-purple-800" />
-                </div>
-                <span className="ml-2 text-sm">25,534</span>
-              </div>
+            {/* Stacked Gold Brand Heading */}
+            <div className="space-y-0 brand-title-heavy text-5xl sm:text-7xl lg:text-8.5xl tracking-tight uppercase leading-[0.85] select-none">
+              <h1 className="text-[#D4AF37]">AI BOOK</h1>
+              <h1 className="text-[#D4AF37]">STORE</h1>
             </div>
 
-            <button
-              onClick={handleBrowseClick}
-              className="bg-pink-600 text-white px-6 py-3 rounded-full font-medium text-sm hover:bg-pink-700 transition"
-            >
-              Browse Books
-            </button>
+            {/* Benefit-Driven Sub-headline */}
+            <div className="relative">
+              <p className="body-jakarta text-slate-300 text-sm sm:text-base max-w-lg leading-relaxed font-light">
+                Renowned as a{" "}
+                <strong className="text-white font-bold">TOP-TIER</strong>{" "}
+                learning and social e-commerce platform, AI Bookstore magnifies
+                outcomes, guiding our community to experience{" "}
+                <span className="text-white italic not-italic font-medium underline decoration-amber-500/50 decoration-2 underline-offset-4">
+                  rapid results
+                </span>{" "}
+                unparalleled in the industry.
+              </p>
+
+              {/* White Signature Handwriting Overlay overlaying the sub-headline / bottom area */}
+              <span className="signature-font text-5xl sm:text-6xl text-white/20 absolute -bottom-10 right-4 sm:right-16 select-none rotate-[-6deg] tracking-widest pointer-events-none">
+                WISDOMPETERS
+              </span>
+            </div>
           </div>
-          <div className="flex justify-center relative mt-6 md:mt-0">
-            <div className="relative w-full max-w-md">
-              <img
-                src={books[activeSlide].image}
-                alt={books[activeSlide].title}
-                className="rounded-lg shadow-lg relative z-10 sm:w-[20rem] h-[30rem] mx-auto"
-              />
-              {books.length > 1 && (
-                <>
-                  <div className="absolute -left-16 -bottom-4 z-0 hidden md:block">
-                    <img
-                      src={books[(activeSlide + 1) % books.length].image}
-                      alt={books[(activeSlide + 1) % books.length].title}
-                      className="rounded-lg shadow-lg transform -rotate-6 sm:w-[20rem] h-[30rem]"
-                    />
-                  </div>
-                  <div className="absolute -right-16 -bottom-4 z-0 hidden md:block">
-                    <img
-                      src={books[(activeSlide + 2) % books.length].image}
-                      alt={books[(activeSlide + 2) % books.length].title}
-                      className="rounded-lg shadow-lg transform rotate-6 sm:w-[20rem] h-[30rem]"
-                    />
-                  </div>
-                </>
-              )}
+
+          {/* Right Column: Empty spacer to overlay content beautifully over the stage portrait background */}
+          <div className="lg:col-span-6 hidden lg:block"></div>
+        </div>
+      </div>
+
+      {/* Video Presentation Modal Overlay */}
+      {showVideoModal && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-3xl bg-slate-950 border border-amber-500/40 rounded-2xl overflow-hidden relative shadow-2xl">
+            <button
+              onClick={() => setShowVideoModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors bg-slate-900 hover:bg-slate-800 p-2 rounded-full z-10 cursor-pointer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="aspect-video w-full">
+              <iframe
+                className="w-full h-full"
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+                title="Syllabus Presentation Video"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
             </div>
           </div>
         </div>
-
-        {/* Dots for slider - only show if there are multiple books */}
-        {books.length > 1 && (
-          <div className="flex justify-center pt-6">
-            {books.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => handleDotClick(index)}
-                className={`w-3 h-3 rounded-full mx-2 ${
-                  activeSlide === index ? "bg-white" : "bg-gray-400"
-                }`}
-              ></button>
-            ))}
-          </div>
-        )}
-      </div>
+      )}
     </section>
   );
 };

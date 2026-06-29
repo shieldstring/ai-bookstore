@@ -46,14 +46,6 @@ const Footer = () => {
                     FAQ
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    to="/login?redirect=/seller/register"
-                    className="text-gray-600 hover:text-purple-600 text-sm"
-                  >
-                    Become a Seller
-                  </Link>
-                </li>
               </ul>
 
               <ul className="space-y-2">
