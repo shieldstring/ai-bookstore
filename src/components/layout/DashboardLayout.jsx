@@ -55,6 +55,11 @@ const DashboardLayout = () => {
       icon: <ShoppingBag className="h-5 w-5" />,
     },
     {
+      name: "My Courses",
+      path: "/dashboard/courses",
+      icon: <BookOpen className="h-5 w-5" />,
+    },
+    {
       name: "My Network",
       path: "/dashboard/mlm",
       icon: <User2Icon className="h-5 w-5" />,

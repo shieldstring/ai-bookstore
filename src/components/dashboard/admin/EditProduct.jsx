@@ -24,12 +24,12 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
     author: details.author || "",
     isbn: details.isbn || "",
     publisher: details.publisher || "",
-    publishedDate: details.publishedDate || "",
+    publishedDate: details.publishedDate ? details.publishedDate.substring(0, 10) : (details.publishDate ? details.publishDate.substring(0, 10) : ""),
     description: details.description || "",
     price: details.price || "",
     originalPrice: details.originalPrice || "",
     inventory: details.inventory || "",
-    pages: details.pages || "",
+    pages: details.pages || details.pageCount || "",
     language: details.language || "English",
     category: details.category || "",
     format: details.format || "Paperback",
@@ -43,6 +43,20 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
 
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+
+  // Curriculum Builder state
+  const [sections, setSections] = useState(details.sections || []);
+  const [newSectionTitle, setNewSectionTitle] = useState("");
+  const [activeSectionIndexForLesson, setActiveSectionIndexForLesson] = useState(null);
+  
+  // Lesson input form state
+  const [lessonForm, setLessonForm] = useState({
+    title: "",
+    content: "",
+    videoUrl: "",
+    pdfUrl: "",
+    duration: "",
+  });
 
   const bookCategories = [
     "Fiction",
@@ -83,6 +97,7 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
     "E-book",
     "Audiobook",
     "Large Print",
+    "Course",
   ];
 
   const languages = [
@@ -128,7 +143,7 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
     // Required fields validation
     if (!formData.title.trim()) newErrors.title = "Title is required";
     if (!formData.author.trim()) newErrors.author = "Author is required";
-    if (!formData.isbn.trim()) newErrors.isbn = "ISBN is required";
+    if (formData.format !== "Course" && !formData.isbn.trim()) newErrors.isbn = "ISBN is required";
     if (!formData.publisher.trim())
       newErrors.publisher = "Publisher is required";
     if (!formData.description.trim())
@@ -142,11 +157,8 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
     } else if (isNaN(formData.price)) {
       newErrors.price = "Price must be a number";
     } else {
-      const price = parseInt(formData.price);
+      const price = parseFloat(formData.price);
       if (price <= 0) newErrors.price = "Price must be positive";
-      if (!Number.isInteger(price)) {
-        newErrors.price = "Price must be a whole number";
-      }
     }
 
     // Original price validation
@@ -154,32 +166,41 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
       if (isNaN(formData.originalPrice)) {
         newErrors.originalPrice = "Original price must be a number";
       } else {
-        const originalPrice = parseInt(formData.originalPrice);
-        const price = parseInt(formData.price);
+        const originalPrice = parseFloat(formData.originalPrice);
+        const price = parseFloat(formData.price);
 
         if (originalPrice <= 0) {
           newErrors.originalPrice = "Original price must be positive";
-        } else if (!Number.isInteger(originalPrice)) {
-          newErrors.originalPrice = "Original price must be a whole number";
         } else if (originalPrice < price) {
           newErrors.originalPrice = "Original price must be ≥ current price";
         }
       }
     }
 
-    // Inventory validation
-    if (formData.inventory === "") {
-      newErrors.inventory = "Inventory is required";
-    } else if (isNaN(formData.inventory)) {
-      newErrors.inventory = "Inventory must be a number";
-    } else if (parseInt(formData.inventory) < 0) {
-      newErrors.inventory = "Inventory cannot be negative";
-    }
+    if (formData.format !== "Course") {
+      // Inventory validation
+      if (formData.inventory === "") {
+        newErrors.inventory = "Inventory is required";
+      } else if (isNaN(formData.inventory)) {
+        newErrors.inventory = "Inventory must be a number";
+      } else if (parseInt(formData.inventory) < 0) {
+        newErrors.inventory = "Inventory cannot be negative";
+      }
 
-    // ISBN validation
-    const cleanIsbn = formData.isbn.replace(/[-\s]/g, "");
-    if (!/^(?:\d{9}[\dXx]|\d{13})$/.test(cleanIsbn)) {
-      newErrors.isbn = "Enter a valid 10- or 13-digit ISBN";
+      // ISBN validation
+      const cleanIsbn = formData.isbn.replace(/[-\s]/g, "");
+      if (!/^(?:\d{9}[\dXx]|\d{13})$/.test(cleanIsbn)) {
+        newErrors.isbn = "Enter a valid 10- or 13-digit ISBN";
+      }
+    } else {
+      if (sections.length === 0) {
+        newErrors.sections = "A course must have at least one section";
+      } else {
+        const hasLessons = sections.some(s => s.lessons && s.lessons.length > 0);
+        if (!hasLessons) {
+          newErrors.sections = "Your course must contain at least one lesson";
+        }
+      }
     }
 
     // Dimensions validation
@@ -230,23 +251,24 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
         title: formData.title.trim(),
         author: formData.author.trim(),
         description: formData.description.trim(),
-        price: parseInt(formData.price),
+        price: parseFloat(formData.price),
         originalPrice: formData.originalPrice
-          ? parseInt(formData.originalPrice)
+          ? parseFloat(formData.originalPrice)
           : undefined,
-        isbn: formData.isbn.replace(/[-\s]/g, ""),
+        isbn: formData.format === "Course" ? (details.isbn && details.isbn.startsWith("COURSE-") ? details.isbn : `COURSE-${Date.now()}`) : formData.isbn.replace(/[-\s]/g, ""),
         language: formData.language,
         format: formData.format,
         publishDate: formData.publishedDate,
         publisher: formData.publisher.trim(),
         image: formData.image,
         category: formData.category,
-        inventory: parseInt(formData.inventory),
+        inventory: formData.format === "Course" ? 99999 : parseInt(formData.inventory),
         pageCount: formData.pages ? parseInt(formData.pages) : undefined,
         dimensions,
         weight: formData.weight ? parseFloat(formData.weight) : undefined,
         featured: formData.featured,
-        isActive: parseInt(formData.inventory) > 0,
+        isActive: true,
+        sections: formData.format === "Course" ? sections : [],
       };
 
       const response = await updateProduct({
@@ -283,11 +305,11 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
         });
       } else if (err.code === 11000 || err.data?.code === 11000) {
         setErrors({
-          isbn: "A book with this ISBN already exists",
+          isbn: "A product with this ISBN already exists",
         });
       } else {
         setErrors({
-          submit: err.message || "Failed to update book",
+          submit: err.message || "Failed to update product",
         });
       }
     }
@@ -432,32 +454,34 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* ISBN */}
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-slate-700">
-                        ISBN <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        name="isbn"
-                        value={formData.isbn}
-                        onChange={handleChange}
-                        placeholder="978-3-16-148410-0"
-                        className={`w-full px-4 py-3 rounded-lg border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors.isbn
-                            ? "border-red-300 bg-red-50"
-                            : "border-slate-200 hover:border-slate-300 focus:border-blue-500"
-                        }`}
-                      />
-                      {errors.isbn && (
-                        <p className="text-red-600 text-sm flex items-center">
-                          <AlertCircle className="h-4 w-4 mr-1" />
-                          {errors.isbn}
-                        </p>
-                      )}
-                    </div>
+                    {formData.format !== "Course" && (
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-slate-700">
+                          ISBN <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="isbn"
+                          value={formData.isbn}
+                          onChange={handleChange}
+                          placeholder="978-3-16-148410-0"
+                          className={`w-full px-4 py-3 rounded-lg border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                            errors.isbn
+                              ? "border-red-300 bg-red-50"
+                              : "border-slate-200 hover:border-slate-300 focus:border-blue-500"
+                          }`}
+                        />
+                        {errors.isbn && (
+                          <p className="text-red-600 text-sm flex items-center">
+                            <AlertCircle className="h-4 w-4 mr-1" />
+                            {errors.isbn}
+                          </p>
+                        )}
+                      </div>
+                    )}
 
                     {/* Category */}
-                    <div className="space-y-2">
+                    <div className={`space-y-2 ${formData.format === "Course" ? "md:col-span-2" : ""}`}>
                       <label className="block text-sm font-medium text-slate-700">
                         Category <span className="text-red-500">*</span>
                       </label>
@@ -497,7 +521,7 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                       value={formData.description}
                       onChange={handleChange}
                       rows={4}
-                      placeholder="Enter a detailed description of the book..."
+                      placeholder={formData.format === "Course" ? "Enter a detailed description of the course..." : "Enter a detailed description of the book..."}
                       className={`w-full px-4 py-3 rounded-lg border-2 transition-colors resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                         errors.description
                           ? "border-red-300 bg-red-50"
@@ -519,23 +543,23 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                 <div className="flex items-center mb-6">
                   <Calendar className="h-5 w-5 text-green-500 mr-2" />
                   <h2 className="text-lg font-semibold text-slate-800">
-                    Publishing Details
+                    {formData.format === "Course" ? "Course Details" : "Publishing Details"}
                   </h2>
                 </div>
 
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Publisher */}
+                    {/* Publisher / Instructor */}
                     <div className="space-y-2">
                       <label className="block text-sm font-medium text-slate-700">
-                        Publisher <span className="text-red-500">*</span>
+                        {formData.format === "Course" ? "Instructor / Publisher" : "Publisher"} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
                         name="publisher"
                         value={formData.publisher}
                         onChange={handleChange}
-                        placeholder="Enter publisher name"
+                        placeholder={formData.format === "Course" ? "Enter instructor or organization name" : "Enter publisher name"}
                         className={`w-full px-4 py-3 rounded-lg border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                           errors.publisher
                             ? "border-red-300 bg-red-50"
@@ -553,7 +577,7 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                     {/* Published Date */}
                     <div className="space-y-2">
                       <label className="block text-sm font-medium text-slate-700">
-                        Published Date <span className="text-red-500">*</span>
+                        {formData.format === "Course" ? "Creation Date" : "Published Date"} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="date"
@@ -614,64 +638,68 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                       </select>
                     </div>
 
-                    {/* Pages */}
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-slate-700">
-                        Pages
-                      </label>
-                      <input
-                        type="number"
-                        name="pages"
-                        value={formData.pages}
-                        onChange={handleChange}
-                        min="1"
-                        placeholder="Number of pages"
-                        className={`w-full px-4 py-3 rounded-lg border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors.pages
-                            ? "border-red-300 bg-red-50"
-                            : "border-slate-200 hover:border-slate-300 focus:border-blue-500"
-                        }`}
-                      />
-                      {errors.pages && (
-                        <p className="text-red-600 text-sm flex items-center">
-                          <AlertCircle className="h-4 w-4 mr-1" />
-                          {errors.pages}
-                        </p>
-                      )}
-                    </div>
+                    {/* Pages / Modules Count */}
+                    {formData.format !== "Course" && (
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-slate-700">
+                          Pages
+                        </label>
+                        <input
+                          type="number"
+                          name="pages"
+                          value={formData.pages}
+                          onChange={handleChange}
+                          min="1"
+                          placeholder="Number of pages"
+                          className={`w-full px-4 py-3 rounded-lg border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                            errors.pages
+                              ? "border-red-300 bg-red-50"
+                              : "border-slate-200 hover:border-slate-300 focus:border-blue-500"
+                          }`}
+                        />
+                        {errors.pages && (
+                          <p className="text-red-600 text-sm flex items-center">
+                            <AlertCircle className="h-4 w-4 mr-1" />
+                            {errors.pages}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Dimensions */}
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-slate-700">
-                        Dimensions (L×W×H)
-                      </label>
-                      <input
-                        type="text"
-                        name="dimensions"
-                        value={formData.dimensions}
-                        onChange={handleChange}
-                        placeholder="e.g., 8 × 5 × 1 in"
-                        className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                      />
-                    </div>
+                  {formData.format !== "Course" && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Dimensions */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-slate-700">
+                          Dimensions (L×W×H)
+                        </label>
+                        <input
+                          type="text"
+                          name="dimensions"
+                          value={formData.dimensions}
+                          onChange={handleChange}
+                          placeholder="e.g., 8 × 5 × 1 in"
+                          className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                        />
+                      </div>
 
-                    {/* Weight */}
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-slate-700">
-                        Weight
-                      </label>
-                      <input
-                        type="text"
-                        name="weight"
-                        value={formData.weight}
-                        onChange={handleChange}
-                        placeholder="e.g., 1.2 lb"
-                        className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                      />
+                      {/* Weight */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-slate-700">
+                          Weight
+                        </label>
+                        <input
+                          type="text"
+                          name="weight"
+                          value={formData.weight}
+                          onChange={handleChange}
+                          placeholder="e.g., 1.2 lb"
+                          className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
@@ -680,12 +708,12 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                 <div className="flex items-center mb-6">
                   <DollarSign className="h-5 w-5 text-emerald-500 mr-2" />
                   <h2 className="text-lg font-semibold text-slate-800">
-                    Pricing & Inventory
+                    Pricing & Seats
                   </h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Price Input */}
+                  {/* Price */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-700">
                       Price ($) <span className="text-red-500">*</span>
@@ -696,16 +724,11 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                         type="number"
                         name="price"
                         value={formData.price}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value === "" || /^\d*$/.test(value)) {
-                            handleChange(e);
-                          }
-                        }}
-                        min="1"
-                        step="1"
-                        placeholder="0"
-                        className={`w-full pl-10 pr-4 py-3 rounded-lg border-2 transition-colors ${
+                        onChange={handleChange}
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        className={`w-full pl-10 pr-4 py-3 rounded-lg border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                           errors.price
                             ? "border-red-300 bg-red-50"
                             : "border-slate-200 hover:border-slate-300 focus:border-blue-500"
@@ -720,7 +743,7 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                     )}
                   </div>
 
-                  {/* Original Price Input */}
+                  {/* Original Price */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-700">
                       Original Price ($)
@@ -731,16 +754,11 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                         type="number"
                         name="originalPrice"
                         value={formData.originalPrice}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value === "" || /^\d*$/.test(value)) {
-                            handleChange(e);
-                          }
-                        }}
-                        min="1"
-                        step="1"
-                        placeholder="0"
-                        className={`w-full pl-10 pr-4 py-3 rounded-lg border-2 transition-colors ${
+                        onChange={handleChange}
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        className={`w-full pl-10 pr-4 py-3 rounded-lg border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                           errors.originalPrice
                             ? "border-red-300 bg-red-50"
                             : "border-slate-200 hover:border-slate-300 focus:border-blue-500"
@@ -756,33 +774,44 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                   </div>
 
                   {/* inventory */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-700">
-                      inventory Quantity <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <Package2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <input
-                        type="number"
-                        name="inventory"
-                        value={formData.inventory}
-                        onChange={handleChange}
-                        min="0"
-                        placeholder="0"
-                        className={`w-full pl-10 pr-4 py-3 rounded-lg border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors.inventory
-                            ? "border-red-300 bg-red-50"
-                            : "border-slate-200 hover:border-slate-300 focus:border-blue-500"
-                        }`}
-                      />
+                  {formData.format !== "Course" ? (
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-slate-700">
+                        Inventory Quantity <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <Package2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input
+                          type="number"
+                          name="inventory"
+                          value={formData.inventory}
+                          onChange={handleChange}
+                          min="0"
+                          placeholder="0"
+                          className={`w-full pl-10 pr-4 py-3 rounded-lg border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                            errors.inventory
+                              ? "border-red-300 bg-red-50"
+                              : "border-slate-200 hover:border-slate-300 focus:border-blue-500"
+                          }`}
+                        />
+                      </div>
+                      {errors.inventory && (
+                        <p className="text-red-600 text-sm flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {errors.inventory}
+                        </p>
+                      )}
                     </div>
-                    {errors.inventory && (
-                      <p className="text-red-600 text-sm flex items-center">
-                        <AlertCircle className="h-4 w-4 mr-1" />
-                        {errors.inventory}
-                      </p>
-                    )}
-                  </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-slate-700">
+                        Access Status
+                      </label>
+                      <div className="py-3 px-4 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm font-medium">
+                        ✓ Infinite digital seats enabled
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Featured Toggle */}
@@ -812,12 +841,264 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                         Featured Product
                       </span>
                       <span className="text-xs text-slate-500">
-                        Mark this book as a featured product
+                        Mark this product as a featured product
                       </span>
                     </div>
                   </label>
                 </div>
               </div>
+
+              {/* Course Curriculum Builder Card */}
+              {formData.format === "Course" && (
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center">
+                      <BookOpen className="h-5 w-5 text-purple-500 mr-2" />
+                      <h2 className="text-lg font-semibold text-slate-800">
+                        Course Curriculum
+                      </h2>
+                    </div>
+                    <span className="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full font-medium">
+                      {sections.reduce((acc, s) => acc + (s.lessons?.length || 0), 0)} Lessons
+                    </span>
+                  </div>
+
+                  {/* Errors for Sections */}
+                  {errors.sections && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-center">
+                      <AlertCircle className="h-4.5 w-4.5 mr-2" />
+                      {errors.sections}
+                    </div>
+                  )}
+
+                  {/* Add Section Input */}
+                  <div className="flex gap-2 mb-6">
+                    <input
+                      type="text"
+                      placeholder="Enter section title (e.g. Introduction)"
+                      value={newSectionTitle}
+                      onChange={(e) => setNewSectionTitle(e.target.value)}
+                      className="flex-1 px-4 py-2 border-2 border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:outline-none rounded-lg text-sm transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!newSectionTitle.trim()) return;
+                        setSections([...sections, { title: newSectionTitle.trim(), lessons: [] }]);
+                        setNewSectionTitle("");
+                      }}
+                      className="px-4 py-2 bg-slate-800 text-white hover:bg-slate-900 rounded-lg text-sm font-semibold transition-colors"
+                    >
+                      Add Section
+                    </button>
+                  </div>
+
+                  {/* Sections List */}
+                  <div className="space-y-4">
+                    {sections.map((section, sIndex) => (
+                      <div key={sIndex} className="border border-slate-200 rounded-xl p-4 bg-slate-50">
+                        <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200">
+                          <h3 className="font-bold text-slate-700 text-sm">
+                            Section {sIndex + 1}: {section.title}
+                          </h3>
+                          <div className="flex gap-1.5">
+                            <button
+                              type="button"
+                              disabled={sIndex === 0}
+                              onClick={() => {
+                                const newSecs = [...sections];
+                                const temp = newSecs[sIndex];
+                                newSecs[sIndex] = newSecs[sIndex - 1];
+                                newSecs[sIndex - 1] = temp;
+                                setSections(newSecs);
+                              }}
+                              className="p-1 hover:bg-slate-200 text-slate-500 rounded disabled:opacity-30"
+                            >
+                              ↑
+                            </button>
+                            <button
+                              type="button"
+                              disabled={sIndex === sections.length - 1}
+                              onClick={() => {
+                                const newSecs = [...sections];
+                                const temp = newSecs[sIndex];
+                                newSecs[sIndex] = newSecs[sIndex + 1];
+                                newSecs[sIndex + 1] = temp;
+                                setSections(newSecs);
+                              }}
+                              className="p-1 hover:bg-slate-200 text-slate-500 rounded disabled:opacity-30"
+                            >
+                              ↓
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSections(sections.filter((_, idx) => idx !== sIndex));
+                                if (activeSectionIndexForLesson === sIndex) {
+                                  setActiveSectionIndexForLesson(null);
+                                }
+                              }}
+                              className="p-1 text-red-500 hover:bg-red-50 rounded"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Lessons List in Section */}
+                        <div className="space-y-2 mb-3">
+                          {section.lessons && section.lessons.map((lesson, lIndex) => (
+                            <div key={lIndex} className="bg-white border border-slate-200 rounded-lg p-3 flex justify-between items-center shadow-xs">
+                              <div className="text-xs">
+                                <p className="font-semibold text-slate-800">{lesson.title}</p>
+                                <p className="text-slate-500 mt-0.5 truncate max-w-md">
+                                  {lesson.videoUrl && <span className="text-blue-600">🎥 {lesson.videoUrl}</span>}
+                                  {lesson.duration && <span className="ml-2 text-slate-400">⏱ {lesson.duration}</span>}
+                                </p>
+                              </div>
+                              <div className="flex gap-1.5">
+                                <button
+                                  type="button"
+                                  disabled={lIndex === 0}
+                                  onClick={() => {
+                                    const newSecs = [...sections];
+                                    const newLessons = [...newSecs[sIndex].lessons];
+                                    const temp = newLessons[lIndex];
+                                    newLessons[lIndex] = newLessons[lIndex - 1];
+                                    newLessons[lIndex - 1] = temp;
+                                    newSecs[sIndex] = { ...newSecs[sIndex], lessons: newLessons };
+                                    setSections(newSecs);
+                                  }}
+                                  className="p-0.5 hover:bg-slate-100 text-slate-500 rounded disabled:opacity-30 text-xs"
+                                >
+                                  ↑
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={lIndex === section.lessons.length - 1}
+                                  onClick={() => {
+                                    const newSecs = [...sections];
+                                    const newLessons = [...newSecs[sIndex].lessons];
+                                    const temp = newLessons[lIndex];
+                                    newLessons[lIndex] = newLessons[lIndex + 1];
+                                    newLessons[lIndex + 1] = temp;
+                                    newSecs[sIndex] = { ...newSecs[sIndex], lessons: newLessons };
+                                    setSections(newSecs);
+                                  }}
+                                  className="p-0.5 hover:bg-slate-100 text-slate-500 rounded disabled:opacity-30 text-xs"
+                                >
+                                  ↓
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newSecs = [...sections];
+                                    const newLessons = newSecs[sIndex].lessons.filter((_, idx) => idx !== lIndex);
+                                    newSecs[sIndex] = { ...newSecs[sIndex], lessons: newLessons };
+                                    setSections(newSecs);
+                                  }}
+                                  className="text-red-500 hover:bg-red-50 px-1.5 py-0.5 rounded text-xs font-semibold"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                          {(!section.lessons || section.lessons.length === 0) && (
+                            <p className="text-xs text-slate-400 italic text-center py-2">
+                              No lessons added yet. Add a lesson below.
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Add Lesson inline form */}
+                        {activeSectionIndexForLesson === sIndex ? (
+                          <div className="bg-white border border-slate-200 rounded-lg p-3 space-y-3 mt-3">
+                            <h4 className="text-xs font-semibold text-slate-800">Add New Lesson</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <input
+                                type="text"
+                                placeholder="Lesson Title *"
+                                value={lessonForm.title}
+                                onChange={(e) => setLessonForm({ ...lessonForm, title: e.target.value })}
+                                className="px-3 py-1.5 border border-slate-200 focus:border-blue-500 focus:outline-none rounded text-xs"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Video URL (YouTube/Vimeo/S3)"
+                                value={lessonForm.videoUrl}
+                                onChange={(e) => setLessonForm({ ...lessonForm, videoUrl: e.target.value })}
+                                className="px-3 py-1.5 border border-slate-200 focus:border-blue-500 focus:outline-none rounded text-xs"
+                              />
+                              <input
+                                type="text"
+                                placeholder="PDF Attachment URL (Optional)"
+                                value={lessonForm.pdfUrl}
+                                onChange={(e) => setLessonForm({ ...lessonForm, pdfUrl: e.target.value })}
+                                className="px-3 py-1.5 border border-slate-200 focus:border-blue-500 focus:outline-none rounded text-xs"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Duration (e.g. 10:00)"
+                                value={lessonForm.duration}
+                                onChange={(e) => setLessonForm({ ...lessonForm, duration: e.target.value })}
+                                className="px-3 py-1.5 border border-slate-200 focus:border-blue-500 focus:outline-none rounded text-xs"
+                              />
+                              <textarea
+                                placeholder="Lesson description or body content"
+                                rows={2}
+                                value={lessonForm.content}
+                                onChange={(e) => setLessonForm({ ...lessonForm, content: e.target.value })}
+                                className="px-3 py-1.5 border border-slate-200 focus:border-blue-500 focus:outline-none rounded text-xs md:col-span-2 resize-none"
+                              />
+                            </div>
+                            <div className="flex justify-end gap-2 text-xs pt-1">
+                              <button
+                                type="button"
+                                onClick={() => setActiveSectionIndexForLesson(null)}
+                                className="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded font-medium text-slate-700"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (!lessonForm.title.trim()) return;
+                                  const newSecs = [...sections];
+                                  newSecs[sIndex].lessons.push({ ...lessonForm });
+                                  setSections(newSecs);
+                                  setLessonForm({ title: "", content: "", videoUrl: "", pdfUrl: "", duration: "" });
+                                  setActiveSectionIndexForLesson(null);
+                                }}
+                                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium"
+                              >
+                                Save Lesson
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveSectionIndexForLesson(sIndex);
+                              setLessonForm({ title: "", content: "", videoUrl: "", pdfUrl: "", duration: "" });
+                            }}
+                            className="w-full py-1.5 border border-dashed border-slate-300 hover:border-slate-400 bg-white text-xs font-medium text-slate-600 rounded-lg transition-colors"
+                          >
+                            + Add Lesson
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    {sections.length === 0 && (
+                      <p className="text-xs text-slate-400 italic text-center py-4 bg-slate-50 border border-dashed border-slate-200 rounded-xl">
+                        Add a section above to begin building your course curriculum.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
             </div>
 
             {/* Right Column - Cover Image */}

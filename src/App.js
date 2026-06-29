@@ -43,6 +43,8 @@ import SellerRegistrationPage from "./pages/auth/SellerRegistrationPage";
 import SellerStorefrontPage from "./pages/SellerStorefrontPage";
 import FollowPage from "./pages/FollowPage";
 import FollowDashboard from "./pages/dashboard/customer/FollowDashboard";
+import MyCourses from "./pages/dashboard/customer/MyCourses";
+import CourseViewer from "./pages/dashboard/customer/CourseViewer";
 
 function App() {
   // Initialize FCM and get FCM functionality
@@ -146,6 +148,8 @@ function App() {
           <Route path="mlm" element={<MLMDashboard />} />
           <Route path="account" element={<MyAccount />} />
           <Route path="orders" element={<MyOrders />} />
+          <Route path="courses" element={<MyCourses />} />
+          <Route path="courses/:courseId" element={<CourseViewer />} />
 
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="recommendations" element={<Recommendations />} />

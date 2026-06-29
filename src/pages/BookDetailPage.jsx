@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Star, ShoppingCart, Heart, Store } from "lucide-react";
+import { Star, ShoppingCart, Heart, Store, BookOpen } from "lucide-react";
 import Newsletter from "../components/common/Newsletter";
 import ValueProps from "../components/common/ValueProps";
 import SEO from "../components/SEO";
@@ -18,6 +18,7 @@ import FormattedDate from "../components/FormattedDate";
 import { toast } from "react-toastify";
 import { addToCartWithSync } from "../redux/slices/cartThunks";
 import { useGetSellerStorefrontQuery } from "../redux/slices/sellerApiSlice";
+import { useGetEnrollmentQuery } from "../redux/slices/enrollmentApiSlice";
 
 function BookDetailPage() {
   useEffect(() => {
@@ -37,6 +38,11 @@ function BookDetailPage() {
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [sellerData, setSellerData] = useState("");
+
+  const { data: enrollmentData } = useGetEnrollmentQuery(id, {
+    skip: !userInfo || book?.format !== "Course",
+  });
+  const isEnrolled = !!enrollmentData?.data;
 
   // Fetch seller information if book has a seller
   const { data: seller } = useGetSellerStorefrontQuery(
@@ -247,36 +253,47 @@ function BookDetailPage() {
               </div>
 
               <div className="flex gap-4 mb-6">
-                <div className="flex items-center border border-gray-300 rounded-md">
-                  <button
-                    className="px-3 py-2 text-gray-600 hover:bg-gray-100"
-                    onClick={decreaseQuantity}
-                  >
-                    -
-                  </button>
-                  <span className="px-3 py-2">{quantity}</span>
-                  <button
-                    className="px-3 py-2 text-gray-600 hover:bg-gray-100"
-                    onClick={increaseQuantity}
-                  >
-                    +
-                  </button>
-                </div>
+                {book.format !== "Course" && (
+                  <div className="flex items-center border border-gray-300 rounded-md">
+                    <button
+                      className="px-3 py-2 text-gray-600 hover:bg-gray-100"
+                      onClick={decreaseQuantity}
+                    >
+                      -
+                    </button>
+                    <span className="px-3 py-2">{quantity}</span>
+                    <button
+                      className="px-3 py-2 text-gray-600 hover:bg-gray-100"
+                      onClick={increaseQuantity}
+                    >
+                      +
+                    </button>
+                  </div>
+                )}
 
-                <button
-                  onClick={handleAddToCart}
-                  disabled={isAdding}
-                  className="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
-                >
-                  {isAdding ? (
-                    <LoadingSpinner />
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <ShoppingCart size={16} />
-                      BUY
-                    </span>
-                  )}
-                </button>
+                {isEnrolled ? (
+                  <Link
+                    to={`/dashboard/courses/${id}`}
+                    className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-md hover:from-purple-700 hover:to-indigo-700 font-semibold shadow-md flex items-center gap-2"
+                  >
+                    Go to Course Player
+                  </Link>
+                ) : (
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={isAdding}
+                    className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold transition-colors duration-200"
+                  >
+                    {isAdding ? (
+                      <LoadingSpinner />
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <ShoppingCart size={16} />
+                        {book.format === "Course" ? "ENROLL NOW" : "BUY"}
+                      </span>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -324,41 +341,75 @@ function BookDetailPage() {
             {/* Main Content */}
             <div className="lg:w-2/3">
               {activeTab === "details" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-gray-800 text-white rounded-md p-4">
-                    <h3 className="text-lg font-medium mb-2">Book Title</h3>
-                    <p>{book.title}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium mb-2">Author</h3>
-                    <p>{book.author}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium mb-2">ISBN</h3>
-                    <p>{book.isbn || "N/A"}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium mb-2">
-                      Edition Language
-                    </h3>
-                    <p>{book.language}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium mb-2">Book Format</h3>
-                    <p>{book.format}</p>
-                  </div>
-                  {book.publishDate && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-gray-800 text-white rounded-md p-4">
+                      <h3 className="text-lg font-medium mb-2">{book.format === "Course" ? "Course Title" : "Book Title"}</h3>
+                      <p>{book.title}</p>
+                    </div>
                     <div>
-                      <h3 className="text-lg font-medium mb-2">
-                        Date Published
+                      <h3 className="text-lg font-medium mb-2">{book.format === "Course" ? "Instructor" : "Author"}</h3>
+                      <p>{book.author}</p>
+                    </div>
+                    {book.format !== "Course" && (
+                      <div>
+                        <h3 className="text-lg font-medium mb-2">ISBN</h3>
+                        <p>{book.isbn || "N/A"}</p>
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">Edition Language</h3>
+                      <p>{book.language}</p>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">{book.format === "Course" ? "Product Format" : "Book Format"}</h3>
+                      <p>{book.format}</p>
+                    </div>
+                    {book.publishDate && (
+                      <div>
+                        <h3 className="text-lg font-medium mb-2">
+                          {book.format === "Course" ? "Release Date" : "Date Published"}
+                        </h3>
+                        <FormattedDate date={book?.publishDate} />
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">{book.format === "Course" ? "Publisher / School" : "Publisher"}</h3>
+                      <p>{book.publisher}</p>
+                    </div>
+                  </div>
+
+                  {book.format === "Course" && book.sections && book.sections.length > 0 && (
+                    <div className="mt-8 border-t pt-6">
+                      <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800">
+                        <BookOpen className="h-5 w-5 text-purple-600" />
+                        Course Curriculum Preview
                       </h3>
-                      <FormattedDate date={book?.publishDate} />
+                      <div className="border border-gray-200 rounded-lg overflow-hidden divide-y divide-gray-200">
+                        {book.sections.map((section, sIdx) => (
+                          <div key={sIdx} className="bg-gray-50 p-4">
+                            <h4 className="font-bold text-gray-800 text-sm flex justify-between items-center mb-2">
+                              <span>Section {sIdx + 1}: {section.title}</span>
+                              <span className="text-xs text-gray-500 font-medium">{section.lessons?.length || 0} lessons</span>
+                            </h4>
+                            <div className="space-y-2 mt-2 pl-4">
+                              {section.lessons && section.lessons.map((lesson, lIdx) => (
+                                <div key={lIdx} className="flex justify-between items-center text-xs py-1.5 text-gray-600">
+                                  <span className="flex items-center gap-1.5 font-medium">
+                                    <span>📄</span>
+                                    {lesson.title}
+                                  </span>
+                                  {lesson.duration && (
+                                    <span className="text-gray-400">{lesson.duration}</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
-                  <div>
-                    <h3 className="text-lg font-medium mb-2">Publisher</h3>
-                    <p>{book.publisher}</p>
-                  </div>
                 </div>
               )}
 
