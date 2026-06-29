@@ -116,9 +116,14 @@ const DashboardLayout = () => {
       icon: <PieChart className="h-5 w-5" />,
     },
     {
-      name: "Products",
+      name: "Manage Products",
       path: "/seller/products",
       icon: <Package size={20} />,
+    },
+    {
+      name: "Manage Courses",
+      path: "/seller/courses",
+      icon: <BookOpen className="h-5 w-5" />,
     },
     {
       name: "Orders",
@@ -145,9 +150,14 @@ const DashboardLayout = () => {
       icon: <PieChart className="h-5 w-5" />,
     },
     {
-      name: "Products",
+      name: "Manage Products",
       path: "/admin/products",
       icon: <Grid className="h-5 w-5" />,
+    },
+    {
+      name: "Manage Courses",
+      path: "/admin/courses",
+      icon: <BookOpen className="h-5 w-5" />,
     },
     {
       name: "Orders",

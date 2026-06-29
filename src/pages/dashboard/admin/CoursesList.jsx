@@ -1,15 +1,17 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Book,
+  BookOpen,
   Plus,
   Edit,
   Trash2,
   Search,
   ChevronLeft,
   ChevronRight,
+  Video,
+  FileText
 } from "lucide-react";
-import CreateProduct from "../../../components/dashboard/admin/CreateProduct";
-import EditProduct from "../../../components/dashboard/admin/EditProduct";
+import CreateCourse from "../../../components/dashboard/admin/CreateCourse";
+import EditCourse from "../../../components/dashboard/admin/EditCourse";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import ErrorMessage from "../../../components/common/ErrorMessage";
 import SEO from "../../../components/SEO";
@@ -20,22 +22,23 @@ import {
   useGetSellerBooksQuery,
 } from "../../../redux/slices/bookSlice";
 
-const BooksList = () => {
+const CoursesList = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
-  const [genre, setGenre] = useState("");
+  const [category, setCategory] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [details, setDetails] = useState([]);
 
-  // Query params for the API
+  // Query params for public/admin listing
   const queryParams = {
     page,
     limit,
-    genre,
+    category,
     sortBy,
     search: searchQuery,
+    format: "Course"
   };
 
   const { userInfo } = useSelector((state) => state.auth);
@@ -68,6 +71,11 @@ const BooksList = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
 
+  // Trigger refetch on mount or query updates
+  useEffect(() => {
+    refetch();
+  }, [refetch, searchQuery, category, sortBy, page]);
+
   // Handler for search input
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
@@ -84,18 +92,19 @@ const BooksList = () => {
   // Handle filter and sort changes
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    if (name === "genre") setGenre(value);
+    if (name === "category") setCategory(value);
     if (name === "sortBy") setSortBy(value);
     setPage(1); // Reset to first page when filters change
   };
 
   // Handle delete with confirmation
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this book?")) {
+    if (window.confirm("Are you sure you want to delete this course?")) {
       try {
-        await deleteProduct({ id }).unwrap();
+        await deleteProduct(id).unwrap();
+        refetch();
       } catch (error) {
-        console.error("Failed to delete book:", error);
+        console.error("Failed to delete course:", error);
       }
     }
   };
@@ -113,70 +122,71 @@ const BooksList = () => {
     }
   };
 
-  const books = (data?.data || []).filter((book) => book.format !== "Course");
+  // Filter to ensure only Course formats are listed
+  const courses = (data?.data || []).filter((item) => item.format === "Course");
   const totalPages = isSeller ? 1 : (data?.pages || 0);
 
   if (isLoading || isFetching)
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2">
-        <div className="space-y-4">
-          <LoadingSkeleton type={"list"} count={3} />
-        </div>
-        <div className="space-y-4">
-          <LoadingSkeleton type={"list"} count={3} />
-        </div>
+      <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="h-6 w-48 bg-slate-200 animate-pulse rounded mb-6"></div>
+        <LoadingSkeleton type={"list"} count={5} />
       </div>
     );
 
   if (error)
     return (
-      <ErrorMessage error={"Unable to load books. Please try again later"} />
+      <ErrorMessage error={"Unable to load courses. Please try again later"} />
     );
 
   function truncate(str, n) {
     return str?.length > n ? str.substr(0, n - 1) + "..." : str;
   }
+
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <SEO
-        title="Books"
-        description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
-        name="AI-Powered Social-Ecommerce"
+        title="Manage Courses"
+        description="LMS Dashboard for listing, organizing, and editing interactive online courses."
+        name="BookStore"
         type="description"
       />
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-800">Books</h2>
-        <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 mt-4 md:mt-0">
+      
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8 pb-4 border-b border-slate-100">
+        <div>
+          <h2 className="text-xl font-bold text-slate-800">Manage Courses</h2>
+          <p className="text-slate-500 text-xs mt-1">Sellers dashboard to configure lectures, uploads, and curriculum syllabi</p>
+        </div>
+        <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-4 lg:mt-0">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search books..."
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full md:w-64"
+              placeholder="Search courses..."
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full sm:w-60 text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
               value={search}
               onChange={handleSearchChange}
               onKeyDown={handleSearchSubmit}
             />
           </div>
           <select
-            name="genre"
-            value={genre}
+            name="category"
+            value={category}
             onChange={handleFilterChange}
-            className="py-2 px-4 border border-gray-300 rounded-md"
+            className="py-2 px-4 border border-gray-300 rounded-md text-sm text-slate-700 bg-white"
           >
-            <option value="">All Genres</option>
-            <option value="fiction">Fiction</option>
-            <option value="non-fiction">Non-fiction</option>
-            <option value="sci-fi">Science Fiction</option>
-            <option value="fantasy">Fantasy</option>
-            <option value="mystery">Mystery</option>
-            <option value="biography">Biography</option>
+            <option value="">All Categories</option>
+            <option value="Education">Education</option>
+            <option value="Business & Economics">Business & Economics</option>
+            <option value="Science & Technology">Science & Technology</option>
+            <option value="Self-Help">Self-Help</option>
+            <option value="Health & Fitness">Health & Fitness</option>
           </select>
           <select
             name="sortBy"
             value={sortBy}
             onChange={handleFilterChange}
-            className="py-2 px-4 border border-gray-300 rounded-md"
+            className="py-2 px-4 border border-gray-300 rounded-md text-sm text-slate-700 bg-white"
           >
             <option value="">Sort By</option>
             <option value="price-asc">Price: Low to High</option>
@@ -184,14 +194,13 @@ const BooksList = () => {
             <option value="newest">Newest First</option>
             <option value="title-asc">Title A-Z</option>
             <option value="rating">Highest Rated</option>
-            <option value="bestseller">Best Sellers</option>
           </select>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700"
+            className="flex items-center justify-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2 px-4 rounded-md hover:from-purple-700 hover:to-indigo-700 font-semibold text-sm transition-all shadow-sm"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Add Book
+            Add Course
           </button>
         </div>
       </div>
@@ -200,98 +209,104 @@ const BooksList = () => {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Book
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Course
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Author
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Instructor
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Price
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Stock
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Curriculum Stats
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Category
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {books.map((book) => (
-              <tr key={book._id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    {book.image ? (
-                      <img
-                        src={book.image}
-                        alt={book.title}
-                        className="h-10 w-10 object-cover rounded-md mr-4"
-                      />
-                    ) : (
-                      <Book className="flex-shrink-0 h-10 w-10 text-purple-500 mr-4" />
-                    )}
-                    <div className="text-sm font-medium text-gray-900">
-                      {truncate(book.title, 27)}
+            {courses.map((course) => {
+              const totalSections = course.sections?.length || 0;
+              const totalLessons = course.sections?.reduce((acc, s) => acc + (s.lessons?.length || 0), 0) || 0;
+
+              return (
+                <tr key={course._id} className="hover:bg-gray-50/70 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      {course.image ? (
+                        <img
+                          src={course.image}
+                          alt={course.title}
+                          className="h-10 w-16 object-cover rounded-md mr-4 shadow-sm border border-slate-100"
+                        />
+                      ) : (
+                        <div className="h-10 w-16 bg-purple-50 rounded-md mr-4 flex items-center justify-center border border-purple-100 text-purple-600">
+                          <BookOpen className="h-5 w-5" />
+                        </div>
+                      )}
+                      <div className="text-sm font-semibold text-slate-800">
+                        {truncate(course.title, 40)}
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {book.author}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${book.price?.toFixed(2)}
-                  {book.originalPrice && book.originalPrice > book.price && (
-                    <span className="line-through ml-2 text-gray-400">
-                      ${book.originalPrice.toFixed(2)}
-                    </span>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      book.inventory > 10
-                        ? "bg-green-100 text-green-800"
-                        : book.inventory > 0
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {book.inventory} in stock
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {book.category}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button
-                    onClick={() => {
-                      setEditingProductId(book._id);
-                      setDetails(book);
-                    }}
-                    className="text-purple-600 hover:text-purple-900 mr-3"
-                    title="Edit book"
-                  >
-                    <Edit className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(book._id)}
-                    className="text-red-600 hover:text-red-900"
-                    disabled={isDeleting}
-                    title="Delete book"
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {books.length === 0 && !isLoading && (
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {course.author}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-800">
+                    ${course.price?.toFixed(2)}
+                    {course.originalPrice && course.originalPrice > course.price && (
+                      <span className="line-through ml-2 text-xs text-gray-400 font-normal">
+                        ${course.originalPrice.toFixed(2)}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
+                    <div className="flex items-center gap-2">
+                      <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-medium">
+                        {totalSections} Sections
+                      </span>
+                      <span className="bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full font-medium">
+                        {totalLessons} Lessons
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {course.category}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={() => {
+                        setEditingProductId(course._id);
+                        setDetails(course);
+                      }}
+                      className="text-purple-600 hover:text-purple-900 mr-4 cursor-pointer"
+                      title="Edit Course Curriculum"
+                    >
+                      <Edit className="h-5 w-5 inline" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(course._id)}
+                      className="text-red-600 hover:text-red-900 cursor-pointer"
+                      disabled={isDeleting}
+                      title="Delete Course"
+                    >
+                      <Trash2 className="h-5 w-5 inline" />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+            {courses.length === 0 && !isLoading && (
               <tr>
-                <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
-                  No books found. Try adjusting your search or filters.
+                <td colSpan="6" className="px-6 py-12 text-center text-slate-500">
+                  <BookOpen className="h-10 w-10 text-slate-300 mx-auto mb-2" />
+                  <p className="font-medium">No courses found</p>
+                  <p className="text-xs text-slate-400 mt-1">Start by creating your first course curriculum!</p>
                 </td>
               </tr>
             )}
@@ -300,7 +315,7 @@ const BooksList = () => {
       </div>
 
       {/* Pagination */}
-      {totalPages > 0 && (
+      {totalPages > 1 && (
         <div className="flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6 mt-4">
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
@@ -330,10 +345,9 @@ const BooksList = () => {
                 >
                   <ChevronLeft className="h-5 w-5" aria-hidden="true" />
                 </button>
-                {[...Array(Math.min(5, totalPages))].map((_, i) => {
-                  // Show max 5 page numbers
-                  const pageNum = i + 1 + Math.max(0, page - 3);
-                  return pageNum <= totalPages ? (
+                {[...Array(totalPages)].map((_, i) => {
+                  const pageNum = i + 1;
+                  return (
                     <button
                       key={pageNum}
                       onClick={() => setPage(pageNum)}
@@ -345,7 +359,7 @@ const BooksList = () => {
                     >
                       {pageNum}
                     </button>
-                  ) : null;
+                  );
                 })}
                 <button
                   onClick={goToNextPage}
@@ -364,11 +378,11 @@ const BooksList = () => {
         </div>
       )}
 
-      {/* Modals */}
+      {/* Course Modals */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-            <CreateProduct
+            <CreateCourse
               onClose={() => setShowCreateModal(false)}
               refetch={refetch}
             />
@@ -379,7 +393,7 @@ const BooksList = () => {
       {editingProductId && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-            <EditProduct
+            <EditCourse
               productId={editingProductId}
               details={details}
               onClose={() => setEditingProductId(null)}
@@ -392,4 +406,4 @@ const BooksList = () => {
   );
 };
 
-export default BooksList;
+export default CoursesList;

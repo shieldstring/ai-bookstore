@@ -97,7 +97,6 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
     "E-book",
     "Audiobook",
     "Large Print",
-    "Course",
   ];
 
   const languages = [

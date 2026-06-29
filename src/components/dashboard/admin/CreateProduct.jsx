@@ -96,7 +96,6 @@ export default function CreateProduct({ onClose,  refetch }) {
     "E-book",
     "Audiobook",
     "Large Print",
-    "Course",
   ];
 
   const languages = [

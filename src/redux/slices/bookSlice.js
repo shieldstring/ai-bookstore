@@ -60,6 +60,20 @@ export const {
 
 export const bookAuthApiSlice = apiTwo.injectEndpoints({
   endpoints: (builder) => ({
+    getSellerBooks: builder.query({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params?.format) queryParams.append("format", params.format);
+        return `books/my-books?${queryParams.toString()}`;
+      },
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ _id }) => ({ type: "Book", id: _id })),
+              { type: "Book", id: "LIST" },
+            ]
+          : [{ type: "Book", id: "LIST" }],
+    }),
     getRecommendations: builder.query({
       query: () => `books/recommendations`,
       providesTags: ["Book"], // Assuming recommendations might change frequently
@@ -139,4 +153,5 @@ export const {
   useTrackPurchaseMutation,
   useAddReviewMutation,
   useBulkUpdateInventoryMutation,
+  useGetSellerBooksQuery,
 } = bookAuthApiSlice;
