@@ -173,6 +173,11 @@ const DashboardLayout = () => {
       icon: <User2Icon className="h-5 w-5" />,
     },
     {
+      name: "Manage Blogs",
+      path: "/admin/blogs",
+      icon: <Rss className="h-5 w-5" />,
+    },
+    {
       name: "Settings",
       path: "/admin/settings",
       icon: <Settings className="h-5 w-5" />,

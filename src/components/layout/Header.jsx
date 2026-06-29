@@ -391,6 +391,20 @@ const Header = () => {
                   Feeds
                 </NavLink>
               </li>
+              <li>
+                <NavLink
+                  to="/blogs"
+                  className={({ isActive }) =>
+                    `font-semibold   ${
+                      isActive
+                        ? " text-[#fce7f3]"
+                        : "text-gray-100 hover:text-[#fce7f3]"
+                    }`
+                  }
+                >
+                  Blogs
+                </NavLink>
+              </li>
             </ul>
           </div>
         </nav>
@@ -456,6 +470,15 @@ const Header = () => {
                   onClick={toggleSidebar}
                 >
                   Feeds
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/blogs"
+                  className="block py-2 text-gray-800 hover:text-purple-700"
+                  onClick={toggleSidebar}
+                >
+                  Blogs
                 </Link>
               </li>
 

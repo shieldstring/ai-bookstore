@@ -79,7 +79,7 @@ const Home = () => {
       <TopRated />
 
       {/* BecomeSellerSection */}
-      <BecomeSellerSection />
+      {/* <BecomeSellerSection /> */}
 
       {/* FeaturedBooks */}
       <RecommendedBooks />

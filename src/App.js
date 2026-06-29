@@ -46,6 +46,9 @@ import FollowDashboard from "./pages/dashboard/customer/FollowDashboard";
 import MyCourses from "./pages/dashboard/customer/MyCourses";
 import CourseViewer from "./pages/dashboard/customer/CourseViewer";
 import CoursesList from "./pages/dashboard/admin/CoursesList";
+import BlogsPage from "./pages/BlogsPage";
+import BlogDetailPage from "./pages/BlogDetailPage";
+import BlogsList from "./pages/dashboard/admin/BlogsList";
 
 function App() {
   // Initialize FCM and get FCM functionality
@@ -112,6 +115,8 @@ function App() {
             element={<SellerStorefrontPage />}
           />
           <Route path="cart" element={<CartPage />} />
+          <Route path="blogs" element={<BlogsPage />} />
+          <Route path="blogs/:id" element={<BlogDetailPage />} />
           <Route path="checkout/success" element={<CheckoutSuccess />} />
 
           {/* Protected Routes */}
@@ -189,6 +194,7 @@ function App() {
           <Route path="products" element={<BooksList />} />
           <Route path="courses" element={<CoursesList />} />
           <Route path="mlm" element={<MLMSettings />} />
+          <Route path="blogs" element={<BlogsList />} />
           <Route path="notifications" element={<NotificationsPage />} />
         </Route>
       </Routes>
