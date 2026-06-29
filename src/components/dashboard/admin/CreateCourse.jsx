@@ -10,13 +10,13 @@ import {
   Clock,
   Trash
 } from "lucide-react";
-import { useAddBookMutation } from "../../../redux/slices/bookSlice";
+import { useAddCourseMutation } from "../../../redux/slices/courseApiSlice";
 import { toast } from "react-toastify";
 import LoadingSpinner from "../../common/LoadingSpinner";
 import { uploadToCloudinary } from "../../../utils/upload";
 
 export default function CreateCourse({ onClose, refetch }) {
-  const [addCourse, { isLoading }] = useAddBookMutation();
+  const [addCourse, { isLoading }] = useAddCourseMutation();
 
   const [formData, setFormData] = useState({
     title: "",

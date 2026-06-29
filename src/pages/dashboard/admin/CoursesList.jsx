@@ -17,10 +17,10 @@ import ErrorMessage from "../../../components/common/ErrorMessage";
 import SEO from "../../../components/SEO";
 import { useSelector } from "react-redux";
 import {
-  useDeleteBookMutation,
-  useGetBookListsQuery,
-  useGetSellerBooksQuery,
-} from "../../../redux/slices/bookSlice";
+  useGetCoursesQuery,
+  useGetSellerCoursesQuery,
+  useDeleteCourseMutation,
+} from "../../../redux/slices/courseApiSlice";
 
 const CoursesList = () => {
   const [page, setPage] = useState(1);
@@ -50,7 +50,7 @@ const CoursesList = () => {
     refetch: refetchList,
     isFetching: isListFetching,
     error: listError,
-  } = useGetBookListsQuery(queryParams, { skip: isSeller });
+  } = useGetCoursesQuery(queryParams, { skip: isSeller });
 
   const {
     data: sellerData,
@@ -58,7 +58,7 @@ const CoursesList = () => {
     refetch: refetchSeller,
     isFetching: isSellerFetching,
     error: sellerError,
-  } = useGetSellerBooksQuery(undefined, { skip: !isSeller });
+  } = useGetSellerCoursesQuery(undefined, { skip: !isSeller });
 
   const data = isSeller ? sellerData : listData;
   const isLoading = isSeller ? isSellerLoading : isListLoading;
@@ -66,7 +66,7 @@ const CoursesList = () => {
   const error = isSeller ? sellerError : listError;
   const refetch = isSeller ? refetchSeller : refetchList;
 
-  const [deleteProduct, { isLoading: isDeleting }] = useDeleteBookMutation();
+  const [deleteProduct, { isLoading: isDeleting }] = useDeleteCourseMutation();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
