@@ -8,6 +8,7 @@ import BestSellers from "../components/home/BestSellers";
 import CategoriesSection from "../components/home/CategoriesSection";
 import TopRated from "../components/home/TopRated";
 import RecommendedBooks from "../components/home/RecommendedBooks";
+import FeaturedCourses from "../components/home/FeaturedCourses";
 import HeroBanner from "../components/home/HeroBanner";
 import Testimonials from "../components/common/Testimonials";
 import Stats from "../components/common/Stats";
@@ -35,7 +36,7 @@ const Home = () => {
       {/* Trending Books */}
       <TrendingBooks />
 
-      <div className="my-16 px-2 lg:px-24">
+      {/* <div className="my-16 px-2 lg:px-24">
         <h2 className="text-3xl font-bold text-center mb-8">
           Join Our Reading Community
         </h2>
@@ -64,7 +65,7 @@ const Home = () => {
             </p>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Features */}
       <ValueProps />
@@ -77,6 +78,9 @@ const Home = () => {
 
       {/* Top Rated */}
       <TopRated />
+
+      {/* Featured Courses */}
+      <FeaturedCourses />
 
       {/* BecomeSellerSection */}
       {/* <BecomeSellerSection /> */}
