@@ -8,6 +8,7 @@ import ErrorMessage from "../common/ErrorMessage";
 import { useGetBooksQuery } from "../../redux/slices/bookSlice";
 import LoadingSkeleton from "../preloader/LoadingSkeleton";
 import useCurrency from "../../hooks/useCurrency";
+import { truncateDescription } from "../../utils/formatDescription";
 
 const RecommendedBooks = () => {
   const { formatPlain } = useCurrency();
@@ -129,8 +130,8 @@ const RecommendedBooks = () => {
                 <h3 className="font-medium text-gray-800 mb-1">
                   {prevBook?.title}
                 </h3>
-                <p className="text-gray-500 text-xs mb-12">
-                  {prevBook?.description}
+                <p className="text-gray-500 text-xs mb-12 line-clamp-6 whitespace-pre-line">
+                  {truncateDescription(prevBook?.description, 150)}
                 </p>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-800 font-bold">
@@ -178,8 +179,8 @@ const RecommendedBooks = () => {
                     <h3 className="font-bold text-gray-800 mb-1">
                       {currentBook?.title}
                     </h3>
-                    <p className="text-gray-500 text-xs mb-12">
-                      {currentBook?.description}
+                    <p className="text-gray-500 text-xs mb-12 line-clamp-6 whitespace-pre-line">
+                      {truncateDescription(currentBook?.description, 150)}
                     </p>
                     <div className="flex justify-between items-center mb-3">
                       <span className="text-purple-600 font-bold">
@@ -224,8 +225,8 @@ const RecommendedBooks = () => {
                 <h3 className="font-medium text-gray-800 mb-1">
                   {nextBook?.title}
                 </h3>
-                <p className="text-gray-500 text-xs mb-12">
-                  {nextBook?.description}
+                <p className="text-gray-500 text-xs mb-12 line-clamp-6 whitespace-pre-line">
+                  {truncateDescription(nextBook?.description, 150)}
                 </p>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-800 font-bold">

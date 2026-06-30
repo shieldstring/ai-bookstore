@@ -16,6 +16,7 @@ import ErrorMessage from "../components/common/ErrorMessage";
 import { useDispatch, useSelector } from "react-redux";
 import LoadingSkeleton from "../components/preloader/LoadingSkeleton";
 import FormattedDate from "../components/FormattedDate";
+import FormattedDescription from "../components/common/FormattedDescription";
 import { toast } from "react-toastify";
 import { addToCartWithSync } from "../redux/slices/cartThunks";
 import { useGetSellerStorefrontQuery } from "../redux/slices/sellerApiSlice";
@@ -239,7 +240,10 @@ function BookDetailPage() {
               )}
 
               <div className="mb-6">
-                <p className="text-gray-600 mb-4">{book.description}</p>
+                <FormattedDescription
+                  text={book.description}
+                  paragraphClassName="text-gray-600 mb-4 last:mb-0 whitespace-pre-line leading-relaxed"
+                />
               </div>
 
               <div className="flex items-center gap-2 mb-6">

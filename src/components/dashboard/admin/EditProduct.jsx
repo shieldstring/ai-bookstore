@@ -16,6 +16,9 @@ import {
 } from "lucide-react";
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
 import { getPriceValidationError } from "../../../utils/currency";
+import { normalizeDescription } from "../../../utils/formatDescription";
+import { isValidIsbn, normalizeProvidedIsbn } from "../../../utils/isbn";
+import FormattedDescription from "../../common/FormattedDescription";
 import { useUpdateBookMutation } from "../../../redux/slices/bookSlice";
 
 export default function EditProduct({ productId, onClose, details, refetch }) {
@@ -156,11 +159,8 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
       }
 
       // ISBN validation (optional)
-      if (formData.isbn.trim()) {
-        const cleanIsbn = formData.isbn.replace(/[-\s]/g, "");
-        if (!/^(?:\d{9}[\dXx]|\d{13})$/.test(cleanIsbn)) {
-          newErrors.isbn = "Enter a valid 10- or 13-digit ISBN";
-        }
+      if (formData.isbn.trim() && !isValidIsbn(formData.isbn, formData.format)) {
+        newErrors.isbn = "Enter a valid 10- or 13-digit ISBN, or leave blank to auto-generate";
       }
     } else {
       if (sections.length === 0) {
@@ -220,13 +220,13 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
       const bookData = {
         title: formData.title.trim(),
         author: formData.author.trim(),
-        description: formData.description.trim(),
+        description: normalizeDescription(formData.description),
         price: parseFloat(formData.price),
         originalPrice: formData.originalPrice
           ? parseFloat(formData.originalPrice)
           : undefined,
         ...(formData.format !== "Course" && formData.isbn.trim()
-          ? { isbn: formData.isbn.replace(/[-\s]/g, "") }
+          ? { isbn: normalizeProvidedIsbn(formData.isbn) }
           : formData.format === "Course" && details.isbn
             ? { isbn: details.isbn }
             : {}),
@@ -494,14 +494,28 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                       name="description"
                       value={formData.description}
                       onChange={handleChange}
-                      rows={4}
+                      rows={8}
                       placeholder={formData.format === "Course" ? "Enter a detailed description of the course..." : "Enter a detailed description of the book..."}
-                      className={`w-full px-4 py-3 rounded-lg border-2 transition-colors resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      className={`w-full px-4 py-3 rounded-lg border-2 transition-colors resize-y whitespace-pre-wrap leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                         errors.description
                           ? "border-red-300 bg-red-50"
                           : "border-slate-200 hover:border-slate-300 focus:border-blue-500"
                       }`}
                     />
+                    <p className="text-xs text-slate-500">
+                      Press Enter twice to start a new paragraph.
+                    </p>
+                    {formData.description.trim() && (
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                        <p className="text-xs font-medium text-slate-500 mb-2">
+                          Preview
+                        </p>
+                        <FormattedDescription
+                          text={formData.description}
+                          paragraphClassName="text-sm text-slate-700 mb-3 last:mb-0 whitespace-pre-line"
+                        />
+                      </div>
+                    )}
                     {errors.description && (
                       <p className="text-red-600 text-sm flex items-center">
                         <AlertCircle className="h-4 w-4 mr-1" />
@@ -1201,7 +1215,6 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                       className={`text-xs font-medium px-2 py-1 rounded-full ${
                         formData.title &&
                         formData.author &&
-                        formData.isbn &&
                         formData.category &&
                         formData.description
                           ? "bg-green-100 text-green-800"
@@ -1210,7 +1223,6 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                     >
                       {formData.title &&
                       formData.author &&
-                      formData.isbn &&
                       formData.category &&
                       formData.description
                         ? "Complete"
@@ -1257,7 +1269,6 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                       width: `${
                         (formData.title &&
                         formData.author &&
-                        formData.isbn &&
                         formData.category &&
                         formData.description
                           ? 33
