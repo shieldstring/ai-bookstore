@@ -43,7 +43,7 @@ export default function FeaturedCourses() {
             <p className="text-slate-500 text-xs mt-1">Upgrade your skills with curriculum-based online video lectures</p>
           </div>
           <Link
-            to="/books?format=Course"
+            to="/courses"
             className="text-sm font-bold text-purple-700 hover:text-purple-900 transition-colors flex items-center gap-1"
           >
             Explore All Courses
@@ -77,7 +77,7 @@ export default function FeaturedCourses() {
 
                   <div className="p-5 space-y-2">
                     <h3 className="font-extrabold text-slate-800 text-sm line-clamp-2 min-h-[2.5rem] group-hover:text-purple-650 transition-colors">
-                      <Link to={`/books/${course._id}`}>{course.title}</Link>
+                      <Link to={`/courses/${course._id}`}>{course.title}</Link>
                     </h3>
                     <p className="text-slate-500 text-xs">Instructor: {course.author}</p>
 
@@ -106,7 +106,7 @@ export default function FeaturedCourses() {
                     )}
                   </div>
                   <Link
-                    to={`/books/${course._id}`}
+                    to={`/courses/${course._id}`}
                     className="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xxs font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
                   >
                     View Syllabus

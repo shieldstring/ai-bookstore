@@ -46,9 +46,12 @@ import FollowDashboard from "./pages/dashboard/customer/FollowDashboard";
 import MyCourses from "./pages/dashboard/customer/MyCourses";
 import CourseViewer from "./pages/dashboard/customer/CourseViewer";
 import CoursesList from "./pages/dashboard/admin/CoursesList";
+import CoursesPage from "./pages/CoursesPage";
+import CourseDetailPage from "./pages/CourseDetailPage";
 import BlogsPage from "./pages/BlogsPage";
 import BlogDetailPage from "./pages/BlogDetailPage";
 import BlogsList from "./pages/dashboard/admin/BlogsList";
+import AboutUsPage from "./pages/AboutUsPage";
 
 function App() {
   // Initialize FCM and get FCM functionality
@@ -117,6 +120,9 @@ function App() {
           <Route path="cart" element={<CartPage />} />
           <Route path="blogs" element={<BlogsPage />} />
           <Route path="blogs/:id" element={<BlogDetailPage />} />
+          <Route path="about" element={<AboutUsPage />} />
+          <Route path="courses" element={<CoursesPage />} />
+          <Route path="courses/:id" element={<CourseDetailPage />} />
           <Route path="checkout/success" element={<CheckoutSuccess />} />
 
           {/* Protected Routes */}

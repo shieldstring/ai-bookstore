@@ -35,10 +35,14 @@ const HeroBanner = () => {
       {/* Grayscale Stage Presenter Background Image on the right half */}
       <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[60%] z-0 pointer-events-none">
         <img
-          src="https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=1200&q=80"
-          alt="Myron Golden styled speaker presenting on stage"
-          className="w-full h-full object-cover object-center grayscale contrast-125 brightness-95 opacity-40 lg:opacity-100"
+          src="/pl 4.jpeg"
+          alt="william peter styled speaker presenting on stage"
+          className="w-full h-full object-cover object-top grayscale contrast-125 brightness-95 opacity-40 lg:opacity-100"
         />
+           {/* White Signature Handwriting Overlay overlaying the sub-headline / bottom area */}
+              <span className="signature-font text-5xl sm:text-6xl text-white/50 absolute bottom-10 right-4 sm:right-48 select-none rotate-[-6deg] tracking-widest pointer-events-none">
+                WISDOMPETERS
+              </span>
         {/* Right-to-left black gradient mask to blend image into solid black left-column */}
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 lg:via-black/40 to-transparent"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent lg:hidden"></div>
@@ -72,10 +76,7 @@ const HeroBanner = () => {
                 unparalleled in the industry.
               </p>
 
-              {/* White Signature Handwriting Overlay overlaying the sub-headline / bottom area */}
-              <span className="signature-font text-5xl sm:text-6xl text-white/20 absolute -bottom-10 right-4 sm:right-16 select-none rotate-[-6deg] tracking-widest pointer-events-none">
-                WISDOMPETERS
-              </span>
+              
             </div>
           </div>
 
@@ -84,29 +85,6 @@ const HeroBanner = () => {
         </div>
       </div>
 
-      {/* Video Presentation Modal Overlay */}
-      {showVideoModal && (
-        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 backdrop-blur-xs animate-fade-in">
-          <div className="w-full max-w-3xl bg-slate-950 border border-amber-500/40 rounded-2xl overflow-hidden relative shadow-2xl">
-            <button
-              onClick={() => setShowVideoModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors bg-slate-900 hover:bg-slate-800 p-2 rounded-full z-10 cursor-pointer"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <div className="aspect-video w-full">
-              <iframe
-                className="w-full h-full"
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-                title="Syllabus Presentation Video"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };

@@ -48,9 +48,9 @@ const Header = () => {
             </button>
 
             <Link to="/" className="flex items-center">
-              <div className="font-bold text-xl text-purple-700">Book</div>
+              <div className="font-bold text-xl text-purple-700">Wisdom</div>
               <div className="ml-2 px-2 py-1 bg-purple-600 text-white text-xs font-medium rounded">
-                Store
+                Peters
               </div>
             </Link>
           </div>
@@ -349,6 +349,20 @@ const Header = () => {
               </li>
               <li>
                 <NavLink
+                  to="/courses"
+                  className={({ isActive }) =>
+                    `font-semibold   ${
+                      isActive
+                        ? " text-[#fce7f3]"
+                        : "text-gray-100 hover:text-[#fce7f3]"
+                    }`
+                  }
+                >
+                  Courses
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
                   to="/categories"
                   className={({ isActive }) =>
                     `font-semibold   ${
@@ -403,6 +417,20 @@ const Header = () => {
                   }
                 >
                   Blogs
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/about"
+                  className={({ isActive }) =>
+                    `font-semibold   ${
+                      isActive
+                        ? " text-[#fce7f3]"
+                        : "text-gray-100 hover:text-[#fce7f3]"
+                    }`
+                  }
+                >
+                  About
                 </NavLink>
               </li>
             </ul>
@@ -446,6 +474,15 @@ const Header = () => {
               </li>
               <li>
                 <Link
+                  to="/courses"
+                  className="block py-2 text-gray-800 hover:text-purple-700"
+                  onClick={toggleSidebar}
+                >
+                  Courses
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/categories"
                   className="block py-2 text-gray-800 hover:text-purple-700"
                   onClick={toggleSidebar}
@@ -479,6 +516,15 @@ const Header = () => {
                   onClick={toggleSidebar}
                 >
                   Blogs
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/about"
+                  className="block py-2 text-gray-800 hover:text-purple-700"
+                  onClick={toggleSidebar}
+                >
+                  About
                 </Link>
               </li>
 
