@@ -55,10 +55,10 @@ export default function TermsPage() {
 
       <PolicySection title="5. Payment">
         <p>
-          Payments are processed securely through third-party payment providers. By submitting payment information, you confirm that you are authorised to use the selected payment method.
+          Payments are processed securely through PayPal. By submitting payment information, you confirm that you are authorised to use the selected payment method and agree to PayPal&apos;s terms of service where applicable.
         </p>
         <p>
-          All prices are displayed in the currency shown at checkout. You are responsible for any applicable taxes, duties, or fees associated with your purchase or delivery location.
+          All prices are displayed in the currency you select on the site (default: GBP). Converted amounts are shown at checkout based on current exchange rates. You are responsible for any applicable taxes, duties, or fees associated with your purchase or delivery location.
         </p>
       </PolicySection>
 

@@ -29,7 +29,7 @@ export default function PrivacyPage() {
         <ul className="list-disc pl-5 space-y-1">
           <li><strong>Account information:</strong> name, email address, password (stored securely hashed)</li>
           <li><strong>Order information:</strong> billing details, shipping address, purchase history</li>
-          <li><strong>Payment information:</strong> processed by our payment provider (we do not store full card details)</li>
+          <li><strong>Payment information:</strong> processed by PayPal (we do not store full card or PayPal account details)</li>
           <li><strong>Communication data:</strong> messages sent via contact forms or email, including optional phone numbers</li>
           <li><strong>Usage data:</strong> pages visited, device type, browser, IP address, and cookies</li>
           <li><strong>Course progress:</strong> enrollment status and lesson completion for purchased courses</li>
@@ -62,7 +62,7 @@ export default function PrivacyPage() {
       <PolicySection title="5. Sharing Your Information">
         <p>We do not sell your personal data. We may share information with:</p>
         <ul className="list-disc pl-5 space-y-1">
-          <li>Payment processors (e.g. Stripe) to complete transactions</li>
+          <li>PayPal, our payment processor, to complete transactions</li>
           <li>Delivery and fulfilment partners for physical orders</li>
           <li>Email and hosting service providers</li>
           <li>Analytics tools to understand site usage (in anonymised or aggregated form where possible)</li>

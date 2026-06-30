@@ -101,7 +101,7 @@ export default function RefundPage() {
 
       <PolicySection title="9. Refund Processing">
         <p>
-          Approved refunds are returned to the original payment method within 5–10 business days after approval. Processing times may vary depending on your bank or card issuer.
+          Approved refunds are returned to your original PayPal payment method within 5–10 business days after approval. Processing times may vary depending on PayPal and your bank or card issuer.
         </p>
         <p>
           For physical returns, refunds are issued after we receive and inspect the returned item.

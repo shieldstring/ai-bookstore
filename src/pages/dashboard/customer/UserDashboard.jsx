@@ -62,18 +62,37 @@ const UserDashboard = () => {
         {/* Main Content */}
         <div className="lg:col-span-3 space-y-6">
           {/* Welcome Header */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h1 className="text-2xl font-bold text-gray-800">
-              Welcome back, {data.name}!
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Here's your reading overview for{" "}
-              {new Date().toLocaleDateString("en-US", { month: "long" })}
-            </p>
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-purple-950 to-indigo-950 p-6 sm:p-8 text-white shadow-xs border border-purple-500/20">
+            <div className="absolute right-0 top-0 -mt-4 -mr-4 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute left-1/3 bottom-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-400/20 mb-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse"></span>
+                  Active Learner
+                </span>
+                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                  Welcome back, <span className="bg-gradient-to-r from-white via-slate-105 to-purple-200 bg-clip-text text-transparent">{data.name}</span>!
+                </h1>
+                <p className="text-purple-200/70 text-xs sm:text-sm mt-1 max-w-xl font-light">
+                  Here is your learning & reading dashboard for{" "}
+                  <strong className="text-white font-medium">
+                    {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                  </strong>
+                  . Track your progress, courses, and certifications in real-time.
+                </p>
+              </div>
+              <Link
+                to="/courses"
+                className="inline-flex items-center justify-center px-4 py-2 bg-[#D4AF37] hover:bg-[#b8952c] text-slate-950 text-xs font-bold uppercase tracking-wider rounded-lg shadow-md hover:shadow-lg transition duration-300 self-start md:self-auto cursor-pointer"
+              >
+                Browse Catalog
+              </Link>
+            </div>
           </div>
 
           {/* Stats Overview */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <StatsCard
               icon={<BookOpen className="h-5 w-5" />}
               title="Level"

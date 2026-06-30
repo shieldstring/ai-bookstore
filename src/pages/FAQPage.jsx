@@ -34,7 +34,11 @@ const faqCategories = [
     items: [
       {
         q: "What payment methods do you accept?",
-        a: "We accept major credit and debit cards through our secure Stripe checkout. All transactions are encrypted and processed securely.",
+        a: "We accept PayPal for secure checkout. You can pay with your PayPal balance, linked bank account, or major credit and debit cards through PayPal. All transactions are encrypted and processed securely.",
+      },
+      {
+        q: "Can I pay in a different currency?",
+        a: "Yes. Use the currency switcher in the site header to view prices and checkout in GBP, USD, EUR, or NGN. Prices are converted from our base GBP pricing using current exchange rates shown at checkout.",
       },
       {
         q: "Will I receive an order confirmation?",
