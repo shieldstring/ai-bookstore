@@ -238,10 +238,10 @@ const Header = () => {
                     </Link>
 
                     <Link
-                      to="/dashboard/mlm"
+                      to="/dashboard/courses"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
                     >
-                      My Network
+                      My Courses
                     </Link>
                     <Link
                       to="/feeds"

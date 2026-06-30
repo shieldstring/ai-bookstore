@@ -59,8 +59,8 @@ const HeroBanner = () => {
 
             {/* Stacked Gold Brand Heading */}
             <div className="space-y-0 brand-title-heavy text-5xl sm:text-7xl lg:text-8.5xl tracking-tight uppercase leading-[0.85] select-none">
-              <h1 className="text-[#D4AF37]">AI BOOK</h1>
-              <h1 className="text-[#D4AF37]">STORE</h1>
+              <h1 className="text-[#D4AF37]">Wisdom</h1>
+              <h1 className="text-[#D4AF37]">Peters</h1>
             </div>
 
             {/* Benefit-Driven Sub-headline */}
@@ -68,8 +68,7 @@ const HeroBanner = () => {
               <p className="body-jakarta text-slate-300 text-sm sm:text-base max-w-lg leading-relaxed font-light">
                 Renowned as a{" "}
                 <strong className="text-white font-bold">TOP-TIER</strong>{" "}
-                learning and social e-commerce platform, AI Bookstore magnifies
-                outcomes, guiding our community to experience{" "}
+                Bible Teacher | Pastor | Psychology Coach | Life Strategist | Business Mentor | Author with {" "}
                 <span className="text-white italic not-italic font-medium underline decoration-amber-500/50 decoration-2 underline-offset-4">
                   rapid results
                 </span>{" "}

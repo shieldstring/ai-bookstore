@@ -8,9 +8,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10">
           <div>
             <Link to="/" className="flex items-center mb-4">
-              {/* <img src="/logo.png" alt="Clevr" className="h-8" /> */}
-              <span className="text-2xl font-bold text-purple-700">
-                Bookstore
+              <span className="text-2xl font-bold text-purple-750">
+                Wisdom Peters
               </span>
             </Link>
             <p className="text-gray-600 text-sm">
@@ -98,6 +97,14 @@ const Footer = () => {
               </li>
               <li>
                 <Link
+                  to="/courses"
+                  className="text-gray-600 hover:text-purple-600 text-sm"
+                >
+                  Courses
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/login?redirect=/feeds"
                   className="text-gray-600 hover:text-purple-600 text-sm"
                 >
@@ -147,7 +154,7 @@ const Footer = () => {
         <div className="py-4 border-t border-gray-200">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-600 text-sm">
-              © 2025 Bookstore. All rights reserved.
+              © 2026 Wisdom Peters. All rights reserved.
             </p>
             <div className="flex space-x-4 mt-4 md:mt-0">
               <a href="#" className="text-gray-600 hover:text-purple-600">
