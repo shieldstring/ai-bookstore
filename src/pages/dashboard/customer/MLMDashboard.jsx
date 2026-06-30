@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
   Users,
-  DollarSign,
+  PoundSterling,
   Share2,
   Award,
   ChevronDown,
@@ -13,6 +13,7 @@ import { useGetReferralStatsQuery } from "../../../redux/slices/authSlice";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import ErrorMessage from "../../../components/common/ErrorMessage";
 import SEO from "../../../components/SEO";
+import { formatBasePrice } from "../../../utils/currency";
 
 const MLMDashboard = () => {
   const { data: referralData, isLoading, isError } = useGetReferralStatsQuery();
@@ -44,13 +45,7 @@ const MLMDashboard = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-    }).format(amount);
-  };
+  const formatCurrency = (amount) => formatBasePrice(amount);
 
   if (isLoading) {
     return (
@@ -76,7 +71,7 @@ const MLMDashboard = () => {
     {
       name: "Total Earnings",
       value: formatCurrency(referralData.earnings),
-      icon: <DollarSign className="h-5 w-5" />,
+      icon: <PoundSterling className="h-5 w-5" />,
     },
     {
       name: "MLM Tier",

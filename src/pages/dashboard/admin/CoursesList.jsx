@@ -21,6 +21,7 @@ import {
   useGetCourseDetailsQuery,
   useDeleteCourseMutation,
 } from "../../../redux/slices/courseApiSlice";
+import { formatBasePricePlain } from "../../../utils/currency";
 
 const CoursesList = () => {
   const [page, setPage] = useState(1);
@@ -277,10 +278,10 @@ const CoursesList = () => {
                     {course.author}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-800">
-                    ${course.price?.toFixed(2)}
+                    {formatBasePricePlain(course.price)}
                     {course.originalPrice && course.originalPrice > course.price && (
                       <span className="line-through ml-2 text-xs text-gray-400 font-normal">
-                        ${course.originalPrice.toFixed(2)}
+                        {formatBasePricePlain(course.originalPrice)}
                       </span>
                     )}
                   </td>

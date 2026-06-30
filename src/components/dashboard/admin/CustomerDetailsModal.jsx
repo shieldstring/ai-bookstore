@@ -3,6 +3,7 @@ import {
     Award, Coins, Gift, Bell, Smartphone, BookOpen, 
     Users as GroupIcon, BarChart2, Phone, Link
   } from "lucide-react";
+  import { formatBasePricePlain } from "../../../utils/currency";
   
   const CustomerDetailsModal = ({ customer, onClose }) => {
     if (!customer) return null;
@@ -160,7 +161,9 @@ import {
                   <Gift className="h-4 w-4 mr-2" />
                   <span className="text-xs">Earnings</span>
                 </div>
-                <p className="text-xl font-bold mt-1">${customer.earnings?.toFixed(2) || "0.00"}</p>
+                <p className="text-xl font-bold mt-1">
+                  {formatBasePricePlain(customer.earnings || 0)}
+                </p>
               </div>
             </div>
   

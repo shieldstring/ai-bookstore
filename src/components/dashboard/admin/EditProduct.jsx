@@ -9,10 +9,10 @@ import {
   Star,
   Info,
   Calendar,
-  DollarSign,
   Package2,
   Globe,
   X,
+  PoundSterling,
 } from "lucide-react";
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
 import { getPriceValidationError } from "../../../utils/currency";
@@ -694,7 +694,7 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
               {/* Pricing & Inventory Card */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                 <div className="flex items-center mb-6">
-                  <DollarSign className="h-5 w-5 text-emerald-500 mr-2" />
+                  <PoundSterling className="h-5 w-5 text-emerald-500 mr-2" />
                   <h2 className="text-lg font-semibold text-slate-800">
                     Pricing & Seats
                   </h2>
@@ -704,10 +704,10 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                   {/* Price */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-700">
-                      Price ($) <span className="text-red-500">*</span>
+                      Price (£) <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <PoundSterling className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <input
                         type="number"
                         name="price"
@@ -734,10 +734,10 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                   {/* Original Price */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-700">
-                      Original Price ($)
+                      Original Price (£)
                     </label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <PoundSterling className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <input
                         type="number"
                         name="originalPrice"

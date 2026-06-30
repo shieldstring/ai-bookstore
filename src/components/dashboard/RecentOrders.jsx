@@ -1,4 +1,5 @@
 import { ShoppingBag, Check, Clock, X } from 'lucide-react';
+import { formatStoredPricePlain } from '../../utils/currency';
 
 const RecentOrders = ({ orders }) => {
   const getStatusIcon = (status) => {
@@ -25,7 +26,9 @@ const RecentOrders = ({ orders }) => {
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-medium text-gray-900 truncate">Order #{order.id}</h4>
-                <span className="text-sm font-medium text-gray-900">${order.total.toFixed(2)}</span>
+                <span className="text-sm font-medium text-gray-900">
+                  {formatStoredPricePlain(order.total, order.currency)}
+                </span>
               </div>
               <div className="flex items-center mt-1">
                 {getStatusIcon(order.status)}

@@ -20,6 +20,7 @@ import {
   useGetBookListsQuery,
   useGetSellerBooksQuery,
 } from "../../../redux/slices/bookSlice";
+import { formatBasePricePlain } from "../../../utils/currency";
 
 const BooksList = () => {
   const [page, setPage] = useState(1);
@@ -256,10 +257,10 @@ const BooksList = () => {
                   {book.author}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${book.price?.toFixed(2)}
+                  {formatBasePricePlain(book.price)}
                   {book.originalPrice && book.originalPrice > book.price && (
                     <span className="line-through ml-2 text-gray-400">
-                      ${book.originalPrice.toFixed(2)}
+                      {formatBasePricePlain(book.originalPrice)}
                     </span>
                   )}
                 </td>

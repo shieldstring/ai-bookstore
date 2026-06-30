@@ -1,8 +1,11 @@
 import { useSelector } from "react-redux";
 import {
+  BASE_CURRENCY,
   convertFromBase,
+  formatBasePricePlain,
   formatPrice,
   formatPricePlain,
+  formatStoredPricePlain,
   getCurrencyMeta,
 } from "../utils/currency";
 
@@ -17,6 +20,12 @@ export const useCurrency = () => {
   const formatPlain = (amountGBP, options = {}) =>
     formatPricePlain(amountGBP, { currency, rates, ...options });
 
+  const formatBase = (amountGBP, options = {}) =>
+    formatBasePricePlain(amountGBP, options);
+
+  const formatOrder = (amount, orderCurrency = BASE_CURRENCY, options = {}) =>
+    formatStoredPricePlain(amount, orderCurrency || BASE_CURRENCY, options);
+
   return {
     currency,
     rates,
@@ -24,6 +33,8 @@ export const useCurrency = () => {
     convert,
     format,
     formatPlain,
+    formatBase,
+    formatOrder,
   };
 };
 

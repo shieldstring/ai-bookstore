@@ -20,7 +20,7 @@ const MyOrders = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { data, isLoading, isError, refetch } = useGetOrdersQuery();
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const { formatPlain } = useCurrency();
+  const { formatOrder } = useCurrency();
 
   useEffect(() => {
     window.scrollTo({
@@ -143,7 +143,7 @@ const MyOrders = () => {
                       )} items
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-800 font-extrabold">
-                      {formatPlain(order.totalPrice, { priceIsConverted: false })}
+                      {formatOrder(order.totalPrice, order.currency)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xxs font-bold uppercase tracking-wider rounded-md border ${statusClasses[order.status] || "bg-slate-50 text-slate-700 border-slate-150"}`}>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   BarChart2,
-  DollarSign,
+  PoundSterling,
   ShoppingCart,
   Users,
   Book,
@@ -34,6 +34,7 @@ import {
 } from "../../../redux/slices/analyticsApiSlice";
 import ErrorMessage from "../../../components/common/ErrorMessage";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
+import { formatBasePrice, formatBasePricePlain } from "../../../utils/currency";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
@@ -111,10 +112,8 @@ const Analytics = () => {
   const stats = [
     {
       name: "Total Revenue",
-      value: `$${(
-        dashboardData?.salesStats?.totalRevenue || 0
-      ).toLocaleString()}`,
-      icon: <DollarSign className="h-5 w-5" />,
+      value: formatBasePrice(dashboardData?.salesStats?.totalRevenue || 0),
+      icon: <PoundSterling className="h-5 w-5" />,
       change: "+12%",
       trend: "up",
     },
@@ -250,9 +249,9 @@ const Analytics = () => {
                 <Tooltip
                   formatter={(value, name) => {
                     if (name === "revenue")
-                      return [`$${value.toLocaleString()}`, "Revenue"];
+                      return [formatBasePrice(value), "Revenue"];
                     if (name === "aov")
-                      return [`$${value.toFixed(2)}`, "Avg. Order Value"];
+                      return [formatBasePricePlain(value), "Avg. Order Value"];
                     return [value, "Orders"];
                   }}
                 />
@@ -300,7 +299,7 @@ const Analytics = () => {
                     </div>
                   </div>
                   <div className="font-semibold">
-                    ${user.earnings.toLocaleString()}
+                    {formatBasePrice(user.earnings)}
                   </div>
                 </div>
               ))}
@@ -323,7 +322,7 @@ const Analytics = () => {
                   <YAxis />
                   <Tooltip
                     formatter={(value) => [
-                      `$${value.toFixed(2)}`,
+                      formatBasePricePlain(value),
                       "Avg. Order Value",
                     ]}
                   />

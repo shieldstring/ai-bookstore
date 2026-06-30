@@ -23,6 +23,7 @@ import ErrorMessage from "../../../components/common/ErrorMessage";
 import SEO from "../../../components/SEO";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { formatStoredPricePlain } from "../../../utils/currency";
 
 const statusOptions = [
   { value: "", label: "All Statuses" },
@@ -248,12 +249,13 @@ const AdminOrders = () => {
         "Product Name": item.name,
         SKU: item.book?._id.slice(-6) || "",
         Quantity: item.quantity,
-        "Unit Price": `$${item.price.toFixed(2)}`,
-        Total: `$${(item.price * item.quantity).toFixed(2)}`,
+        "Unit Price": formatStoredPricePlain(item.price, order.currency),
+        Total: formatStoredPricePlain(item.price * item.quantity, order.currency),
         "Order Status": order.status,
         "Item Status": item.status || "pending",
         "Payment Method": order.paymentMethod,
-        "Total Amount": `$${order.totalPrice.toFixed(2)}`,
+        Currency: order.currency || "GBP",
+        "Total Amount": formatStoredPricePlain(order.totalPrice, order.currency),
         Status: order.status,
         "Payment Status": order.isPaid ? "Paid" : "Not Paid",
         "Shipping Address": order.shippingAddress
@@ -290,7 +292,8 @@ const AdminOrders = () => {
       Date: format(new Date(order.createdAt), "MMM dd, yyyy HH:mm"),
       "Customer Name": order.user?.name || "Guest",
       "Customer Email": order.user?.email || "",
-      "Total Amount": `$${order.totalPrice.toFixed(2)}`,
+      "Total Amount": formatStoredPricePlain(order.totalPrice, order.currency),
+      Currency: order.currency || "GBP",
       Status: order.status,
       "Payment Method": order.paymentMethod,
       "Payment Status": order.isPaid ? "Paid" : "Not Paid",
@@ -461,7 +464,7 @@ const AdminOrders = () => {
                   {order.user?.name || "Guest"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${order.totalPrice.toFixed(2)}
+                  {formatStoredPricePlain(order.totalPrice, order.currency)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {getStatusBadge(order.status)}
@@ -640,8 +643,16 @@ const AdminOrders = () => {
                   </h4>
                   <div className="space-y-2 text-sm text-gray-600">
                     <p>
-                      <span className="font-medium">Total:</span> $
-                      {selectedOrder.totalPrice.toFixed(2)}
+                      <span className="font-medium">Total:</span>{" "}
+                      {formatStoredPricePlain(
+                        selectedOrder.totalPrice,
+                        selectedOrder.currency
+                      )}
+                      {selectedOrder.currency && selectedOrder.currency !== "GBP" && (
+                        <span className="text-xs text-gray-400 ml-1">
+                          ({selectedOrder.currency})
+                        </span>
+                      )}
                     </p>
                     {selectedOrder.paymentResult && (
                       <>
@@ -708,13 +719,16 @@ const AdminOrders = () => {
                             </div>
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            ${item.price.toFixed(2)}
+                            {formatStoredPricePlain(item.price, selectedOrder.currency)}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
                             {item.quantity}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-500">
-                            ${(item.price * item.quantity).toFixed(2)}
+                            {formatStoredPricePlain(
+                              item.price * item.quantity,
+                              selectedOrder.currency
+                            )}
                           </td>
                           <td className="px-4 py-3">
                             {getStatusBadge(item.status || "pending")}

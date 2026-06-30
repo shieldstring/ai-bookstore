@@ -21,6 +21,7 @@ import SellerStatusBadge from "../../../components/dashboard/seller/SellerStatus
 import SEO from "../../../components/SEO";
 import ConfirmModal from "../../../components/common/ConfirmModal";
 import { useSelector } from "react-redux";
+import { formatBasePricePlain } from "../../../utils/currency";
 
 // Main Seller Dashboard Component
 const SellerDashboardPage = () => {
@@ -344,7 +345,7 @@ const SellerDashboardPage = () => {
                   Total Sales
                 </p>
                 <p className="text-3xl font-bold text-purple-900 mt-1">
-                  ${sellerMetrics.totalSales?.toFixed(2) || "0.00"}
+                  {formatBasePricePlain(sellerMetrics.totalSales || 0)}
                 </p>
               </div>
               <div className="bg-green-50 p-6 rounded-lg text-center">

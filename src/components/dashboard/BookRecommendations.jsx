@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import useCurrency from "../../hooks/useCurrency";
 
 const BookRecommendations = ({ books }) => {
+  const { formatPlain } = useCurrency();
   return (
     <div className="space-y-4">
       {books.slice(0, 4).map((book) => (
@@ -21,7 +23,7 @@ const BookRecommendations = ({ books }) => {
             <p className="text-gray-500 text-xs ">{book?.description}</p>
             <div className="flex justify-between items-center">
               <span className="text-purple-600 font-bold">
-                ${book?.price?.toFixed(2) || "0.00"}
+                {formatPlain(book?.price, { priceIsConverted: false })}
               </span>
             </div>
           </div>

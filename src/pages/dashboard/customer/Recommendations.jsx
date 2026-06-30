@@ -5,8 +5,10 @@ import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import { Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEO from "../../../components/SEO";
+import useCurrency from "../../../hooks/useCurrency";
 
 function Recommendations() {
+  const { formatPlain } = useCurrency();
   useEffect(() => {
     window.scrollTo({
       top: 0,
@@ -64,7 +66,7 @@ function Recommendations() {
                 <p className="text-gray-500 text-xs ">{book?.description}</p>
                 <div className="flex justify-between items-center">
                   <span className="text-purple-600 font-bold">
-                    ${book?.price?.toFixed(2) || "0.00"}
+                    {formatPlain(book?.price, { priceIsConverted: false })}
                   </span>
                 </div>
               </div>

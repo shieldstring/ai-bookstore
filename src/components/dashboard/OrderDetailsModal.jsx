@@ -1,3 +1,4 @@
+import React from "react";
 import {
   X,
   Loader2,
@@ -8,6 +9,7 @@ import {
 } from "lucide-react";
 import { useGetOrderByIdQuery } from "../../redux/slices/ordersApiSlice";
 import LoadingSkeleton from "../preloader/LoadingSkeleton";
+import { formatStoredPricePlain } from "../../utils/currency";
 
 const OrderDetailsModal = ({ orderId, onClose }) => {
   const { data: order, isLoading, isError } = useGetOrderByIdQuery(orderId);
@@ -28,7 +30,7 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
     );
   }
 
-  if (isError) {
+  if (isError || !order) {
     return (
       <div className="flex justify-center items-center h-64 text-red-500">
         Failed to load order details
@@ -92,54 +94,58 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
               </div>
 
               {/* Shipping Address */}
-              <div className="border-b border-gray-200 pb-4">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">
-                  Shipping Address
-                </h4>
-                <p className="text-sm text-gray-600">
-                  {order.shippingAddress.address}, {order.shippingAddress.city},{" "}
-                  {order.shippingAddress.postalCode},{" "}
-                  {order.shippingAddress.country}
-                </p>
-              </div>
+              {order.shippingAddress && (
+                <div className="border-b border-gray-200 pb-4">
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">
+                    Shipping Address
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    {order.shippingAddress.address}, {order.shippingAddress.city},{" "}
+                    {order.shippingAddress.postalCode},{" "}
+                    {order.shippingAddress.country}
+                  </p>
+                </div>
+              )}
 
               {/* Order Items */}
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">
-                  Order Items
-                </h4>
-                <div className="space-y-4">
-                  {order.orderItems.map((item) => (
-                    <div key={item.book._id} className="flex justify-between">
-                      <div className="flex">
-                        <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                          <img
-                            src={item.book.image || "/book-placeholder.jpg"}
-                            alt={item.book.title}
-                            className="h-full w-full object-cover object-center"
-                          />
+              {order.orderItems && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 mb-3">
+                    Order Items
+                  </h4>
+                  <div className="space-y-4">
+                    {order.orderItems.map((item) => (
+                      <div key={item.book?._id || item._id} className="flex justify-between">
+                        <div className="flex">
+                          <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                            <img
+                              src={item.book?.image || "/book-placeholder.jpg"}
+                              alt={item.book?.title || "Book"}
+                              className="h-full w-full object-cover object-center"
+                            />
+                          </div>
+                          <div className="ml-4 flex flex-col justify-center">
+                            <h5 className="text-sm font-medium text-gray-900">
+                              {item.book?.title}
+                            </h5>
+                            <p className="text-sm text-gray-500">
+                              {item.book?.author}
+                            </p>
+                          </div>
                         </div>
-                        <div className="ml-4 flex flex-col justify-center">
-                          <h5 className="text-sm font-medium text-gray-900">
-                            {item.book.title}
-                          </h5>
+                        <div className="flex flex-col items-end justify-center">
+                          <p className="text-sm font-medium text-gray-900">
+                            {formatStoredPricePlain(item.price, order.currency)}
+                          </p>
                           <p className="text-sm text-gray-500">
-                            {item.book.author}
+                            Qty: {item.quantity}
                           </p>
                         </div>
                       </div>
-                      <div className="flex flex-col items-end justify-center">
-                        <p className="text-sm font-medium text-gray-900">
-                          ${item.price.toFixed(2)}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Qty: {item.quantity}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Order Total */}
               <div className="border-t border-gray-200 pt-4">
@@ -148,7 +154,7 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
                     Total
                   </span>
                   <span className="text-base font-medium text-gray-900">
-                    ${order.totalPrice.toFixed(2)}
+                    {formatStoredPricePlain(order.totalPrice, order.currency)}
                   </span>
                 </div>
               </div>

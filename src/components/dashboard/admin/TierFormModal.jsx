@@ -80,7 +80,7 @@ export default function TierFormModal({ initialValues, onSave, onClose }) {
             required
           />
           <Input
-            label="Minimum Earnings (USD)"
+            label="Minimum Earnings (GBP)"
             name="minEarnings"
             type="number"
             step="0.01"

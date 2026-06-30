@@ -23,6 +23,7 @@ import ErrorMessage from "../../../components/common/ErrorMessage";
 import TierFormModal from "../../../components/dashboard/admin/TierFormModal";
 import SEO from "../../../components/SEO";
 import ConfirmModal from "../../../components/common/ConfirmModal";
+import { formatBasePrice } from "../../../utils/currency";
 
 export default function MLMSettings() {
   const { data: stats, isLoading, isError } = useGetMLMStatsQuery();
@@ -112,10 +113,7 @@ export default function MLMSettings() {
         />
         <StatCard
           title="Total Referral Earnings"
-          value={stats.totalEarnings.toLocaleString("en-US", {
-            style: "currency",
-            currency: "USD",
-          })}
+          value={formatBasePrice(stats.totalEarnings)}
           icon={<BarChart3 />}
         />
       </section>
@@ -150,10 +148,7 @@ export default function MLMSettings() {
                     <Td>{tier.name}</Td>
                     <Td>{tier.commissionRate}%</Td>
                     <Td>
-                      {tier.minEarnings.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                      })}
+                      {formatBasePrice(tier.minEarnings)}
                     </Td>
                     <Td>
                       <button

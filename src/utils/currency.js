@@ -73,6 +73,32 @@ export const formatPricePlain = (price, options = {}) => {
   return `${meta.symbol}${amount.toFixed(2)}`;
 };
 
+/** Format amounts stored in GBP (catalog prices, admin inputs). */
+export const formatBasePrice = (price, options = {}) =>
+  formatPrice(price, { currency: BASE_CURRENCY, ...options });
+
+export const formatBasePricePlain = (price, options = {}) =>
+  formatPricePlain(price, { currency: BASE_CURRENCY, ...options });
+
+/** Format amounts already stored in a specific currency (e.g. order totals). */
+export const formatStoredPrice = (amount, currencyCode = BASE_CURRENCY, options = {}) =>
+  formatPrice(amount, {
+    currency: currencyCode,
+    priceIsConverted: true,
+    ...options,
+  });
+
+export const formatStoredPricePlain = (
+  amount,
+  currencyCode = BASE_CURRENCY,
+  options = {}
+) =>
+  formatPricePlain(amount, {
+    currency: currencyCode,
+    priceIsConverted: true,
+    ...options,
+  });
+
 export const isValidProductPrice = (price) => {
   const num = parseFloat(price);
   return !Number.isNaN(num) && num > 0 && num <= MAX_PRODUCT_PRICE;

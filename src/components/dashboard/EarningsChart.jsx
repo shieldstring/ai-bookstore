@@ -8,6 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts';
+import { formatBasePricePlain } from '../../utils/currency';
 
 const EarningsChart = ({ earningsData }) => {
   // Process data to group by month if needed
@@ -58,7 +59,7 @@ const EarningsChart = ({ earningsData }) => {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />
             <YAxis />
-            <Tooltip formatter={(value) => [`$${value.toFixed(2)}`, 'Earnings']} />
+            <Tooltip formatter={(value) => [formatBasePricePlain(value), 'Earnings']} />
             <Area type="monotone" dataKey="earnings" stroke="#10b981" fill="#a7f3d0" />
           </AreaChart>
         </ResponsiveContainer>
