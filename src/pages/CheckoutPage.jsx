@@ -1,30 +1,24 @@
-import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  useCreateCheckoutSessionMutation,
   useCreateOrderMutation,
-  useVerifyCheckoutStatusQuery,
+  useCreatePayPalOrderMutation,
 } from "../redux/slices/ordersApiSlice";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorMessage from "../components/common/ErrorMessage";
 import Newsletter from "../components/common/Newsletter";
-import { clearLocalCart } from "../redux/slices/cartSlice";
 import SEO from "../components/SEO";
 import LoadingSkeleton from "../components/preloader/LoadingSkeleton";
 import { initializeCart } from "../redux/slices/cartThunks";
 import { enrichCartItems } from "../utils/fetchProductDetails";
-import { formatPricePlain } from "../utils/currency";
+import useCurrency from "../hooks/useCurrency";
 
 const CheckoutPage = () => {
   const BASE_URL = process.env.REACT_APP_API_URL;
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Parse URL query parameters
-  const queryParams = new URLSearchParams(location.search);
-  const sessionId = queryParams.get("session_id");
+  const { currency, formatPlain } = useCurrency();
 
   const { items: cartData, error: cartError } = useSelector(
     (state) => state.cart
@@ -32,7 +26,6 @@ const CheckoutPage = () => {
   const [enrichedCart, setEnrichedCart] = useState([]);
   const [localError, setLocalError] = useState(null);
 
-  // Initialize cart on mount
   useEffect(() => {
     const init = async () => {
       try {
@@ -55,7 +48,7 @@ const CheckoutPage = () => {
 
       try {
         setIsLoading(true);
-        const enriched = await enrichCartItems(BASE_URL, cartData);
+        const enriched = await enrichCartItems(BASE_URL, cartData, currency);
         setEnrichedCart(enriched);
       } catch (err) {
         setLocalError("Failed to fetch product details");
@@ -65,59 +58,29 @@ const CheckoutPage = () => {
     };
 
     fetchProductData();
-  }, [cartData, BASE_URL]);
+  }, [cartData, BASE_URL, currency]);
 
   const { userInfo } = useSelector((state) => state.auth);
 
-  const [createCheckoutSession, { isLoading: loadingCheckoutSession }] =
-    useCreateCheckoutSessionMutation();
+  const [createPayPalOrder, { isLoading: loadingPayPal }] =
+    useCreatePayPalOrderMutation();
   const [createOrder, { isLoading: loadingOrder, error }] =
     useCreateOrderMutation();
 
-  // Form state
   const [shippingInfo, setShippingInfo] = useState({
     address: userInfo?.address || "",
     city: userInfo?.city || "",
     postalCode: userInfo?.postalCode || "",
     country: userInfo?.country || "",
   });
-  const [paymentMethod, setPaymentMethod] = useState("stripe");
   const [paymentError, setPaymentError] = useState("");
-  const [checkoutSessionId, setCheckoutSessionId] = useState(sessionId || "");
-  const [orderId, setOrderId] = useState(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-  // Check if cart is empty and redirect if needed
   useEffect(() => {
-    if (!isLoading && !cartData?.length && !sessionId) {
+    if (!isLoading && !cartData?.length) {
       navigate("/cart");
     }
-  }, [cartData, navigate, isLoading, sessionId]);
-
-  // Query checkout status if we have a sessionId
-  const { data: checkoutStatusData, refetch: refetchCheckoutStatus } =
-    useVerifyCheckoutStatusQuery(checkoutSessionId, {
-      skip: !checkoutSessionId,
-    });
-
-  // Check session status when returning from Stripe
-  useEffect(() => {
-    if (sessionId && !orderId) {
-      // If we have a session ID from URL, check its status
-      refetchCheckoutStatus();
-    }
-  }, [sessionId, refetchCheckoutStatus, orderId]);
-
-  // Process checkout status data
-  useEffect(() => {
-    if (checkoutStatusData) {
-      // If payment is complete and we have an orderId, navigate to order confirmation
-      if (checkoutStatusData.status === "paid" && checkoutStatusData.orderId) {
-        dispatch(clearLocalCart());
-        navigate(`/dashboard/orders/${checkoutStatusData.orderId}`);
-      }
-    }
-  }, [checkoutStatusData, navigate, dispatch]);
+  }, [cartData, navigate, isLoading]);
 
   const handleShippingChange = (e) => {
     setShippingInfo({
@@ -126,101 +89,73 @@ const CheckoutPage = () => {
     });
   };
 
+  const total = enrichedCart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+  const tax = 0;
+  const subtotal = total;
+  const shipping = 0;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setPaymentError("");
-    
+
     try {
+      setIsRedirecting(true);
+
       const formattedOrderItems = enrichedCart.map((item) => ({
-        book: item.bookId,
+        book: item.bookId || item.id,
         name: item.name,
         quantity: item.quantity,
         image: item.image || "",
         price: item.price,
       }));
-      
+
       const orderData = {
         orderItems: formattedOrderItems,
         shippingAddress: shippingInfo,
-        paymentMethod,
+        paymentMethod: "paypal",
+        currency,
         itemsPrice: subtotal,
         taxPrice: tax,
         shippingPrice: shipping,
         totalPrice: total,
         paymentResult: {
-          id: paymentMethod === "stripe" ? "stripe_pending" : "paypal_pending",
+          id: "paypal_pending",
           status: "pending",
           update_time: new Date().toISOString(),
           email_address: userInfo.email,
         },
       };
-      
-      if (paymentMethod === "stripe") {
-        setIsRedirecting(true);
-        
-        try {
-          // First create the order to get an order ID
-          const orderResult = await createOrder(orderData).unwrap();
-          
-          setOrderId(orderResult._id);
-          
-          // Create Stripe checkout session items
-          const items = enrichedCart.map((item) => ({
-            price_data: {
-              currency: "gbp",
-              product_data: {
-                name: item.name,
-                description: item.author ? `by ${item.author}` : undefined,
-                images: item.image ? [item.image] : undefined,
-              },
-              unit_amount: Math.round(item.price * 100),
-            },
-            quantity: item.quantity,
-          }));
-          
-          // Create checkout session with order ID already included in the success URL
-          const checkoutResult = await createCheckoutSession({
-            amount: Math.round(total * 100),
-            items,
-            // Explicitly include session_id and order_id in the success URL
-            successUrl: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${orderResult._id}`,
-            cancelUrl: `${window.location.origin}/cart`,
-            orderId: orderResult._id, // Pass order ID to backend
-          }).unwrap();
-          
-          setCheckoutSessionId(checkoutResult.sessionId);
-          
-          // Clear the cart locally before redirecting
-          dispatch(clearLocalCart());
-          
-          // Redirect to Stripe checkout
-          window.location.href = checkoutResult.url;
-        } catch (err) {
-          console.error("Error during Stripe checkout:", err);
-          setPaymentError(err.data?.message || "Failed to process Stripe payment");
-          setIsRedirecting(false);
-        }
-      } else if (paymentMethod === "paypal") {
-        const res = await createOrder(orderData).unwrap();
-        setOrderId(res._id);
-        dispatch(clearLocalCart());
-        navigate(`/dashboard/orders`);
+
+      const orderResult = await createOrder(orderData).unwrap();
+
+      const paypalResult = await createPayPalOrder({
+        orderId: orderResult._id,
+        currency,
+        successUrl: `${window.location.origin}/checkout/success?order_id=${orderResult._id}`,
+        cancelUrl: `${window.location.origin}/cart`,
+      }).unwrap();
+
+      if (paypalResult.approvalUrl) {
+        window.location.href = paypalResult.approvalUrl;
+      } else {
+        throw new Error("PayPal approval URL not received");
       }
     } catch (err) {
-      console.error("Order creation error:", err);
-      setPaymentError(err.data?.message || "Failed to place order");
+      console.error("PayPal checkout error:", err);
+      setPaymentError(err.data?.message || err.message || "Failed to process PayPal payment");
       setIsRedirecting(false);
     }
   };
 
-  // Check if form is valid
   const isFormValid =
     shippingInfo.address &&
     shippingInfo.city &&
     shippingInfo.postalCode &&
     shippingInfo.country;
 
-  // Show loading state
   if (isLoading) {
     return (
       <section className="px-2 lg:px-28 mx-auto text-white py-12 lg:py-16">
@@ -231,39 +166,14 @@ const CheckoutPage = () => {
     );
   }
 
-  // Calculate totals based on cart items
-  const total = enrichedCart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-  const tax = 0;
-  const subtotal = 0;
-  const shipping = 0;
-
-  // Show processing state when returning from Stripe with session_id
-  if (sessionId && !checkoutStatusData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center ">
-        <div className="text-center mx-auto p-8">
-          <LoadingSpinner size="lg" className="mx-auto mb-4" />
-          <h2 className="text-2xl font-semibold mb-2">Processing Your Order</h2>
-          <p className="text-gray-600">
-            Please wait while we confirm your payment...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="">
       <SEO
         title="Checkout"
-        description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
-        name="AI-Powered Social-Ecommerce"
+        description="Complete your purchase securely with PayPal."
+        name="Wisdom Peters"
         type="description"
       />
-      {/* Breadcrumb */}
       <div className="bg-gray-50 py-3 ">
         <div className="container mx-auto px-4 flex justify-between">
           <div className="flex items-center text-sm">
@@ -286,31 +196,24 @@ const CheckoutPage = () => {
         </div>
       </div>
 
-      {(error || paymentError) && (
-        <ErrorMessage error={error || paymentError} />
+      {(error || paymentError || cartError || localError) && (
+        <ErrorMessage error={error || paymentError || cartError || localError} />
       )}
 
       {isRedirecting && (
         <div className="bg-blue-50 text-purple-700 p-4 mb-6 rounded-md flex items-center mx-auto">
           <LoadingSpinner size="sm" className="mr-2" />
-          <span>
-            Preparing checkout... You'll be redirected to complete payment.
-          </span>
+          <span>Redirecting to PayPal to complete your payment...</span>
         </div>
       )}
 
       <div className="p-2 lg:px-28 lg:pb-28 grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Shipping and Payment Info */}
         <div className=" space-y-6">
-          {/* Shipping Address */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4">Shipping Address</h2>
             <form className="space-y-4">
               <div>
-                <label
-                  htmlFor="address"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
                   Address
                 </label>
                 <input
@@ -326,10 +229,7 @@ const CheckoutPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label
-                    htmlFor="city"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
+                  <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
                     City
                   </label>
                   <input
@@ -344,10 +244,7 @@ const CheckoutPage = () => {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="postalCode"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
+                  <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-1">
                     Postal Code
                   </label>
                   <input
@@ -363,10 +260,7 @@ const CheckoutPage = () => {
               </div>
 
               <div>
-                <label
-                  htmlFor="country"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
                   Country
                 </label>
                 <input
@@ -382,78 +276,33 @@ const CheckoutPage = () => {
             </form>
           </div>
 
-          {/* Payment Method */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4">Payment Method</h2>
-            <div className="space-y-3">
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  id="stripe"
-                  name="paymentMethod"
-                  value="stripe"
-                  checked={paymentMethod === "stripe"}
-                  onChange={() => setPaymentMethod("stripe")}
-                  className="h-4 w-4 text-purple-600 focus:ring-blue-500"
+            <div className="p-4 bg-gray-50 rounded-md">
+              <div className="flex items-center gap-3">
+                <img
+                  src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg"
+                  alt="PayPal"
+                  className="h-8"
                 />
-                <label
-                  htmlFor="stripe"
-                  className="ml-2 block text-sm text-gray-900"
-                >
-                  Stripe
-                </label>
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  id="paypal"
-                  name="paymentMethod"
-                  value="paypal"
-                  checked={paymentMethod === "paypal"}
-                  onChange={() => setPaymentMethod("paypal")}
-                  className="h-4 w-4 text-purple-600 focus:ring-blue-500"
-                />
-                <label
-                  htmlFor="paypal"
-                  className="ml-2 block text-sm text-gray-900"
-                >
-                  PayPal
-                </label>
-              </div>
-
-              {paymentMethod === "stripe" && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-md">
-                  <h3 className="text-sm font-medium mb-2">Secure Checkout</h3>
-                  <div className="p-4 bg-gray-200 rounded-md">
-                    <p className="text-xs text-center text-gray-600">
-                      You'll be redirected to Stripe's secure payment page after
-                      clicking "Place Order"
-                    </p>
-                    <div className="flex justify-center mt-3 space-x-2">
-                      <img src="/visa.png" alt="Visa" className="h-6" />
-                      <img src="/master.png" alt="Mastercard" className="h-6" />
-                      <img
-                        src="/amex.png"
-                        alt="American Express"
-                        className="h-6"
-                      />
-                    </div>
-                  </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">PayPal</p>
+                  <p className="text-xs text-gray-600">
+                    Pay securely in {currency}. You&apos;ll be redirected to PayPal after placing your order.
+                  </p>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Order Summary */}
         <div className=" bg-white rounded-lg shadow-md p-6 h-fit">
           <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
 
           <div className="space-y-4 mb-6">
             {enrichedCart?.map((item) => (
               <div
-                key={item._id}
+                key={item._id || item.bookId}
                 className="flex justify-between items-center border-b pb-4"
               >
                 <div className="flex items-center space-x-4">
@@ -464,13 +313,11 @@ const CheckoutPage = () => {
                   />
                   <div>
                     <h3 className="font-medium">{item.name}</h3>
-                    <p className="text-sm text-gray-500">
-                      Qty: {item.quantity}
-                    </p>
+                    <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                   </div>
                 </div>
                 <div className="font-medium">
-                  {formatPricePlain(item.price * item.quantity)}
+                  {formatPlain(item.price * item.quantity, { priceIsConverted: true })}
                 </div>
               </div>
             ))}
@@ -478,8 +325,8 @@ const CheckoutPage = () => {
 
           <div className="space-y-2 mb-6">
             <div className="pt-2 flex justify-between font-bold">
-              <span>Total</span>
-              <span>{formatPricePlain(total)}</span>
+              <span>Total ({currency})</span>
+              <span>{formatPlain(total, { priceIsConverted: true })}</span>
             </div>
           </div>
 
@@ -487,20 +334,20 @@ const CheckoutPage = () => {
             onClick={handleSubmit}
             disabled={
               loadingOrder ||
-              loadingCheckoutSession ||
+              loadingPayPal ||
               cartData?.length === 0 ||
               !isFormValid ||
               isRedirecting
             }
             className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loadingOrder || loadingCheckoutSession || isRedirecting ? (
+            {loadingOrder || loadingPayPal || isRedirecting ? (
               <div className="flex items-center justify-center">
                 <LoadingSpinner size="sm" className="mr-2" />
                 Processing...
               </div>
             ) : (
-              "Place Order"
+              "Pay with PayPal"
             )}
           </button>
 
@@ -518,7 +365,6 @@ const CheckoutPage = () => {
         </div>
       </div>
 
-      {/* Newsletter Section */}
       <Newsletter />
     </div>
   );

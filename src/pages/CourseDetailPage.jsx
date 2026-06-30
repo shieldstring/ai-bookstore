@@ -17,7 +17,7 @@ import FormattedDate from "../components/FormattedDate";
 import { toast } from "react-toastify";
 import { addToCartWithSync } from "../redux/slices/cartThunks";
 import { useGetSellerStorefrontQuery } from "../redux/slices/sellerApiSlice";
-import { formatPricePlain } from "../utils/currency";
+import useCurrency from "../hooks/useCurrency";
 import { useGetEnrollmentQuery } from "../redux/slices/enrollmentApiSlice";
 
 export default function CourseDetailPage() {
@@ -25,12 +25,16 @@ export default function CourseDetailPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.auth);
+  const { currency, formatPlain } = useCurrency();
   
   const [activeTab, setActiveTab] = useState("syllabus");
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
 
-  const { data, isLoading, isError, error, refetch } = useGetCourseDetailsQuery(id);
+  const { data, isLoading, isError, error, refetch } = useGetCourseDetailsQuery({
+    courseId: id,
+    currency,
+  });
   const [addReview] = useAddReviewMutation();
 
   const course = data?.data;
@@ -278,10 +282,10 @@ export default function CourseDetailPage() {
 
               <div className="space-y-1">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-slate-800">{formatPricePlain(course.price)}</span>
+                  <span className="text-2xl font-black text-slate-800">{formatPlain(course.price, { priceIsConverted: true })}</span>
                   {course.originalPrice && course.originalPrice > course.price && (
                     <span className="line-through text-xs text-slate-400 font-medium">
-                      {formatPricePlain(course.originalPrice)}
+                      {formatPlain(course.originalPrice, { priceIsConverted: true })}
                     </span>
                   )}
                 </div>

@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { apiOne, apiTwo } from "./slices/apiSlice";
 import authReducer from "./slices/authSlice";
 import cartReducer from "./slices/cartSlice";
+import currencyReducer from "./slices/currencySlice";
 import { setCartApiDispatch } from "./slices/cartApiSlice";
 import notificationReducer from "./slices/notificationSlice";
 import { notificationApiSlice } from "./slices/notificationSlice";
@@ -13,6 +14,7 @@ export const store = configureStore({
 
     auth: authReducer,
     cart: cartReducer,
+    currency: currencyReducer,
     notification: notificationReducer,
   },
 

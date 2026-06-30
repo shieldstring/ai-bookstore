@@ -57,6 +57,7 @@ import FAQPage from "./pages/FAQPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import RefundPage from "./pages/RefundPage";
+import CurrencyInitializer from "./components/common/CurrencyInitializer";
 
 function App() {
   // Initialize FCM and get FCM functionality
@@ -69,6 +70,7 @@ function App() {
   }, [isSupported]);
 
   return (
+    <CurrencyInitializer>
     <Router>
       <ToastContainer
         position="top-right"
@@ -215,6 +217,7 @@ function App() {
         </Route>
       </Routes>
     </Router>
+    </CurrencyInitializer>
   );
 }
 

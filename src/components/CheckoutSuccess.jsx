@@ -16,37 +16,30 @@ const CheckoutSuccess = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const verifyStripePayment = async () => {
+    const verifyPayPalPayment = async () => {
       try {
         const params = new URLSearchParams(location.search);
-        const sessionId = params.get("session_id");
+        const paypalOrderId = params.get("token");
         const orderId = params.get("order_id");
 
-        console.log("Payment success redirect params:", { sessionId, orderId });
-
-        if (!sessionId || !orderId) {
+        if (!paypalOrderId || !orderId) {
           setError("Missing payment information");
           setLoading(false);
           return;
         }
 
-        // Make sure orderId is not still a placeholder
         if (orderId.includes("{") || orderId.includes("}")) {
           setError("Invalid order ID format");
           setLoading(false);
           return;
         }
 
-        // Verify the payment with your backend
         await verifyPayment({
-          sessionId,
+          paypalOrderId,
           orderId,
         }).unwrap();
 
-        // Clear the cart again to be sure
         dispatch(clearCartWithSync());
-
-        // Redirect to the order page
         navigate(`/dashboard/orders`);
       } catch (err) {
         console.error("Payment verification error:", err);
@@ -55,7 +48,7 @@ const CheckoutSuccess = () => {
       }
     };
 
-    verifyStripePayment();
+    verifyPayPalPayment();
   }, [location.search, dispatch, navigate, verifyPayment]);
 
   if (loading) {

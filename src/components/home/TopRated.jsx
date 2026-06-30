@@ -6,9 +6,10 @@ import ErrorMessage from "../common/ErrorMessage";
 import { useDispatch } from "react-redux";
 import { addToCartWithSync } from "../../redux/slices/cartThunks";
 import { toast } from "react-toastify";
-import { formatPricePlain } from "../../utils/currency";
+import useCurrency from "../../hooks/useCurrency";
 
 const TopRatedBooks = () => {
+  const { formatPlain } = useCurrency();
   const [books, setBooks] = useState([]);
   const { data, isLoading, isError } = useGetBooksQuery();
 
@@ -161,7 +162,7 @@ const TopRatedBooks = () => {
                       <StarRating rating={book.rating} />
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-sm font-medium text-gray-900">
-                          {formatPricePlain(book.price)}
+                          {formatPlain(book.price)}
                         </span>
                         <button
                           onClick={() => {

@@ -1,8 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { formatPricePlain } from "../../utils/currency";
+import useCurrency from "../../hooks/useCurrency";
 
-const OrderSummary = ({ subtotal, discount, total, coupon }) => {
+const OrderSummary = ({ subtotal, discount, total, coupon, pricesConverted = false }) => {
+  const { formatPlain } = useCurrency();
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
@@ -10,13 +12,13 @@ const OrderSummary = ({ subtotal, discount, total, coupon }) => {
       <div className="space-y-3">
         <div className="flex justify-between">
           <span>Subtotal</span>
-          <span>{formatPricePlain(subtotal)}</span>
+          <span>{formatPlain(subtotal, { priceIsConverted: pricesConverted })}</span>
         </div>
 
         {discount > 0 && (
           <div className="flex justify-between text-green-600">
             <span>Discount</span>
-            <span>-{formatPricePlain(discount)}</span>
+            <span>-{formatPlain(discount, { priceIsConverted: pricesConverted })}</span>
           </div>
         )}
 
@@ -24,7 +26,7 @@ const OrderSummary = ({ subtotal, discount, total, coupon }) => {
 
         <div className="flex justify-between font-bold text-lg">
           <span>Total</span>
-          <span>{formatPricePlain(total)}</span>
+          <span>{formatPlain(total, { priceIsConverted: pricesConverted })}</span>
         </div>
       </div>
 

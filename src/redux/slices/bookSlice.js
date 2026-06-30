@@ -16,6 +16,7 @@ export const bookApiSlice = apiOne.injectEndpoints({
         maxPrice = 100,
         search = "",
         sort = "newest",
+        currency = "",
       }) => {
         const params = new URLSearchParams();
         params.append("page", page.toString());
@@ -25,8 +26,9 @@ export const bookApiSlice = apiOne.injectEndpoints({
         if (format) params.append("format", format);
         if (minPrice > 0) params.append("minPrice", minPrice.toString());
         if (maxPrice < 100) params.append("maxPrice", maxPrice.toString());
-        if (search) params.append("keyword", search); // Changed from 'search' to 'keyword' to match your backend
+        if (search) params.append("keyword", search);
         if (sort) params.append("sort", sort);
+        if (currency) params.append("currency", currency);
 
         return `/books?${params.toString()}`;
       },
@@ -46,8 +48,11 @@ export const bookApiSlice = apiOne.injectEndpoints({
     }),
 
     getBookDetails: builder.query({
-      query: (bookId) => `books/${bookId}`,
-      providesTags: (result, error, arg) => [{ type: "Book", id: arg }],
+      query: ({ bookId, currency } = {}) => {
+        const params = currency ? `?currency=${currency}` : "";
+        return `books/${bookId}${params}`;
+      },
+      providesTags: (result, error, arg) => [{ type: "Book", id: arg?.bookId || arg }],
     }),
   }),
 });

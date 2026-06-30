@@ -1,11 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { useGetCoursesQuery } from "../../redux/slices/courseApiSlice";
 import { BookOpen, Star, Video, FileText, ArrowRight } from "lucide-react";
-import { formatPricePlain } from "../../utils/currency";
+import FormattedPrice from "../common/FormattedPrice";
 
 export default function FeaturedCourses() {
-  const { data, isLoading } = useGetCoursesQuery({ page: 1, limit: 4 });
+  const { currency } = useSelector((state) => state.currency);
+  const { data, isLoading } = useGetCoursesQuery({ page: 1, limit: 4, currency });
   const courses = data?.data || [];
 
   if (isLoading) {
@@ -99,12 +101,12 @@ export default function FeaturedCourses() {
                 {/* Footer price and call to action */}
                 <div className="px-5 pb-5 pt-3 border-t border-slate-50 flex items-center justify-between">
                   <div>
-                    <span className="text-slate-800 font-extrabold text-base">{formatPricePlain(course.price)}</span>
-                    {course.originalPrice && course.originalPrice > course.price && (
-                      <span className="line-through ml-2 text-xxs text-gray-400 font-normal">
-                        {formatPricePlain(course.originalPrice)}
-                      </span>
-                    )}
+                    <FormattedPrice
+                      price={course.price}
+                      originalPrice={course.originalPrice}
+                      className="text-slate-800 font-extrabold text-base"
+                      priceIsConverted
+                    />
                   </div>
                   <Link
                     to={`/courses/${course._id}`}

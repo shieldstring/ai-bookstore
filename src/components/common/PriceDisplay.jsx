@@ -1,10 +1,11 @@
 import React from "react";
-import { formatPricePlain, normalizePrice } from "../../utils/currency";
+import useCurrency from "../../hooks/useCurrency";
 
-const PriceDisplay = ({ price, originalPrice, size = "md" }) => {
-  const normalizedPrice = normalizePrice(price);
-  const normalizedOriginal = normalizePrice(originalPrice);
-  const hasDiscount = normalizedOriginal > normalizedPrice;
+const PriceDisplay = ({ price, originalPrice, size = "md", priceIsConverted = false }) => {
+  const { formatPlain } = useCurrency();
+  const hasDiscount =
+    originalPrice != null &&
+    Number(originalPrice) > Number(price);
 
   const sizeClasses = {
     sm: "text-sm",
@@ -16,12 +17,12 @@ const PriceDisplay = ({ price, originalPrice, size = "md" }) => {
   return (
     <div className="flex items-center">
       <span className={`text-purple-700 font-medium ${sizeClasses[size]}`}>
-        {formatPricePlain(normalizedPrice)}
+        {formatPlain(price, { priceIsConverted })}
       </span>
 
       {hasDiscount && (
         <span className="text-gray-400 line-through ml-2 text-sm">
-          {formatPricePlain(normalizedOriginal)}
+          {formatPlain(originalPrice, { priceIsConverted })}
         </span>
       )}
     </div>

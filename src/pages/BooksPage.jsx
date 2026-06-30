@@ -15,10 +15,10 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useGetBookListsQuery } from "../redux/slices/bookSlice";
 import { toast } from "react-toastify";
 import { addToCartWithSync } from "../redux/slices/cartThunks";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import LoadingSkeleton from "../components/preloader/LoadingSkeleton";
 import ErrorMessage from "../components/common/ErrorMessage";
-import { formatPrice } from "../utils/currency";
+import useCurrency from "../hooks/useCurrency";
 import PageHero from "../components/common/PageHero";
 
 const BooksPage = () => {
@@ -85,6 +85,7 @@ const BooksPage = () => {
     maxPrice: priceRange[1],
     search: searchQuery,
     sort: sortOption,
+    currency,
   });
 
   // Reset to page 1 when search query changes
@@ -106,36 +107,15 @@ const BooksPage = () => {
 
   // Available filter options
   const categories = [
+    { id: "Faith & Theology", name: "Faith & Theology" },
+    { id: "Psychology & Mindset", name: "Psychology & Mindset" },
+    { id: "Life Strategy & Purpose", name: "Life Strategy & Purpose" },
+    { id: "Business & Finance", name: "Business & Finance" },
+    { id: "Leadership & Management", name: "Leadership & Management" },
+    { id: "Self-Help", name: "Self-Help" },
     { id: "Fiction", name: "Fiction" },
     { id: "Non-Fiction", name: "Non-Fiction" },
-    { id: "Science Fiction", name: "Science Fiction" },
-    { id: "Fantasy", name: "Fantasy" },
-    { id: "Mystery", name: "Mystery" },
-    { id: "Thriller", name: "Thriller" },
-    { id: "Romance", name: "Romance" },
-    { id: "Historical Fiction", name: "Historical Fiction" },
-    { id: "Contemporary", name: "Contemporary" },
-    { id: "Young Adult", name: "Young Adult" },
-    { id: "Middle Grade", name: "Middle Grade" },
-    { id: "Children's", name: "Children's" },
-    { id: "Biography & Autobiography", name: "Biography & Autobiography" },
-    { id: "History", name: "History" },
-    { id: "Science & Technology", name: "Science & Technology" },
-    { id: "Mathematics", name: "Mathematics" },
-    { id: "Social Sciences", name: "Social Sciences" },
-    { id: "Psychology", name: "Psychology" },
-    { id: "Self-Help", name: "Self-Help" },
-    { id: "Business & Economics", name: "Business & Economics" },
-    { id: "Travel", name: "Travel" },
-    { id: "Cookbooks, Food & Wine", name: "Cookbooks, Food & Wine" },
-    { id: "Art & Photography", name: "Art & Photography" },
-    { id: "Religion & Spirituality", name: "Religion & Spirituality" },
-    { id: "Philosophy", name: "Philosophy" },
-    { id: "Poetry", name: "Poetry" },
-    { id: "Drama", name: "Drama" },
-    { id: "Comics & Graphic Novels", name: "Comics & Graphic Novels" },
-    { id: "Education", name: "Education" },
-    { id: "Reference", name: "Reference" },
+    { id: "General", name: "General" },
   ];
 
   const formats = [
@@ -242,6 +222,7 @@ const BooksPage = () => {
 
   // Add to Cart
   const dispatch = useDispatch();
+  const { currency, format } = useCurrency();
   const addToCart = async (bookId) => {
     try {
       await dispatch(addToCartWithSync({ bookId, quantity: 1 }));
@@ -366,8 +347,8 @@ const BooksPage = () => {
                       className="w-full"
                     />
                     <div className="flex justify-between text-sm text-gray-500 mt-2">
-                      <span>{formatPrice(priceRange[0])}</span>
-                      <span>{formatPrice(priceRange[1])}</span>
+                      <span>{format(priceRange[0], { priceIsConverted: true })}</span>
+                      <span>{format(priceRange[1], { priceIsConverted: true })}</span>
                     </div>
                   </div>
                 </div>
@@ -499,7 +480,7 @@ const BooksPage = () => {
                       )}
                       <div className="mt-2">
                         <span className="font-medium text-gray-900">
-                          {formatPrice(book.price)}
+                          {format(book.price, { priceIsConverted: true })}
                         </span>
                       </div>
                     </div>
@@ -548,7 +529,7 @@ const BooksPage = () => {
                         </div>
                         <div className="mt-4 flex justify-between items-center">
                           <span className="font-medium text-gray-900 text-lg">
-                            {formatPrice(book.price)}
+                            {format(book.price, { priceIsConverted: true })}
                           </span>
                           <div className="flex gap-2">
                             {/* <button

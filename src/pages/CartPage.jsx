@@ -16,10 +16,11 @@ import SEO from "../components/SEO";
 import PageHero from "../components/common/PageHero";
 import LoadingSkeleton from "../components/preloader/LoadingSkeleton";
 import { enrichCartItems } from "../utils/fetchProductDetails";
-import { formatPricePlain } from "../utils/currency";
+import useCurrency from "../hooks/useCurrency";
 
 const CartPage = () => {
   const BASE_URL = process.env.REACT_APP_API_URL;
+  const { currency, formatPlain } = useCurrency();
   useEffect(() => {
     window.scrollTo({
       top: 0,
@@ -61,7 +62,7 @@ const CartPage = () => {
 
       try {
         setIsLoading(true);
-        const enriched = await enrichCartItems(BASE_URL, cartData);
+        const enriched = await enrichCartItems(BASE_URL, cartData, currency);
         setEnrichedCart(enriched);
       } catch (err) {
         setLocalError("Failed to fetch product details");
@@ -71,7 +72,7 @@ const CartPage = () => {
     };
 
     fetchProductData();
-  }, [cartData, BASE_URL]);
+  }, [cartData, BASE_URL, currency]);
 
   const handleRemoveItem = async (itemId) => {
     try {
@@ -219,7 +220,7 @@ const CartPage = () => {
                 )}
                 {cartData?.coupon?.code && !cartData.coupon.error && (
                   <p className="text-green-600 text-sm mt-1">
-                    Coupon "{cartData.coupon.code}" applied! (-{formatPricePlain(cartData.discount)})
+                    Coupon "{cartData.coupon.code}" applied! (-{formatPlain(cartData.discount, { priceIsConverted: true })})
                   </p>
                 )}
               </div>
@@ -230,6 +231,7 @@ const CartPage = () => {
               discount={discount || 0}
               total={total || 0}
               coupon={coupon || 0}
+              pricesConverted
             />
           </div>
         )}

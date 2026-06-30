@@ -4,10 +4,12 @@ import { useGetCoursesQuery } from "../redux/slices/courseApiSlice";
 import ErrorMessage from "../components/common/ErrorMessage";
 import SEO from "../components/SEO";
 import PageHero from "../components/common/PageHero";
-import { formatPricePlain } from "../utils/currency";
+import { useSelector } from "react-redux";
+import FormattedPrice from "../components/common/FormattedPrice";
 import { Star, Video, Search, ArrowRight, BookOpen } from "lucide-react";
 
 export default function CoursesPage() {
+  const { currency } = useSelector((state) => state.currency);
   const [page, setPage] = useState(1);
   const [category, setCategory] = useState("");
   const [search, setSearch] = useState("");
@@ -19,6 +21,7 @@ export default function CoursesPage() {
     limit,
     category,
     search: searchQuery,
+    currency,
   });
 
   useEffect(() => {
@@ -171,12 +174,12 @@ export default function CoursesPage() {
                     {/* Footer price and CTA */}
                     <div className="px-5 pb-5 pt-3 border-t border-slate-50 flex items-center justify-between">
                       <div>
-                        <span className="text-slate-800 font-extrabold text-base">{formatPricePlain(course.price)}</span>
-                        {course.originalPrice && course.originalPrice > course.price && (
-                          <span className="line-through ml-2 text-xxs text-gray-400 font-normal">
-                            {formatPricePlain(course.originalPrice)}
-                          </span>
-                        )}
+                        <FormattedPrice
+                          price={course.price}
+                          originalPrice={course.originalPrice}
+                          className="text-slate-800 font-extrabold text-base"
+                          priceIsConverted
+                        />
                       </div>
                       <Link
                         to={`/courses/${course._id}`}

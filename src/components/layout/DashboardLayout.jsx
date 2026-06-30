@@ -57,11 +57,11 @@ const DashboardLayout = () => {
       path: "/dashboard/courses",
       icon: <BookOpen className="h-5 w-5" />,
     },
-    {
-      name: "My Network",
-      path: "/dashboard/mlm",
-      icon: <User2Icon className="h-5 w-5" />,
-    },
+    // {
+    //   name: "My Network",
+    //   path: "/dashboard/mlm",
+    //   icon: <User2Icon className="h-5 w-5" />,
+    // },
     {
       name: "My Feeds",
       path: "/feeds",
@@ -167,11 +167,11 @@ const DashboardLayout = () => {
       path: "/admin/customers",
       icon: <Users className="h-5 w-5" />,
     },
-    {
-      name: "MLM Tiers",
-      path: "/admin/mlm",
-      icon: <User2Icon className="h-5 w-5" />,
-    },
+    // {
+    //   name: "MLM Tiers",
+    //   path: "/admin/mlm",
+    //   icon: <User2Icon className="h-5 w-5" />,
+    // },
     {
       name: "Manage Blogs",
       path: "/admin/blogs",

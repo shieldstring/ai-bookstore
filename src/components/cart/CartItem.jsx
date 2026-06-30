@@ -1,8 +1,11 @@
 import React from 'react';
 import { Trash2 } from "lucide-react";
-import { formatPricePlain } from "../../utils/currency";
+import useCurrency from "../../hooks/useCurrency";
 
 const CartItem = ({ item, onRemove, onQuantityChange }) => {
+  const { formatPlain } = useCurrency();
+  const priceIsConverted = Boolean(item.currency);
+
   return (
     <div className="border-b py-4 grid grid-cols-6 sm:grid-cols-12 gap-4 items-center">
       <div className="col-span-1">
@@ -45,11 +48,11 @@ const CartItem = ({ item, onRemove, onQuantityChange }) => {
       </div>
 
       <div className="col-span-2 text-center">
-        {formatPricePlain(item.price)}
+        {formatPlain(item.price, { priceIsConverted })}
       </div>
 
       <div className="col-span-1 text-center">
-        {formatPricePlain(item.price * item.quantity)}
+        {formatPlain(item.price * item.quantity, { priceIsConverted })}
       </div>
 
       <div className="col-span-1 text-center">

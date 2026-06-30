@@ -7,9 +7,10 @@ import { toast } from "react-toastify";
 import ErrorMessage from "../common/ErrorMessage";
 import { useGetBooksQuery } from "../../redux/slices/bookSlice";
 import LoadingSkeleton from "../preloader/LoadingSkeleton";
-import { formatPricePlain } from "../../utils/currency";
+import useCurrency from "../../hooks/useCurrency";
 
 const RecommendedBooks = () => {
+  const { formatPlain } = useCurrency();
   const [activeIndex, setActiveIndex] = useState(0); // Initialize to 0
   const [direction, setDirection] = useState(0);
   const [books, setBooks] = useState([]);
@@ -133,7 +134,7 @@ const RecommendedBooks = () => {
                 </p>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-800 font-bold">
-                    {formatPricePlain(prevBook?.price)}
+                    {formatPlain(prevBook?.price)}
                   </span>
                 </div>
               </>
@@ -182,10 +183,10 @@ const RecommendedBooks = () => {
                     </p>
                     <div className="flex justify-between items-center mb-3">
                       <span className="text-purple-600 font-bold">
-                        {formatPricePlain(currentBook?.price)}
+                        {formatPlain(currentBook?.price)}
                       </span>
                       <span className="text-gray-400 line-through text-sm">
-                        {formatPricePlain(currentBook?.originalPrice)}
+                        {formatPlain(currentBook?.originalPrice)}
                       </span>
                     </div>
                     <div className="flex space-x-2">
@@ -228,7 +229,7 @@ const RecommendedBooks = () => {
                 </p>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-800 font-bold">
-                    {formatPricePlain(nextBook?.price)}
+                    {formatPlain(nextBook?.price)}
                   </span>
                 </div>
               </>

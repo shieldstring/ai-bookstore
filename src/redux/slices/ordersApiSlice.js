@@ -2,13 +2,22 @@ import { apiTwo } from "./apiSlice";
 
 export const ordersApiSlice = apiTwo.injectEndpoints({
   endpoints: (builder) => ({
-    createCheckoutSession: builder.mutation({
+    createPayPalOrder: builder.mutation({
       query: (data) => ({
-        url: "payment/create-checkout-session",
+        url: "payment/create-paypal-order",
         method: "POST",
         body: data,
       }),
       invalidatesTags: ["Cart"],
+    }),
+
+    capturePayPalOrder: builder.mutation({
+      query: (data) => ({
+        url: "payment/capture-paypal-order",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Order", "Cart", "Payment"],
     }),
 
     createOrder: builder.mutation({
@@ -100,16 +109,8 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
       invalidatesTags: (result, error, arg) => [{ type: "Order", id: arg }],
     }),
 
-    handlePaymentWebhook: builder.mutation({
-      query: (webhookData) => ({
-        url: "payment/webhook",
-        method: "POST",
-        body: webhookData,
-      }),
-    }),
-
-    verifyCheckoutStatus: builder.query({
-      query: (paymentId) => `payment/checkout-status/${paymentId}`,
+    verifyPayPalStatus: builder.query({
+      query: (paypalOrderId) => `payment/paypal-status/${paypalOrderId}`,
       providesTags: ["Payment"],
     }),
 
@@ -119,8 +120,9 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["Order", "Cart", "Payment"],
     }),
-    
+
     updateOrderPaymentStatus: builder.mutation({
       query: ({ orderId, paymentData }) => ({
         url: `orders/${orderId}/payment-status`,
@@ -136,16 +138,16 @@ export const ordersApiSlice = apiTwo.injectEndpoints({
 });
 
 export const {
-  useCreateCheckoutSessionMutation,
+  useCreatePayPalOrderMutation,
+  useCapturePayPalOrderMutation,
   useCreateOrderMutation,
-  useHandlePaymentWebhookMutation,
-  useVerifyCheckoutStatusQuery,
-  useUpdateOrderPaymentStatusMutation,
   useGetOrdersQuery,
   useGetOrderByIdQuery,
   useGetAllOrdersQuery,
   useUpdateOrderStatusMutation,
   useCancelOrderMutation,
   useDeleteOrderMutation,
+  useVerifyPayPalStatusQuery,
+  useUpdateOrderPaymentStatusMutation,
   useVerifyPaymentMutation,
 } = ordersApiSlice;

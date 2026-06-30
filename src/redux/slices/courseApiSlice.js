@@ -9,6 +9,7 @@ export const coursePublicApiSlice = apiOne.injectEndpoints({
         category = "",
         search = "",
         sort = "newest",
+        currency = "",
       } = {}) => {
         const params = new URLSearchParams();
         params.append("page", page.toString());
@@ -17,6 +18,7 @@ export const coursePublicApiSlice = apiOne.injectEndpoints({
         if (category) params.append("category", category);
         if (search) params.append("keyword", search);
         if (sort) params.append("sort", sort);
+        if (currency) params.append("currency", currency);
 
         return `/courses?${params.toString()}`;
       },
@@ -36,8 +38,11 @@ export const coursePublicApiSlice = apiOne.injectEndpoints({
     }),
 
     getCourseDetails: builder.query({
-      query: (courseId) => `courses/${courseId}`,
-      providesTags: (result, error, arg) => [{ type: "Book", id: arg }],
+      query: ({ courseId, currency } = {}) => {
+        const params = currency ? `?currency=${currency}` : "";
+        return `courses/${courseId}${params}`;
+      },
+      providesTags: (result, error, arg) => [{ type: "Book", id: arg?.courseId || arg }],
     }),
   }),
 });

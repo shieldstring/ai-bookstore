@@ -32,6 +32,8 @@ export const apiTwo = createApi({
     "MLM",
     "Post",
     "Notification",
+    "Order",
+    "Payment",
   ],
   endpoints: (builder) => ({
     // ...endpoints

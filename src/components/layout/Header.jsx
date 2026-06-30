@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slices/authSlice";
 import { User, Menu, X } from "lucide-react";
 import { handleLogout } from "../../redux/slices/cartThunks";
+import CurrencySwitcher from "../common/CurrencySwitcher";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -108,6 +109,7 @@ const Header = () => {
           </div>
 
           <div className="flex items-center space-x-1 lg:space-x-4">
+            <CurrencySwitcher className="hidden sm:inline-flex" />
             <Link to="/cart" className="relative p-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

@@ -19,7 +19,7 @@ import FormattedDate from "../components/FormattedDate";
 import { toast } from "react-toastify";
 import { addToCartWithSync } from "../redux/slices/cartThunks";
 import { useGetSellerStorefrontQuery } from "../redux/slices/sellerApiSlice";
-import { formatPricePlain } from "../utils/currency";
+import useCurrency from "../hooks/useCurrency";
 import { useGetEnrollmentQuery } from "../redux/slices/enrollmentApiSlice";
 
 function BookDetailPage() {
@@ -31,11 +31,15 @@ function BookDetailPage() {
   }, []);
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.auth);
+  const { currency, formatPlain } = useCurrency();
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("details");
   const { id } = useParams();
   const [book, setBook] = useState([]);
-  const { data, isLoading, isError, error } = useGetBookDetailsQuery(id);
+  const { data, isLoading, isError, error } = useGetBookDetailsQuery({
+    bookId: id,
+    currency,
+  });
   const [addReview, { isLoading: isAddingReview }] = useAddReviewMutation();
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
@@ -240,12 +244,12 @@ function BookDetailPage() {
 
               <div className="flex items-center gap-2 mb-6">
                 <span className="text-purple-600 text-2xl font-bold">
-                  {formatPricePlain(book.price)}
+                  {formatPlain(book.price, { priceIsConverted: true })}
                 </span>
                 {book.originalPrice && (
                   <>
                     <span className="text-gray-400 line-through">
-                      {formatPricePlain(book.originalPrice)}
+                      {formatPlain(book.originalPrice, { priceIsConverted: true })}
                     </span>
                     <span className="bg-orange-400 text-white text-xs px-2 py-1 rounded">
                       {Math.round((1 - book.price / book.originalPrice) * 100)}%
