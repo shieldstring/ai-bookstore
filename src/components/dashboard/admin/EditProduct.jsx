@@ -438,7 +438,7 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                           name="isbn"
                           value={formData.isbn}
                           onChange={handleChange}
-                          placeholder="978-3-16-148410-0"
+                          placeholder="Leave blank to auto-generate (e.g. BOOK-…)"
                           className={`w-full px-4 py-3 rounded-lg border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                             errors.isbn
                               ? "border-red-300 bg-red-50"
