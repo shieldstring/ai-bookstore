@@ -44,7 +44,9 @@ export default function CoursesPage() {
   ];
 
   if (isError) {
-    return <ErrorMessage error="Could not load courses. Please check back later." />;
+    return (
+      <ErrorMessage error="Could not load courses. Please check back later." />
+    );
   }
 
   const courses = data?.data || [];
@@ -64,11 +66,8 @@ export default function CoursesPage() {
         title="Courses"
         subtitle="Acquire specialized knowledge and grow with structured, curriculum-based video courses."
         backgroundImage="/pI 1.png"
-        overlayClass="bg-gradient-to-br from-black/78 via-purple-950/72 to-black/85"
-        breadcrumbs={[
-          { label: "Home", to: "/" },
-          { label: "Courses" },
-        ]}
+        overlayClass="bg-gradient-to-br from-black/80 via-purple-950/75 to-black/85"
+        breadcrumbs={[{ label: "Home", to: "/" }, { label: "Courses" }]}
       />
 
       <div className="container mx-auto px-4 max-w-6xl py-12 -mt-2 relative z-10">
@@ -95,7 +94,10 @@ export default function CoursesPage() {
           </div>
 
           {/* Keyword Search */}
-          <form onSubmit={handleSearchSubmit} className="relative w-full md:w-80 order-1 md:order-2">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="relative w-full md:w-80 order-1 md:order-2"
+          >
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               type="text"
@@ -111,7 +113,10 @@ export default function CoursesPage() {
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[...Array(4)].map((_, idx) => (
-              <div key={idx} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-150 animate-pulse space-y-3">
+              <div
+                key={idx}
+                className="bg-white rounded-2xl p-4 shadow-sm border border-slate-150 animate-pulse space-y-3"
+              >
                 <div className="h-40 bg-slate-200 rounded-xl"></div>
                 <div className="h-4 w-3/4 bg-slate-200 rounded"></div>
                 <div className="h-3 w-1/2 bg-slate-200 rounded"></div>
@@ -121,16 +126,23 @@ export default function CoursesPage() {
         ) : courses.length === 0 ? (
           <div className="text-center py-20 bg-white border border-dashed rounded-3xl border-slate-300">
             <BookOpen className="h-16 w-16 mx-auto text-slate-300 mb-4" />
-            <h3 className="text-lg font-bold text-slate-700">No courses found</h3>
+            <h3 className="text-lg font-bold text-slate-700">
+              No courses found
+            </h3>
             <p className="text-slate-500 text-sm mt-1 max-w-sm mx-auto">
-              We couldn't find any online courses matching your query. Check back soon for new releases!
+              We couldn't find any online courses matching your query. Check
+              back soon for new releases!
             </p>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {courses.map((course) => {
-                const totalLessons = course.sections?.reduce((acc, s) => acc + (s.lessons?.length || 0), 0) || 0;
+                const totalLessons =
+                  course.sections?.reduce(
+                    (acc, s) => acc + (s.lessons?.length || 0),
+                    0,
+                  ) || 0;
                 const rating = course.averageRating || 4.7;
 
                 return (
@@ -153,9 +165,13 @@ export default function CoursesPage() {
 
                       <div className="p-5 space-y-2">
                         <h3 className="font-extrabold text-slate-800 text-sm line-clamp-2 min-h-[2.5rem] group-hover:text-purple-650 transition-colors">
-                          <Link to={`/courses/${course._id}`}>{course.title}</Link>
+                          <Link to={`/courses/${course._id}`}>
+                            {course.title}
+                          </Link>
                         </h3>
-                        <p className="text-slate-500 text-xs">Instructor: {course.author}</p>
+                        <p className="text-slate-500 text-xs">
+                          Instructor: {course.author}
+                        </p>
 
                         {/* Stats & Rating */}
                         <div className="flex items-center justify-between text-xxs text-slate-400 font-medium pt-1">

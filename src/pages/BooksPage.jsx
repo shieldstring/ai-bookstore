@@ -29,26 +29,26 @@ const BooksPage = () => {
 
   // Initialize state from URL params
   const [currentPage, setCurrentPage] = useState(
-    parseInt(searchParams.get("page")) || 1
+    parseInt(searchParams.get("page")) || 1,
   );
   const [itemsPerPage, setItemsPerPage] = useState(
-    parseInt(searchParams.get("limit")) || 8
+    parseInt(searchParams.get("limit")) || 8,
   );
   const [searchQuery, setSearchQuery] = useState(
-    searchParams.get("search") || ""
+    searchParams.get("search") || "",
   );
   const [selectedCategories, setSelectedCategories] = useState(
-    searchParams.get("category")?.split(",") || []
+    searchParams.get("category")?.split(",") || [],
   );
   const [selectedFormats, setSelectedFormats] = useState(
-    searchParams.get("format")?.split(",") || []
+    searchParams.get("format")?.split(",") || [],
   );
   const [priceRange, setPriceRange] = useState([
     parseFloat(searchParams.get("minPrice")) || 0,
     parseFloat(searchParams.get("maxPrice")) || 100,
   ]);
   const [sortOption, setSortOption] = useState(
-    searchParams.get("sort") || "newest"
+    searchParams.get("sort") || "newest",
   );
 
   // Update URL when filters change
@@ -142,7 +142,7 @@ const BooksPage = () => {
     setSelectedCategories((prev) =>
       prev.includes(categoryId)
         ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
+        : [...prev, categoryId],
     );
     setCurrentPage(1);
   };
@@ -152,7 +152,7 @@ const BooksPage = () => {
     setSelectedFormats((prev) =>
       prev.includes(formatId)
         ? prev.filter((id) => id !== formatId)
-        : [...prev, formatId]
+        : [...prev, formatId],
     );
     setCurrentPage(1);
   };
@@ -192,7 +192,7 @@ const BooksPage = () => {
     setFavorites((prev) =>
       prev.includes(bookId)
         ? prev.filter((id) => id !== bookId)
-        : [...prev, bookId]
+        : [...prev, bookId],
     );
   };
 
@@ -219,7 +219,6 @@ const BooksPage = () => {
       </div>
     );
   };
-
 
   // Add to Cart
   const dispatch = useDispatch();
@@ -251,12 +250,9 @@ const BooksPage = () => {
         title="Books"
         subtitle="Discover transformational reads curated to elevate your faith, mindset, and purpose."
         backgroundImage="/pI 1.png"
-        overlayClass="bg-gradient-to-br from-black/82 via-purple-950/78 to-black/88"
+        overlayClass="bg-gradient-to-br from-black/80 via-purple-950/75 to-black/85"
         align="left"
-        breadcrumbs={[
-          { label: "Home", to: "/" },
-          { label: "Books" },
-        ]}
+        breadcrumbs={[{ label: "Home", to: "/" }, { label: "Books" }]}
         actions={
           <button
             className="md:hidden inline-flex items-center gap-2 px-4 py-2 border border-[#D4AF37]/40 text-[#D4AF37] text-xs font-semibold uppercase tracking-wider rounded hover:bg-[#D4AF37]/10 transition"
@@ -347,8 +343,12 @@ const BooksPage = () => {
                       className="w-full"
                     />
                     <div className="flex justify-between text-sm text-gray-500 mt-2">
-                      <span>{format(priceRange[0], { priceIsConverted: true })}</span>
-                      <span>{format(priceRange[1], { priceIsConverted: true })}</span>
+                      <span>
+                        {format(priceRange[0], { priceIsConverted: true })}
+                      </span>
+                      <span>
+                        {format(priceRange[1], { priceIsConverted: true })}
+                      </span>
                     </div>
                   </div>
                 </div>
