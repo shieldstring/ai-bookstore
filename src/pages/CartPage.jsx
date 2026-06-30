@@ -16,6 +16,7 @@ import SEO from "../components/SEO";
 import PageHero from "../components/common/PageHero";
 import LoadingSkeleton from "../components/preloader/LoadingSkeleton";
 import { enrichCartItems } from "../utils/fetchProductDetails";
+import { formatPricePlain } from "../utils/currency";
 
 const CartPage = () => {
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -218,8 +219,7 @@ const CartPage = () => {
                 )}
                 {cartData?.coupon?.code && !cartData.coupon.error && (
                   <p className="text-green-600 text-sm mt-1">
-                    Coupon "{cartData.coupon.code}" applied! (-$
-                    {cartData.discount?.toFixed(2)})
+                    Coupon "{cartData.coupon.code}" applied! (-{formatPricePlain(cartData.discount)})
                   </p>
                 )}
               </div>

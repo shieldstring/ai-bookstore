@@ -17,6 +17,7 @@ import FormattedDate from "../components/FormattedDate";
 import { toast } from "react-toastify";
 import { addToCartWithSync } from "../redux/slices/cartThunks";
 import { useGetSellerStorefrontQuery } from "../redux/slices/sellerApiSlice";
+import { formatPricePlain } from "../utils/currency";
 import { useGetEnrollmentQuery } from "../redux/slices/enrollmentApiSlice";
 
 export default function CourseDetailPage() {
@@ -277,10 +278,10 @@ export default function CourseDetailPage() {
 
               <div className="space-y-1">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-slate-800">${course.price?.toFixed(2)}</span>
+                  <span className="text-2xl font-black text-slate-800">{formatPricePlain(course.price)}</span>
                   {course.originalPrice && course.originalPrice > course.price && (
                     <span className="line-through text-xs text-slate-400 font-medium">
-                      ${course.originalPrice.toFixed(2)}
+                      {formatPricePlain(course.originalPrice)}
                     </span>
                   )}
                 </div>

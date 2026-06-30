@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { formatPricePlain } from '../../utils/currency';
 
 const BookCard = ({ book }) => (
   <div className="book-card">
@@ -8,7 +10,7 @@ const BookCard = ({ book }) => (
     <h3>{book.title}</h3>
     <p>{book.author}</p>
     <p>Rating: {book.rating}</p>
-    <p>Price: ${book.price}</p>
+    <p>Price: {formatPricePlain(book.price)}</p>
     <button>Buy Now</button>
     
   </div>

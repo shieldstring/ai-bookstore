@@ -4,6 +4,7 @@ import { useGetCoursesQuery } from "../redux/slices/courseApiSlice";
 import ErrorMessage from "../components/common/ErrorMessage";
 import SEO from "../components/SEO";
 import PageHero from "../components/common/PageHero";
+import { formatPricePlain } from "../utils/currency";
 import { Star, Video, Search, ArrowRight, BookOpen } from "lucide-react";
 
 export default function CoursesPage() {
@@ -170,10 +171,10 @@ export default function CoursesPage() {
                     {/* Footer price and CTA */}
                     <div className="px-5 pb-5 pt-3 border-t border-slate-50 flex items-center justify-between">
                       <div>
-                        <span className="text-slate-800 font-extrabold text-base">${course.price?.toFixed(2)}</span>
+                        <span className="text-slate-800 font-extrabold text-base">{formatPricePlain(course.price)}</span>
                         {course.originalPrice && course.originalPrice > course.price && (
                           <span className="line-through ml-2 text-xxs text-gray-400 font-normal">
-                            ${course.originalPrice.toFixed(2)}
+                            {formatPricePlain(course.originalPrice)}
                           </span>
                         )}
                       </div>

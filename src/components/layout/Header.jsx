@@ -361,7 +361,7 @@ const Header = () => {
                   Courses
                 </NavLink>
               </li>
-              <li>
+              {/* <li>
                 <NavLink
                   to="/categories"
                   className={({ isActive }) =>
@@ -374,7 +374,7 @@ const Header = () => {
                 >
                   Categories
                 </NavLink>
-              </li>
+              </li> */}
 
               <li>
                 <NavLink

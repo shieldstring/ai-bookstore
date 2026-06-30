@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
+import { getPriceValidationError } from "../../../utils/currency";
 import { useAddBookMutation } from "../../../redux/slices/bookSlice";
 
 export default function CreateProduct({ onClose,  refetch }) {
@@ -152,18 +153,12 @@ export default function CreateProduct({ onClose,  refetch }) {
     if (!formData.category) newErrors.category = "Category is required";
     if (!formData.image) newErrors.image = "Cover image is required";
 
-    // Numeric validation
-    if (isNaN(formData.price)) newErrors.price = "Price must be a number";
-    else if (parseFloat(formData.price) <= 0)
-      newErrors.price = "Price must be positive";
+    const priceError = getPriceValidationError(formData.price);
+    if (priceError) newErrors.price = priceError;
 
-    if (formData.originalPrice && isNaN(formData.originalPrice)) {
-      newErrors.originalPrice = "Original price must be a number";
-    } else if (
-      formData.originalPrice &&
-      parseFloat(formData.originalPrice) <= 0
-    ) {
-      newErrors.originalPrice = "Original price must be positive";
+    if (formData.originalPrice) {
+      const originalError = getPriceValidationError(formData.originalPrice, "Original price");
+      if (originalError) newErrors.originalPrice = originalError;
     }
 
     if (formData.format !== "Course") {

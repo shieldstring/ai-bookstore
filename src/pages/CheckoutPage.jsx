@@ -14,6 +14,7 @@ import SEO from "../components/SEO";
 import LoadingSkeleton from "../components/preloader/LoadingSkeleton";
 import { initializeCart } from "../redux/slices/cartThunks";
 import { enrichCartItems } from "../utils/fetchProductDetails";
+import { formatPricePlain } from "../utils/currency";
 
 const CheckoutPage = () => {
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -166,7 +167,7 @@ const CheckoutPage = () => {
           // Create Stripe checkout session items
           const items = enrichedCart.map((item) => ({
             price_data: {
-              currency: "usd",
+              currency: "gbp",
               product_data: {
                 name: item.name,
                 description: item.author ? `by ${item.author}` : undefined,
@@ -469,7 +470,7 @@ const CheckoutPage = () => {
                   </div>
                 </div>
                 <div className="font-medium">
-                  ${(item.price * item.quantity).toFixed(2)}
+                  {formatPricePlain(item.price * item.quantity)}
                 </div>
               </div>
             ))}
@@ -478,7 +479,7 @@ const CheckoutPage = () => {
           <div className="space-y-2 mb-6">
             <div className="pt-2 flex justify-between font-bold">
               <span>Total</span>
-              <span>${total.toFixed(2)}</span>
+              <span>{formatPricePlain(total)}</span>
             </div>
           </div>
 

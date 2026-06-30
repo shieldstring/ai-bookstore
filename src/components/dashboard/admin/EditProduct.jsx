@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
+import { getPriceValidationError } from "../../../utils/currency";
 import { useUpdateBookMutation } from "../../../redux/slices/bookSlice";
 
 export default function EditProduct({ productId, onClose, details, refetch }) {
@@ -150,27 +151,17 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
     if (!formData.category) newErrors.category = "Category is required";
     if (!formData.image) newErrors.image = "Cover image is required";
 
-    // Price validation
-    if (formData.price === "") {
-      newErrors.price = "Price is required";
-    } else if (isNaN(formData.price)) {
-      newErrors.price = "Price must be a number";
-    } else {
-      const price = parseFloat(formData.price);
-      if (price <= 0) newErrors.price = "Price must be positive";
-    }
+    const priceError = getPriceValidationError(formData.price);
+    if (priceError) newErrors.price = priceError;
 
-    // Original price validation
     if (formData.originalPrice && formData.originalPrice !== "") {
-      if (isNaN(formData.originalPrice)) {
-        newErrors.originalPrice = "Original price must be a number";
+      const originalError = getPriceValidationError(formData.originalPrice, "Original price");
+      if (originalError) {
+        newErrors.originalPrice = originalError;
       } else {
         const originalPrice = parseFloat(formData.originalPrice);
         const price = parseFloat(formData.price);
-
-        if (originalPrice <= 0) {
-          newErrors.originalPrice = "Original price must be positive";
-        } else if (originalPrice < price) {
+        if (originalPrice < price) {
           newErrors.originalPrice = "Original price must be ≥ current price";
         }
       }

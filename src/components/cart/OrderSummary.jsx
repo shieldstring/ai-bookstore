@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { formatPricePlain } from "../../utils/currency";
 
 const OrderSummary = ({ subtotal, discount, total, coupon }) => {
   return (
@@ -9,13 +10,13 @@ const OrderSummary = ({ subtotal, discount, total, coupon }) => {
       <div className="space-y-3">
         <div className="flex justify-between">
           <span>Subtotal</span>
-          <span>${subtotal.toFixed(2)}</span>
+          <span>{formatPricePlain(subtotal)}</span>
         </div>
 
         {discount > 0 && (
           <div className="flex justify-between text-green-600">
             <span>Discount</span>
-            <span>-${discount.toFixed(2)}</span>
+            <span>-{formatPricePlain(discount)}</span>
           </div>
         )}
 
@@ -23,7 +24,7 @@ const OrderSummary = ({ subtotal, discount, total, coupon }) => {
 
         <div className="flex justify-between font-bold text-lg">
           <span>Total</span>
-          <span>${total.toFixed(2)}</span>
+          <span>{formatPricePlain(total)}</span>
         </div>
       </div>
 

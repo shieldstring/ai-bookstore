@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import ErrorMessage from "../common/ErrorMessage";
 import { useGetBooksQuery } from "../../redux/slices/bookSlice";
 import LoadingSkeleton from "../preloader/LoadingSkeleton";
+import { formatPricePlain } from "../../utils/currency";
 
 const RecommendedBooks = () => {
   const [activeIndex, setActiveIndex] = useState(0); // Initialize to 0
@@ -132,7 +133,7 @@ const RecommendedBooks = () => {
                 </p>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-800 font-bold">
-                    ${prevBook?.price?.toFixed(2) || "0.00"}
+                    {formatPricePlain(prevBook?.price)}
                   </span>
                 </div>
               </>
@@ -181,10 +182,10 @@ const RecommendedBooks = () => {
                     </p>
                     <div className="flex justify-between items-center mb-3">
                       <span className="text-purple-600 font-bold">
-                        ${currentBook?.price?.toFixed(2) || "0.00"}
+                        {formatPricePlain(currentBook?.price)}
                       </span>
                       <span className="text-gray-400 line-through text-sm">
-                        ${currentBook?.originalPrice?.toFixed(2) || "0.00"}
+                        {formatPricePlain(currentBook?.originalPrice)}
                       </span>
                     </div>
                     <div className="flex space-x-2">
@@ -227,7 +228,7 @@ const RecommendedBooks = () => {
                 </p>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-800 font-bold">
-                    ${nextBook?.price?.toFixed(2) || "0.00"}
+                    {formatPricePlain(nextBook?.price)}
                   </span>
                 </div>
               </>

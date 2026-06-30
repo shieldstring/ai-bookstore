@@ -19,6 +19,7 @@ import FormattedDate from "../components/FormattedDate";
 import { toast } from "react-toastify";
 import { addToCartWithSync } from "../redux/slices/cartThunks";
 import { useGetSellerStorefrontQuery } from "../redux/slices/sellerApiSlice";
+import { formatPricePlain } from "../utils/currency";
 import { useGetEnrollmentQuery } from "../redux/slices/enrollmentApiSlice";
 
 function BookDetailPage() {
@@ -239,12 +240,12 @@ function BookDetailPage() {
 
               <div className="flex items-center gap-2 mb-6">
                 <span className="text-purple-600 text-2xl font-bold">
-                  ${book.price}
+                  {formatPricePlain(book.price)}
                 </span>
                 {book.originalPrice && (
                   <>
                     <span className="text-gray-400 line-through">
-                      ${book.originalPrice}
+                      {formatPricePlain(book.originalPrice)}
                     </span>
                     <span className="bg-orange-400 text-white text-xs px-2 py-1 rounded">
                       {Math.round((1 - book.price / book.originalPrice) * 100)}%

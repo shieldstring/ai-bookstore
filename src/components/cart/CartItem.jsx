@@ -1,5 +1,6 @@
 import React from 'react';
 import { Trash2 } from "lucide-react";
+import { formatPricePlain } from "../../utils/currency";
 
 const CartItem = ({ item, onRemove, onQuantityChange }) => {
   return (
@@ -44,11 +45,11 @@ const CartItem = ({ item, onRemove, onQuantityChange }) => {
       </div>
 
       <div className="col-span-2 text-center">
-        ${item.price.toFixed(2)}
+        {formatPricePlain(item.price)}
       </div>
 
       <div className="col-span-1 text-center">
-        ${(item.price * item.quantity).toFixed(2)}
+        {formatPricePlain(item.price * item.quantity)}
       </div>
 
       <div className="col-span-1 text-center">

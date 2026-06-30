@@ -74,13 +74,14 @@ const Home = () => {
       <BestSellers />
 
       {/* Categories */}
-      <CategoriesSection />
-
-      {/* Top Rated */}
-      <TopRated />
+      {/* <CategoriesSection /> */}
 
       {/* Featured Courses */}
       <FeaturedCourses />
+
+
+      {/* Top Rated */}
+      <TopRated />
 
       {/* BecomeSellerSection */}
       {/* <BecomeSellerSection /> */}

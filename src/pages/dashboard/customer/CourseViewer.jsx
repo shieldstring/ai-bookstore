@@ -18,6 +18,8 @@ import {
   useGetEnrollmentQuery,
   useToggleLessonCompletionMutation,
 } from "../../../redux/slices/enrollmentApiSlice";
+import CourseQuiz from "../../../components/course/CourseQuiz";
+import CourseAnswerKey from "../../../components/course/CourseAnswerKey";
 import ErrorMessage from "../../../components/common/ErrorMessage";
 
 const CourseViewer = () => {
@@ -309,6 +311,20 @@ const CourseViewer = () => {
                       Download PDF
                     </a>
                   </div>
+                )}
+
+                {/* Lesson quiz */}
+                {activeLesson.questions?.length > 0 && (
+                  <CourseQuiz
+                    questions={activeLesson.questions}
+                    lessonTitle={activeLesson.title}
+                    showAnswerKey={progressPercent === 100}
+                  />
+                )}
+
+                {/* Course answer key — shown when all lessons complete */}
+                {progressPercent === 100 && (
+                  <CourseAnswerKey sections={course.sections} />
                 )}
 
                 {/* Bottom Navigation Buttons */}

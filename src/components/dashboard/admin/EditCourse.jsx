@@ -9,6 +9,8 @@ import { useUpdateCourseMutation } from "../../../redux/slices/courseApiSlice";
 import { toast } from "react-toastify";
 import LoadingSpinner from "../../common/LoadingSpinner";
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
+import { getPriceValidationError } from "../../../utils/currency";
+import LessonQuizEditor from "./LessonQuizEditor";
 
 export default function EditCourse({ productId, details, onClose, refetch }) {
   const [updateCourse, { isLoading }] = useUpdateCourseMutation();
@@ -35,6 +37,7 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
     videoUrl: "",
     pdfUrl: "",
     duration: "",
+    questions: [],
   });
 
   const [errors, setErrors] = useState({});
@@ -110,11 +113,12 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
     if (!formData.description.trim()) newErrors.description = "Course description is required";
     if (!formData.image) newErrors.image = "Course banner/image is required";
 
-    if (isNaN(formData.price)) newErrors.price = "Price must be a number";
-    else if (parseFloat(formData.price) <= 0) newErrors.price = "Price must be positive";
+    const priceError = getPriceValidationError(formData.price);
+    if (priceError) newErrors.price = priceError;
 
-    if (formData.originalPrice && isNaN(formData.originalPrice)) {
-      newErrors.originalPrice = "Original price must be a number";
+    if (formData.originalPrice) {
+      const originalError = getPriceValidationError(formData.originalPrice, "Original price");
+      if (originalError) newErrors.originalPrice = originalError;
     }
 
     if (sections.length === 0) {
@@ -485,6 +489,10 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
                             rows={3}
                             className="px-3 py-1.5 border border-slate-200 focus:outline-none rounded text-xxs md:col-span-2 resize-none focus:ring-1 focus:ring-purple-500"
                           />
+                          <LessonQuizEditor
+                            questions={lessonForm.questions}
+                            onChange={(questions) => setLessonForm({ ...lessonForm, questions })}
+                          />
                         </div>
 
                         <div className="flex justify-end gap-2 text-xxs pt-1">
@@ -500,9 +508,12 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
                             onClick={() => {
                               if (!lessonForm.title.trim()) return;
                               const newSecs = [...sections];
-                              newSecs[sIndex].lessons.push({ ...lessonForm });
+                              newSecs[sIndex].lessons.push({
+                                ...lessonForm,
+                                questions: lessonForm.questions.filter((q) => q.question.trim()),
+                              });
                               setSections(newSecs);
-                              setLessonForm({ title: "", content: "", videoUrl: "", pdfUrl: "", duration: "" });
+                              setLessonForm({ title: "", content: "", videoUrl: "", pdfUrl: "", duration: "", questions: [] });
                               setActiveSectionIndexForLesson(null);
                             }}
                             className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded font-medium cursor-pointer"
@@ -516,7 +527,7 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
                         type="button"
                         onClick={() => {
                           setActiveSectionIndexForLesson(sIndex);
-                          setLessonForm({ title: "", content: "", videoUrl: "", pdfUrl: "", duration: "" });
+                          setLessonForm({ title: "", content: "", videoUrl: "", pdfUrl: "", duration: "", questions: [] });
                         }}
                         className="w-full py-1.5 border border-dashed border-slate-350 hover:border-slate-400 bg-white hover:bg-slate-50 text-xxs font-bold text-slate-600 rounded-lg transition-colors cursor-pointer"
                       >

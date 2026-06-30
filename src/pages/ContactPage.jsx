@@ -25,7 +25,8 @@ const interestOptions = [
 export default function ContactPage() {
   const [searchParams] = useSearchParams();
   const [form, setForm] = useState({
-    name: "",
+    firstName: "",
+    surname: "",
     email: "",
     phone: "",
     interest: searchParams.get("interest") || "",
@@ -50,18 +51,19 @@ export default function ContactPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
-      toast.error("Please fill in your name, email, and message.");
+    if (!form.firstName.trim() || !form.surname.trim() || !form.email.trim() || !form.message.trim()) {
+      toast.error("Please fill in your first name, surname, email, and message.");
       return;
     }
 
     setSubmitting(true);
 
+    const fullName = `${form.firstName.trim()} ${form.surname.trim()}`;
     const subject = encodeURIComponent(
-      `Enquiry from ${form.name}${form.interest ? ` — ${form.interest}` : ""}`
+      `Enquiry from ${fullName}${form.interest ? ` — ${form.interest}` : ""}`
     );
     const body = encodeURIComponent(
-      `Name: ${form.name}\nEmail: ${form.email}\nPhone: ${form.phone || "Not provided"}\nInterest: ${form.interest || "General"}\n\nMessage:\n${form.message}`
+      `First Name: ${form.firstName}\nSurname: ${form.surname}\nEmail: ${form.email}\nPhone: ${form.phone || "Not provided"}\nInterest: ${form.interest || "General"}\n\nMessage:\n${form.message}`
     );
 
     window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
@@ -152,35 +154,51 @@ export default function ContactPage() {
 
               <div className="grid sm:grid-cols-2 gap-5">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
-                    Full Name *
+                  <label htmlFor="firstName" className="block text-sm font-medium text-slate-700 mb-1">
+                    First Name *
                   </label>
                   <input
-                    id="name"
-                    name="name"
+                    id="firstName"
+                    name="firstName"
                     type="text"
                     required
-                    value={form.name}
+                    value={form.firstName}
                     onChange={handleChange}
                     className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Your name"
+                    placeholder="First name"
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
-                    Email Address *
+                  <label htmlFor="surname" className="block text-sm font-medium text-slate-700 mb-1">
+                    Surname *
                   </label>
                   <input
-                    id="email"
-                    name="email"
-                    type="email"
+                    id="surname"
+                    name="surname"
+                    type="text"
                     required
-                    value={form.email}
+                    value={form.surname}
                     onChange={handleChange}
                     className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="you@example.com"
+                    placeholder="Surname"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+                  Email Address *
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="you@example.com"
+                />
               </div>
 
               <div className="grid sm:grid-cols-2 gap-5">

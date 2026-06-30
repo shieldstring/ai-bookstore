@@ -18,6 +18,7 @@ import { addToCartWithSync } from "../redux/slices/cartThunks";
 import { useDispatch } from "react-redux";
 import LoadingSkeleton from "../components/preloader/LoadingSkeleton";
 import ErrorMessage from "../components/common/ErrorMessage";
+import { formatPrice } from "../utils/currency";
 import PageHero from "../components/common/PageHero";
 
 const BooksPage = () => {
@@ -238,13 +239,6 @@ const BooksPage = () => {
     );
   };
 
-  // Format price
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
-  };
 
   // Add to Cart
   const dispatch = useDispatch();
@@ -275,7 +269,7 @@ const BooksPage = () => {
         eyebrow="Library"
         title="Books"
         subtitle="Discover transformational reads curated to elevate your faith, mindset, and purpose."
-        backgroundImage="/pl 2.jpeg"
+        backgroundImage="/pI 1.png"
         overlayClass="bg-gradient-to-br from-black/82 via-purple-950/78 to-black/88"
         align="left"
         breadcrumbs={[

@@ -81,10 +81,10 @@ const MyCourses = () => {
             </p>
             {!searchTerm && (
               <Link
-                to="/books"
+                to="/courses"
                 className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 font-semibold text-sm transition-all shadow-md"
               >
-                Browse Bookstore
+                Browse Courses
               </Link>
             )}
           </div>

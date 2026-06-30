@@ -6,6 +6,7 @@ import ErrorMessage from "../common/ErrorMessage";
 import { useDispatch } from "react-redux";
 import { addToCartWithSync } from "../../redux/slices/cartThunks";
 import { toast } from "react-toastify";
+import { formatPricePlain } from "../../utils/currency";
 
 const TopRatedBooks = () => {
   const [books, setBooks] = useState([]);
@@ -160,10 +161,7 @@ const TopRatedBooks = () => {
                       <StarRating rating={book.rating} />
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-sm font-medium text-gray-900">
-                          $
-                          {book.price && !isNaN(book.price)
-                            ? book.price.toFixed(2)
-                            : "0.00"}
+                          {formatPricePlain(book.price)}
                         </span>
                         <button
                           onClick={() => {
