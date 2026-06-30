@@ -19,6 +19,7 @@ import {
 import EditProfileModal from "../../../components/dashboard/seller/EditProfileModal";
 import SellerStatusBadge from "../../../components/dashboard/seller/SellerStatusBadge";
 import SEO from "../../../components/SEO";
+import ConfirmModal from "../../../components/common/ConfirmModal";
 import { useSelector } from "react-redux";
 
 // Main Seller Dashboard Component
@@ -51,6 +52,13 @@ const SellerDashboardPage = () => {
   const [sellerProfile, setSellerProfile] = useState(null);
   const [sellerMetrics, setSellerMetrics] = useState({});
   const idOrSlug = userInfo._id;
+
+  // Confirm modal states
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [confirmTitle, setConfirmTitle] = useState("");
+  const [confirmMessage, setConfirmMessage] = useState("");
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [confirmType, setConfirmType] = useState("danger");
   // Fetch seller info
   const {
     data: sellerData,
@@ -91,43 +99,45 @@ const SellerDashboardPage = () => {
     }
   };
 
-  const handleDeleteProfile = async () => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete your seller profile? This action is irreversible and will remove all your seller data."
-      )
-    ) {
+  const handleDeleteProfile = () => {
+    setConfirmTitle("Delete Seller Profile");
+    setConfirmMessage("Are you sure you want to delete your seller profile? This action is irreversible and will remove all your seller data.");
+    setConfirmType("danger");
+    setConfirmAction(() => async () => {
       try {
         await deleteSellerProfile().unwrap();
         alert("Seller profile deleted successfully!");
-        // Redirect to home or appropriate page after deletion
         window.location.href = "/";
       } catch (err) {
         console.error("Failed to delete profile:", err);
         alert(`Failed to delete profile: ${err.data?.message || err.error}`);
       }
-    }
+    });
+    setIsConfirmOpen(true);
   };
 
-  const handleRequestReapproval = async () => {
-    if (
-      window.confirm(
-        "Are you sure you want to request re-approval for your seller profile?"
-      )
-    ) {
+  const handleRequestReapproval = () => {
+    setConfirmTitle("Request Re-approval");
+    setConfirmMessage("Are you sure you want to request re-approval for your seller profile?");
+    setConfirmType("info");
+    setConfirmAction(() => async () => {
       try {
         await requestReapproval().unwrap();
-        alert(
-          "Re-approval request submitted successfully! Please wait for admin review."
-        );
+        alert("Re-approval request submitted successfully! Please wait for admin review.");
         refetch();
       } catch (err) {
         console.error("Failed to request re-approval:", err);
-        alert(
-          `Failed to request re-approval: ${err.data?.message || err.error}`
-        );
+        alert(`Failed to request re-approval: ${err.data?.message || err.error}`);
       }
+    });
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmAction = async () => {
+    if (confirmAction) {
+      await confirmAction();
     }
+    setIsConfirmOpen(false);
   };
 
   if (isLoading || sellerLoading) {
@@ -367,6 +377,21 @@ const SellerDashboardPage = () => {
           isSaving={isSavingProfile}
         />
       )}
+
+      {/* Custom Confirm Modal */}
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        title={confirmTitle}
+        message={confirmMessage}
+        onConfirm={handleConfirmAction}
+        onCancel={() => {
+          setIsConfirmOpen(false);
+          setConfirmAction(null);
+        }}
+        confirmText="Confirm"
+        cancelText="Cancel"
+        type={confirmType}
+      />
     </div>
   );
 };

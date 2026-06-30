@@ -22,6 +22,7 @@ import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import ErrorMessage from "../../../components/common/ErrorMessage";
 import TierFormModal from "../../../components/dashboard/admin/TierFormModal";
 import SEO from "../../../components/SEO";
+import ConfirmModal from "../../../components/common/ConfirmModal";
 
 export default function MLMSettings() {
   const { data: stats, isLoading, isError } = useGetMLMStatsQuery();
@@ -40,6 +41,10 @@ export default function MLMSettings() {
   const [expandedTier, setExpandedTier] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTier, setEditingTier] = useState(null);
+
+  // Confirm delete modal states
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [tierIdToDelete, setTierIdToDelete] = useState(null);
 
   const toggleTierDetails = (id) =>
     setExpandedTier((prev) => (prev === id ? null : id));
@@ -63,10 +68,22 @@ export default function MLMSettings() {
     setModalOpen(false);
   };
 
+  // Handle delete tier with custom confirmation modal trigger
   const handleDeleteTier = (id) => {
-    if (window.confirm("Delete this tier?")) {
-      deleteTier(id);
+    setTierIdToDelete(id);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (tierIdToDelete) {
+      try {
+        await deleteTier(tierIdToDelete).unwrap();
+      } catch (error) {
+        console.error("Failed to delete tier:", error);
+      }
     }
+    setIsConfirmOpen(false);
+    setTierIdToDelete(null);
   };
 
   if (isLoading || tiersLoading) return <LoadingSkeleton type="page" />;
@@ -202,6 +219,21 @@ export default function MLMSettings() {
           onSave={handleSaveTier}
         />
       )}
+
+      {/* Custom Confirm Modal */}
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        title="Delete MLM Tier"
+        message="Are you sure you want to delete this MLM tier? This action will adjust commissions for users assigned to this tier."
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          setIsConfirmOpen(false);
+          setTierIdToDelete(null);
+        }}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 }

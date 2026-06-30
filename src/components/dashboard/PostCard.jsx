@@ -29,6 +29,7 @@ import {
   useCheckFollowStatusQuery,
 } from "../../redux/slices/followApiSlice";
 import { useNavigate } from "react-router-dom";
+import ConfirmModal from "../common/ConfirmModal";
 
 // Animation variants
 const containerVariants = {
@@ -216,6 +217,13 @@ const PostCard = ({
   const [replyingTo, setReplyingTo] = useState(null);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Confirm modal states
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [confirmTitle, setConfirmTitle] = useState("");
+  const [confirmMessage, setConfirmMessage] = useState("");
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [confirmType, setConfirmType] = useState("danger");
 
   const moreMenuRef = useRef(null);
 
@@ -322,24 +330,21 @@ const PostCard = ({
     setShowMoreMenu(false);
   };
 
-  const handleDeletePost = async () => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this post? This action cannot be undone."
-      )
-    ) {
+  const handleDeletePost = () => {
+    setConfirmTitle("Delete Post");
+    setConfirmMessage("Are you sure you want to delete this post? This action cannot be undone.");
+    setConfirmType("danger");
+    setConfirmAction(() => async () => {
       try {
         await deletePost(post._id).unwrap();
         console.log("Post deleted successfully!");
       } catch (error) {
         console.error("Error deleting post:", error);
-        alert(
-          `Failed to delete post: ${error?.data?.message || error.message}`
-        );
-      } finally {
-        setShowMoreMenu(false);
+        alert(`Failed to delete post: ${error?.data?.message || error.message}`);
       }
-    }
+    });
+    setIsConfirmOpen(true);
+    setShowMoreMenu(false);
   };
 
   const handleEditPost = () => {
@@ -359,20 +364,28 @@ const PostCard = ({
     }
   };
 
-  const handleReportPost = async () => {
-    if (window.confirm("Are you sure you want to report this post?")) {
+  const handleReportPost = () => {
+    setConfirmTitle("Report Post");
+    setConfirmMessage("Are you sure you want to report this post?");
+    setConfirmType("warning");
+    setConfirmAction(() => async () => {
       try {
         await reportPost(post._id).unwrap();
         alert("Post reported successfully!");
       } catch (error) {
         console.error("Error reporting post:", error);
-        alert(
-          `Failed to report post: ${error?.data?.message || error.message}`
-        );
-      } finally {
-        setShowMoreMenu(false);
+        alert(`Failed to report post: ${error?.data?.message || error.message}`);
       }
+    });
+    setIsConfirmOpen(true);
+    setShowMoreMenu(false);
+  };
+
+  const handleConfirmAction = async () => {
+    if (confirmAction) {
+      await confirmAction();
     }
+    setIsConfirmOpen(false);
   };
 
   const handleToggleSavePost = async () => {
@@ -997,6 +1010,21 @@ const PostCard = ({
           />
         )}
       </AnimatePresence>
+
+      {/* Custom Confirm Modal */}
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        title={confirmTitle}
+        message={confirmMessage}
+        onConfirm={handleConfirmAction}
+        onCancel={() => {
+          setIsConfirmOpen(false);
+          setConfirmAction(null);
+        }}
+        confirmText="Confirm"
+        cancelText="Cancel"
+        type={confirmType}
+      />
     </>
   );
 };

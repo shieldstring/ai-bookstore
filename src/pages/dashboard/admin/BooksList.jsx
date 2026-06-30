@@ -13,6 +13,7 @@ import EditProduct from "../../../components/dashboard/admin/EditProduct";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import ErrorMessage from "../../../components/common/ErrorMessage";
 import SEO from "../../../components/SEO";
+import ConfirmModal from "../../../components/common/ConfirmModal";
 import { useSelector } from "react-redux";
 import {
   useDeleteBookMutation,
@@ -28,6 +29,10 @@ const BooksList = () => {
   const [sortBy, setSortBy] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [details, setDetails] = useState([]);
+  
+  // Confirm delete modal states
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [bookIdToDelete, setBookIdToDelete] = useState(null);
 
   // Query params for the API
   const queryParams = {
@@ -89,15 +94,23 @@ const BooksList = () => {
     setPage(1); // Reset to first page when filters change
   };
 
-  // Handle delete with confirmation
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this book?")) {
+  // Handle delete with confirmation modal trigger
+  const handleDelete = (id) => {
+    setBookIdToDelete(id);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (bookIdToDelete) {
       try {
-        await deleteProduct({ id }).unwrap();
+        await deleteProduct(bookIdToDelete).unwrap();
+        refetch();
       } catch (error) {
         console.error("Failed to delete book:", error);
       }
     }
+    setIsConfirmOpen(false);
+    setBookIdToDelete(null);
   };
 
   // Pagination handlers
@@ -388,6 +401,21 @@ const BooksList = () => {
           </div>
         </div>
       )}
+
+      {/* Custom Confirm Modal */}
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        title="Delete Book"
+        message="Are you sure you want to delete this book? This action cannot be undone."
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          setIsConfirmOpen(false);
+          setBookIdToDelete(null);
+        }}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 };

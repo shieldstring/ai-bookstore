@@ -17,6 +17,7 @@ import CustomerDetailsModal from "../../../components/dashboard/admin/CustomerDe
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import ErrorMessage from "../../../components/common/ErrorMessage";
 import SEO from "../../../components/SEO";
+import ConfirmModal from "../../../components/common/ConfirmModal";
 
 const Customers = () => {
   const { data: users = [], isLoading, isError } = useGetAllUsersQuery();
@@ -26,6 +27,10 @@ const Customers = () => {
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Confirm delete modal states
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [userIdToDelete, setUserIdToDelete] = useState(null);
 
   // Fetch detailed user data when a user is selected
   const { data: selectedUser } = useGetUserByIdQuery(selectedUserId, {
@@ -45,14 +50,23 @@ const Customers = () => {
     }
   };
 
-  const handleDeleteUser = async (userId) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
+  // Handle delete user with custom confirmation modal trigger
+  const handleDeleteUser = (userId) => {
+    setUserIdToDelete(userId);
+    setIsConfirmOpen(true);
+    setDropdownOpen(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (userIdToDelete) {
       try {
-        await deleteUser(userId).unwrap();
+        await deleteUser(userIdToDelete).unwrap();
       } catch (error) {
         console.error("Failed to delete user:", error);
       }
     }
+    setIsConfirmOpen(false);
+    setUserIdToDelete(null);
   };
 
   const handleViewDetails = (userId) => {
@@ -214,6 +228,21 @@ const Customers = () => {
           onClose={() => setIsModalOpen(false)}
         />
       )}
+
+      {/* Custom Confirm Modal */}
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        title="Delete User"
+        message="Are you sure you want to delete this user? This action will permanently remove their account."
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          setIsConfirmOpen(false);
+          setUserIdToDelete(null);
+        }}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 };

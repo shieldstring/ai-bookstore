@@ -13,6 +13,7 @@ import EditCourse from "../../../components/dashboard/admin/EditCourse";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import ErrorMessage from "../../../components/common/ErrorMessage";
 import SEO from "../../../components/SEO";
+import ConfirmModal from "../../../components/common/ConfirmModal";
 import { useSelector } from "react-redux";
 import {
   useGetCoursesQuery,
@@ -28,6 +29,10 @@ const CoursesList = () => {
   const [category, setCategory] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Confirm delete modal states
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [courseIdToDelete, setCourseIdToDelete] = useState(null);
 
   // Query params for public/admin listing
   const queryParams = {
@@ -103,16 +108,23 @@ const CoursesList = () => {
     setPage(1); // Reset to first page when filters change
   };
 
-  // Handle delete with confirmation
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this course?")) {
+  // Handle delete with confirmation modal trigger
+  const handleDelete = (id) => {
+    setCourseIdToDelete(id);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (courseIdToDelete) {
       try {
-        await deleteProduct(id).unwrap();
+        await deleteProduct(courseIdToDelete).unwrap();
         refetch();
       } catch (error) {
         console.error("Failed to delete course:", error);
       }
     }
+    setIsConfirmOpen(false);
+    setCourseIdToDelete(null);
   };
 
   // Pagination handlers
@@ -412,6 +424,21 @@ const CoursesList = () => {
           </div>
         </div>
       )}
+
+      {/* Custom Confirm Modal */}
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        title="Delete Course"
+        message="Are you sure you want to delete this course? This action cannot be undone."
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          setIsConfirmOpen(false);
+          setCourseIdToDelete(null);
+        }}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 };

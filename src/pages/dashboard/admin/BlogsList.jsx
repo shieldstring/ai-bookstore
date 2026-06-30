@@ -15,6 +15,7 @@ import EditBlog from "../../../components/dashboard/admin/EditBlog";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import ErrorMessage from "../../../components/common/ErrorMessage";
 import SEO from "../../../components/SEO";
+import ConfirmModal from "../../../components/common/ConfirmModal";
 import {
   useGetBlogsQuery,
   useDeleteBlogMutation,
@@ -52,6 +53,10 @@ const BlogsList = () => {
   const [editingBlogId, setEditingBlogId] = useState(null);
   const [editingBlogDetails, setEditingBlogDetails] = useState(null);
 
+  // Confirm delete modal states
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [blogIdToDelete, setBlogIdToDelete] = useState(null);
+
   useEffect(() => {
     refetch();
   }, [refetch, searchQuery, category, page]);
@@ -77,10 +82,16 @@ const BlogsList = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this blog post?")) {
+  // Handle delete with confirmation modal trigger
+  const handleDelete = (id) => {
+    setBlogIdToDelete(id);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (blogIdToDelete) {
       try {
-        await deleteBlog(id).unwrap();
+        await deleteBlog(blogIdToDelete).unwrap();
         toast.success("Blog post deleted successfully!");
         refetch();
       } catch (error) {
@@ -88,6 +99,8 @@ const BlogsList = () => {
         toast.error("Failed to delete article");
       }
     }
+    setIsConfirmOpen(false);
+    setBlogIdToDelete(null);
   };
 
   const truncate = (str, n) => {
@@ -354,6 +367,21 @@ const BlogsList = () => {
           />
         </div>
       )}
+
+      {/* Custom Confirm Modal */}
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        title="Delete Blog Post"
+        message="Are you sure you want to delete this blog post? This action cannot be undone."
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          setIsConfirmOpen(false);
+          setBlogIdToDelete(null);
+        }}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 };
