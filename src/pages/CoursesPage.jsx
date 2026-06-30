@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useGetCoursesQuery } from "../redux/slices/courseApiSlice";
 import ErrorMessage from "../components/common/ErrorMessage";
 import SEO from "../components/SEO";
+import ParallaxSection from "../components/common/ParallaxSection";
 import { Star, Video, Search, ArrowRight, BookOpen } from "lucide-react";
 
 export default function CoursesPage() {
@@ -46,7 +47,7 @@ export default function CoursesPage() {
   const totalPages = data?.pages || 1;
 
   return (
-    <div className="bg-slate-50 min-h-screen py-12">
+    <div className="bg-slate-50 min-h-screen">
       <SEO
         title="Featured Online Courses"
         description="Browse professional video courses, learn from top-tier instructors, and earn rewards."
@@ -54,17 +55,23 @@ export default function CoursesPage() {
         type="website"
       />
 
-      <div className="container mx-auto px-4 max-w-6xl">
-        {/* Header Title block */}
-        <div className="text-center max-w-xl mx-auto mb-12">
-          <h1 className="text-3xl font-extrabold text-slate-800 md:text-4xl">
+      <ParallaxSection
+        image="/pI 1.png"
+        overlayClass="bg-black/70"
+        minHeight="min-h-[280px]"
+        className="flex items-center"
+      >
+        <div className="container mx-auto px-4 max-w-6xl py-16 text-center">
+          <h1 className="text-3xl font-extrabold text-white md:text-4xl">
             Online Learning Courses
           </h1>
-          <p className="text-slate-500 text-sm mt-3 leading-relaxed">
+          <p className="text-white/80 text-sm mt-3 leading-relaxed max-w-xl mx-auto">
             Acquire specialized knowledge and grow your career with structured, curriculum-based online video courses.
           </p>
         </div>
+      </ParallaxSection>
 
+      <div className="container mx-auto px-4 max-w-6xl py-12">
         {/* Filter and Search Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-200">
           {/* Category selection */}

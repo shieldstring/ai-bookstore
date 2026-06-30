@@ -1,29 +1,25 @@
-import { useState } from "react";
-import { Play, Star, ShieldCheck, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const HeroBanner = () => {
   const navigate = useNavigate();
-  const [showVideoModal, setShowVideoModal] = useState(false);
-
-  const handleBrowseClick = () => {
-    navigate("/books");
-  };
 
   return (
-    <section className="relative bg-black text-white min-h-[85vh] lg:min-h-[90vh] flex items-center overflow-hidden">
-      {/* Self-contained Font Imports for exact typographic matches */}
+    <section className="relative bg-black text-white min-h-[88vh] lg:min-h-[92vh] flex items-center overflow-hidden">
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Montserrat:wght@900&family=Plus+Jakarta+Sans:wght@300;450;700&display=swap');
-          
+          @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Montserrat:wght@900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;450;600&display=swap');
+
           .brand-title-heavy {
             font-family: 'Montserrat', sans-serif;
             font-weight: 900;
           }
-          
+
           .signature-font {
             font-family: 'Caveat', cursive;
+          }
+
+          .quote-serif {
+            font-family: 'Playfair Display', serif;
           }
 
           .body-jakarta {
@@ -32,58 +28,66 @@ const HeroBanner = () => {
         `}
       </style>
 
-      {/* Grayscale Stage Presenter Background Image on the right half */}
-      <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[60%] z-0 pointer-events-none">
+      {/* Stage portrait — fixed feel on scroll within hero */}
+      <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[58%] z-0 pointer-events-none">
         <img
           src="/pl 4.jpeg"
-          alt="william peter styled speaker presenting on stage"
-          className="w-full h-full object-cover object-top grayscale contrast-125 brightness-95 opacity-40 lg:opacity-100"
+          alt="Wisdom Peters presenting on stage"
+          className="w-full h-full object-cover object-top grayscale contrast-125 brightness-90 opacity-35 lg:opacity-100"
         />
-           {/* White Signature Handwriting Overlay overlaying the sub-headline / bottom area */}
-              <span className="signature-font text-5xl sm:text-6xl text-white/50 absolute bottom-10 right-4 sm:right-48 select-none rotate-[-6deg] tracking-widest pointer-events-none">
-                WISDOMPETERS
-              </span>
-        {/* Right-to-left black gradient mask to blend image into solid black left-column */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 lg:via-black/40 to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent lg:hidden"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 lg:via-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/30 lg:hidden" />
       </div>
 
-      <div className="container mx-auto px-6 max-w-6xl relative z-10 py-16 lg:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          {/* Left Column: Bold Personal Brand Typography */}
-          <div className="lg:col-span-6 space-y-7 text-left relative">
-            {/* Pre-header Tagline */}
-            <p className="text-[10px] sm:text-xs font-bold tracking-[0.25em] text-slate-300 uppercase leading-none">
-              ELEVATE YOUR ENDEAVORS WITH
-            </p>
+      {/* Decorative gold accents */}
+      <div className="absolute top-20 left-8 w-24 h-24 border border-[#D4AF37]/20 rounded-full hidden lg:block" aria-hidden="true" />
+      <div className="absolute bottom-32 left-1/4 w-2 h-2 bg-[#D4AF37] rounded-full hidden lg:block" aria-hidden="true" />
+      <div className="absolute top-1/3 right-[12%] w-16 h-16 border border-[#D4AF37]/15 rotate-45 hidden lg:block" aria-hidden="true" />
 
-            {/* Stacked Gold Brand Heading */}
-            <div className="space-y-0 brand-title-heavy text-5xl sm:text-7xl lg:text-8.5xl tracking-tight uppercase leading-[0.85] select-none">
-              <h1 className="text-[#D4AF37]">Wisdom</h1>
-              <h1 className="text-[#D4AF37]">Peters</h1>
-            </div>
+      <div className="container mx-auto px-6 max-w-6xl relative z-10 py-20 lg:py-28">
+        <div className="max-w-2xl space-y-8">
+          <p className="text-[10px] sm:text-xs font-bold tracking-[0.35em] text-[#D4AF37] uppercase">
+            Wisdom Peters
+          </p>
 
-            {/* Benefit-Driven Sub-headline */}
-            <div className="relative">
-              <p className="body-jakarta text-slate-300 text-sm sm:text-base max-w-lg leading-relaxed font-light">
-                Renowned as a{" "}
-                <strong className="text-white font-bold">TOP-TIER</strong>{" "}
-                Bible Teacher | Pastor | Psychology Coach | Life Strategist | Business Mentor | Author with {" "}
-                <span className="text-white italic not-italic font-medium underline decoration-amber-500/50 decoration-2 underline-offset-4">
-                  rapid results
-                </span>{" "}
-                unparalleled in the industry.
-              </p>
-
-              
-            </div>
+          <div className="brand-title-heavy text-5xl sm:text-7xl lg:text-8xl tracking-tight uppercase leading-[0.85]">
+            <h1 className="text-[#D4AF37]">Wisdom</h1>
+            <h1 className="text-[#D4AF37]">Peters</h1>
           </div>
 
-          {/* Right Column: Empty spacer to overlay content beautifully over the stage portrait background */}
-          <div className="lg:col-span-6 hidden lg:block"></div>
+          {/* Artistic quote block */}
+          <div className="relative pt-4">
+            <span className="quote-serif text-6xl sm:text-7xl text-[#D4AF37]/30 absolute -top-2 -left-1 leading-none select-none" aria-hidden="true">
+              "
+            </span>
+            <blockquote className="quote-serif text-lg sm:text-xl md:text-2xl text-white/90 leading-relaxed italic pl-6 border-l-2 border-[#D4AF37]/60">
+              When God has something to teach me, He sends me a teacher. I may not like the lessons but they are ideal for me.
+            </blockquote>
+            <p className="signature-font text-2xl sm:text-3xl text-[#D4AF37]/80 mt-4 pl-6">
+              — Wisdom Peters
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-4 pt-2 body-jakarta">
+            <button
+              onClick={() => navigate("/about")}
+              className="px-6 py-3 border border-[#D4AF37]/60 text-[#D4AF37] font-semibold text-sm tracking-wide hover:bg-[#D4AF37]/10 transition"
+            >
+              About Wisdom
+            </button>
+            <button
+              onClick={() => navigate("/books")}
+              className="px-6 py-3 bg-[#D4AF37] text-black font-bold text-sm tracking-wide hover:bg-[#c9a430] transition"
+            >
+              Explore Books & Courses
+            </button>
+          </div>
         </div>
       </div>
 
+      <span className="signature-font text-4xl sm:text-5xl text-white/20 absolute bottom-8 right-6 sm:right-16 select-none rotate-[-8deg] tracking-widest pointer-events-none hidden lg:block">
+        WISDOMPETERS
+      </span>
     </section>
   );
 };

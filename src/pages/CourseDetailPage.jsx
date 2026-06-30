@@ -4,7 +4,7 @@ import Newsletter from "../components/common/Newsletter";
 import ValueProps from "../components/common/ValueProps";
 import SEO from "../components/SEO";
 import ReviewList from "../components/bookDetails/ReviewList";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import ReviewForm from "../components/bookDetails/ReviewForm";
 import { useGetCourseDetailsQuery } from "../redux/slices/courseApiSlice";
 import { useAddReviewMutation } from "../redux/slices/bookSlice";
@@ -20,6 +20,7 @@ import { useGetEnrollmentQuery } from "../redux/slices/enrollmentApiSlice";
 
 export default function CourseDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.auth);
   
@@ -58,9 +59,16 @@ export default function CourseDetailPage() {
         addToCartWithSync({
           bookId: id,
           quantity: 1,
+          price: course.price,
+          name: course.title,
+          title: course.title,
+          image: course.image,
+          author: course.author,
+          format: "Course",
         })
       ).unwrap();
       toast.success("Added course to cart successfully!");
+      navigate("/cart");
     } catch (err) {
       toast.error(err || "Failed to add course to cart");
     } finally {

@@ -1,6 +1,6 @@
-// components/common/Newsletter.jsx
 import React, { useState } from 'react';
 import Button from './Button';
+import ParallaxSection from './ParallaxSection';
 
 const Newsletter = () => {
   const [email, setEmail] = useState('');
@@ -13,8 +13,13 @@ const Newsletter = () => {
   };
 
   return (
-    <div className="bg-[#380B46] py-8 lg:py-16 px-4">
-      <div className="lg:px-24 mx-auto">
+    <ParallaxSection
+      image="/pl 2.jpeg"
+      overlayClass="bg-[#380B46]/90"
+      minHeight="min-h-0"
+      className="py-8 lg:py-16"
+    >
+      <div className="lg:px-24 mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-center gap-x-36 items-center">
           <div className="mb-4 md:mb-0">
             <h3 className="text-white text-xl lg:text-3xl font-semibold mb-1">Subscribe our newsletter </h3>
@@ -47,7 +52,7 @@ const Newsletter = () => {
           </form>
         </div>
       </div>
-    </div>
+    </ParallaxSection>
   );
 };
 

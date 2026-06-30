@@ -13,6 +13,7 @@ import { clearLocalCart } from "../redux/slices/cartSlice";
 import SEO from "../components/SEO";
 import LoadingSkeleton from "../components/preloader/LoadingSkeleton";
 import { initializeCart } from "../redux/slices/cartThunks";
+import { enrichCartItems } from "../utils/fetchProductDetails";
 
 const CheckoutPage = () => {
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -44,39 +45,25 @@ const CheckoutPage = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // New effect to fetch book details
   useEffect(() => {
-    const fetchBookDetails = async () => {
-      if (!cartData || cartData.length === 0) return;
+    const fetchProductData = async () => {
+      if (!cartData || cartData.length === 0) {
+        setEnrichedCart([]);
+        return;
+      }
 
       try {
-        // Fetch book details for each cart item
         setIsLoading(true);
-        const enriched = await Promise.all(
-          cartData.map(async (item) => {
-            const response = await fetch(`${BASE_URL}books/${item.bookId}`);
-            if (!response.ok) throw new Error("Failed to fetch book details");
-
-            const bookDetails = await response.json();
-            return {
-              ...item,
-              name: bookDetails.data.title || "Unknown Book",
-              image: bookDetails.data.image || "/default-book-cover.jpg",
-              price: bookDetails.data.price || 0,
-              author: bookDetails.data.author || "Unknown ",
-              // Any other book details you need
-            };
-          })
-        );
-        setIsLoading(false);
+        const enriched = await enrichCartItems(BASE_URL, cartData);
         setEnrichedCart(enriched);
       } catch (err) {
-        setLocalError("Failed to fetch book details");
+        setLocalError("Failed to fetch product details");
+      } finally {
         setIsLoading(false);
       }
     };
 
-    fetchBookDetails();
+    fetchProductData();
   }, [cartData, BASE_URL]);
 
   const { userInfo } = useSelector((state) => state.auth);

@@ -52,6 +52,7 @@ import BlogsPage from "./pages/BlogsPage";
 import BlogDetailPage from "./pages/BlogDetailPage";
 import BlogsList from "./pages/dashboard/admin/BlogsList";
 import AboutUsPage from "./pages/AboutUsPage";
+import ContactPage from "./pages/ContactPage";
 
 function App() {
   // Initialize FCM and get FCM functionality
@@ -121,6 +122,7 @@ function App() {
           <Route path="blogs" element={<BlogsPage />} />
           <Route path="blogs/:id" element={<BlogDetailPage />} />
           <Route path="about" element={<AboutUsPage />} />
+          <Route path="contact" element={<ContactPage />} />
           <Route path="courses" element={<CoursesPage />} />
           <Route path="courses/:id" element={<CourseDetailPage />} />
           <Route path="checkout/success" element={<CheckoutSuccess />} />

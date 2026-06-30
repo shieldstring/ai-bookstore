@@ -2,11 +2,13 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
 import {
+  ArrowRight,
   BookOpen,
   Briefcase,
-  CheckCircle2,
+  Heart,
   Mic2,
   Sparkles,
+  Target,
   Users,
 } from "lucide-react";
 
@@ -29,20 +31,50 @@ const bioParagraphs = [
 ];
 
 const offerings = [
-  "Private Coaching & VIP Strategy Sessions",
-  "Faith-Based Mental Wellness & Emotional Intelligence Programs",
-  "Leadership & Ministry Development Courses",
-  "Business Masterminds for Faith-Driven Entrepreneurs",
-  "Custom Mentorship Tracks (Ministers, Coaches, CEOs)",
-  "High-Level Consulting for Visionaries & Organizations",
+  {
+    title: "Private Coaching & VIP Strategy Sessions",
+    description: "One-on-one guidance tailored to your goals, vision, and next level of impact.",
+    icon: Sparkles,
+    interest: "coaching",
+  },
+  {
+    title: "Faith-Based Mental Wellness & Emotional Intelligence Programs",
+    description: "Holistic programs blending faith, psychology, and practical emotional mastery.",
+    icon: Heart,
+    interest: "wellness",
+  },
+  {
+    title: "Leadership & Ministry Development Courses",
+    description: "Structured training to equip leaders and ministers for greater effectiveness.",
+    icon: Users,
+    interest: "leadership",
+  },
+  {
+    title: "Business Masterminds for Faith-Driven Entrepreneurs",
+    description: "Collaborative sessions for founders building purpose-aligned, profitable ventures.",
+    icon: Briefcase,
+    interest: "mastermind",
+  },
+  {
+    title: "Custom Mentorship Tracks (Ministers, Coaches, CEOs)",
+    description: "Bespoke mentorship pathways designed for your unique calling and context.",
+    icon: Target,
+    interest: "mentorship",
+  },
+  {
+    title: "High-Level Consulting for Visionaries & Organizations",
+    description: "Strategic advisory for organizations navigating growth, transition, and vision.",
+    icon: BookOpen,
+    interest: "consulting",
+  },
 ];
 
 const bookingOptions = [
-  { label: "Executive Coaching & Life Mastery", icon: Sparkles },
-  { label: "Church & Marketplace Leadership Training", icon: Users },
-  { label: "Speaking Engagements & Conferences", icon: Mic2 },
-  { label: "Business Strategy Consulting", icon: Briefcase },
-  { label: "Mentoring Programs for High Achievers", icon: BookOpen },
+  { label: "Executive Coaching & Life Mastery", icon: Sparkles, interest: "executive" },
+  { label: "Church & Marketplace Leadership Training", icon: Users, interest: "leadership" },
+  { label: "Speaking Engagements & Conferences", icon: Mic2, interest: "speaking" },
+  { label: "Business Strategy Consulting", icon: Briefcase, interest: "consulting" },
+  { label: "Mentoring Programs for High Achievers", icon: BookOpen, interest: "mentorship" },
 ];
 
 export default function AboutUsPage() {
@@ -60,33 +92,47 @@ export default function AboutUsPage() {
         type="website"
       />
 
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-purple-900 via-purple-800 to-purple-950 text-white">
-        <div className="container mx-auto px-4 py-16 lg:py-24 max-w-6xl">
+      {/* Artistic Hero — portrait only on this page */}
+      <section className="relative min-h-[70vh] flex items-center overflow-hidden bg-[#0a0a0a]">
+        <style>
+          {`
+            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Caveat:wght@400;700&display=swap');
+            .about-quote { font-family: 'Playfair Display', serif; }
+            .about-signature { font-family: 'Caveat', cursive; }
+          `}
+        </style>
+
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-950/80 via-black/70 to-black/90 z-10" />
+
+        <div className="container mx-auto px-4 py-20 relative z-20 max-w-6xl">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="order-2 lg:order-1">
-              <p className="text-purple-200 text-sm font-semibold uppercase tracking-widest mb-3">
+            <div className="order-2 lg:order-1 text-white space-y-6">
+              <p className="text-[#D4AF37] text-xs font-bold uppercase tracking-[0.35em]">
                 About Us
               </p>
-              <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-4">
+              <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
                 Wisdom Peters
               </h1>
-              <p className="text-purple-100 text-base md:text-lg leading-relaxed mb-8">
-                {roles.join(" | ")}
+              <p className="text-purple-200/90 text-sm md:text-base leading-relaxed">
+                {roles.join(" · ")}
               </p>
-              <blockquote className="border-l-4 border-purple-300 pl-4 italic text-purple-100 text-lg">
-                "Purpose is not an idea, it's an assignment. Let's work together
-                to birth yours."
-              </blockquote>
+              <div className="relative pt-2">
+                <span className="about-quote text-5xl text-[#D4AF37]/25 absolute -top-4 -left-1" aria-hidden="true">"</span>
+                <blockquote className="about-quote text-lg md:text-xl italic text-white/90 leading-relaxed border-l-2 border-[#D4AF37]/50 pl-5">
+                  When God has something to teach me, He sends me a teacher. I may not like the lessons but they are ideal for me.
+                </blockquote>
+                <p className="about-signature text-2xl text-[#D4AF37]/80 mt-3 pl-5">— Wisdom Peters</p>
+              </div>
             </div>
 
-            <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
+            <div className="order-1 lg:order-2 flex justify-center">
               <div className="relative">
-                <div className="absolute -inset-3 bg-purple-400/20 rounded-2xl blur-xl" />
+                <div className="absolute -inset-4 border border-[#D4AF37]/30 rounded-2xl rotate-3" aria-hidden="true" />
+                <div className="absolute -inset-4 border border-purple-500/20 rounded-2xl -rotate-2" aria-hidden="true" />
                 <img
                   src="/pl 3.jpeg"
                   alt="Wisdom Peters — Bible teacher, pastor, and life strategist"
-                  className="relative w-72 md:w-80 lg:w-96 rounded-2xl shadow-2xl object-cover aspect-[3/4]"
+                  className="relative w-64 md:w-80 lg:w-96 rounded-2xl shadow-2xl object-cover aspect-[3/4] ring-2 ring-[#D4AF37]/40"
                 />
               </div>
             </div>
@@ -103,37 +149,63 @@ export default function AboutUsPage() {
         </div>
       </section>
 
-      {/* What He Offers & Book For */}
-      <section className="bg-white border-y border-slate-200">
-        <div className="container mx-auto px-4 py-16 max-w-6xl">
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-6">
-                What He Offers
-              </h2>
-              <ul className="space-y-4">
-                {offerings.map((item) => (
-                  <li key={item} className="flex items-start gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-purple-600 shrink-0 mt-0.5" />
-                    <span className="text-slate-600">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+      {/* What He Offers — standalone clickable cards */}
+      <section className="bg-white border-y border-slate-200 py-16">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-3 text-center">
+            What He Offers
+          </h2>
+          <p className="text-slate-500 text-center mb-10 max-w-xl mx-auto text-sm">
+            Tap any service below to enquire directly.
+          </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {offerings.map(({ title, description, icon: Icon, interest }) => (
+              <Link
+                key={interest}
+                to={`/contact?interest=${interest}`}
+                className="group block bg-slate-50 hover:bg-purple-50 border border-slate-200 hover:border-purple-300 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-3 bg-purple-100 group-hover:bg-purple-200 rounded-xl transition-colors">
+                    <Icon className="h-6 w-6 text-purple-700" />
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-slate-300 group-hover:text-purple-600 group-hover:translate-x-1 transition-all" />
+                </div>
+                <h3 className="font-bold text-slate-800 mb-2 group-hover:text-purple-800 transition-colors">
+                  {title}
+                </h3>
+                <p className="text-slate-500 text-sm leading-relaxed">{description}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-6">
-                Book Wisdom Peters For
-              </h2>
-              <ul className="space-y-4">
-                {bookingOptions.map(({ label, icon: Icon }) => (
-                  <li key={label} className="flex items-start gap-3">
-                    <Icon className="h-5 w-5 text-purple-600 shrink-0 mt-0.5" />
-                    <span className="text-slate-600">{label}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+      {/* Book For — standalone clickable cards */}
+      <section className="py-16">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-3 text-center">
+            Book Wisdom Peters For
+          </h2>
+          <p className="text-slate-500 text-center mb-10 max-w-xl mx-auto text-sm">
+            Select an option to start your booking enquiry.
+          </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {bookingOptions.map(({ label, icon: Icon, interest }) => (
+              <Link
+                key={interest}
+                to={`/contact?interest=${interest}`}
+                className="group flex flex-col bg-white hover:bg-purple-900 border border-slate-200 hover:border-purple-800 rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              >
+                <Icon className="h-7 w-7 text-purple-600 group-hover:text-[#D4AF37] mb-4 transition-colors" />
+                <h3 className="font-bold text-slate-800 group-hover:text-white mb-2 transition-colors flex-1">
+                  {label}
+                </h3>
+                <span className="inline-flex items-center gap-1 text-sm font-semibold text-purple-600 group-hover:text-[#D4AF37] transition-colors">
+                  Enquire now <ArrowRight className="h-4 w-4" />
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>

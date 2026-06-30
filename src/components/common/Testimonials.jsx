@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import ParallaxSection from "./ParallaxSection";
 
 const testimonials = [
   {
@@ -96,7 +97,12 @@ const Testimonials = () => {
   }, []);
 
   return (
-    <section className="py-16 bg-gradient-to-br from-gray-900 via-purple-900 to-black">
+    <ParallaxSection
+      image="/pl 2.jpeg"
+      overlayClass="bg-gradient-to-br from-gray-900/85 via-purple-900/80 to-black/85"
+      minHeight="min-h-0"
+      className="py-16"
+    >
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-4">
@@ -163,7 +169,7 @@ const Testimonials = () => {
           </div>
         </div>
       </div>
-    </section>
+    </ParallaxSection>
   );
 };
 

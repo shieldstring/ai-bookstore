@@ -12,9 +12,21 @@ const Footer = () => {
                 Wisdom Peters
               </span>
             </Link>
-            <p className="text-gray-600 text-sm">
-              Connecting readers worldwide and rewarding your passion for books.
+            <p className="text-gray-600 text-sm leading-relaxed">
+              Renowned as a{" "}
+              <strong className="text-gray-800">top-tier</strong>{" "}
+              Bible Teacher · Pastor · Psychology Coach · Life Strategist · Business Mentor · Author —
+              empowering individuals and organizations with teachings, mentorship, and strategic consultations for over two decades.
             </p>
+            <div className="mt-4 space-y-1 text-sm text-gray-500">
+              <a href="tel:+447518576657" className="hover:text-purple-600 transition block">
+                +44 7518 576657
+              </a>
+              <a href="mailto:contact@wisdompeters.com" className="hover:text-purple-600 transition block">
+                contact@wisdompeters.com
+              </a>
+              <p>Manchester, United Kingdom</p>
+            </div>
           </div>
 
           <div>
@@ -64,14 +76,14 @@ const Footer = () => {
                     Privacy Policy
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link
                     to="/mlm-terms"
                     className="text-gray-600 hover:text-purple-600 text-sm"
                   >
                     MLM Terms
                   </Link>
-                </li>
+                </li> */}
                 <li>
                   <Link
                     to="/refund"
@@ -111,14 +123,14 @@ const Footer = () => {
                   Social
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link
                   to="/login?redirect=/dashboard/mlm"
                   className="text-gray-600 hover:text-purple-600 text-sm"
                 >
                   Earn Rewards
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link
                   to="/login?redirect=/dashboard/groups"
