@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import SEO from "../components/SEO";
+import PageHero from "../components/common/PageHero";
 import { Mail, MapPin, Phone, Send } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -78,20 +79,19 @@ export default function ContactPage() {
         type="website"
       />
 
-      <section className="bg-gradient-to-br from-purple-900 via-purple-800 to-purple-950 text-white py-16">
-        <div className="container mx-auto px-4 max-w-4xl text-center">
-          <p className="text-purple-200 text-xs font-bold uppercase tracking-[0.3em] mb-4">
-            Let's Connect
-          </p>
-          <h1 className="text-3xl md:text-5xl font-extrabold mb-4">Contact Us</h1>
-          <p className="text-purple-100 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Whether you're a visionary, executive, leader, or seeker of transformation —
-            we'd love to hear from you.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Let's Connect"
+        title="Contact Us"
+        subtitle="Whether you're a visionary, executive, leader, or seeker of transformation — we'd love to hear from you."
+        backgroundImage="/pl 4.jpeg"
+        overlayClass="bg-gradient-to-br from-purple-950/88 via-black/80 to-black/90"
+        breadcrumbs={[
+          { label: "Home", to: "/" },
+          { label: "Contact" },
+        ]}
+      />
 
-      <div className="container mx-auto px-4 py-16 max-w-6xl">
+      <div className="container mx-auto px-4 py-16 max-w-6xl -mt-4 relative z-20">
         <div className="grid lg:grid-cols-5 gap-10">
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">

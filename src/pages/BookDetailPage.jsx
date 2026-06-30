@@ -3,6 +3,7 @@ import { Star, ShoppingCart, Heart, Store, BookOpen } from "lucide-react";
 import Newsletter from "../components/common/Newsletter";
 import ValueProps from "../components/common/ValueProps";
 import SEO from "../components/SEO";
+import PageHero from "../components/common/PageHero";
 import ReviewList from "../components/bookDetails/ReviewList";
 import { Link, useParams } from "react-router-dom";
 import ReviewForm from "../components/bookDetails/ReviewForm";
@@ -130,22 +131,23 @@ function BookDetailPage() {
           description={book.description}
           image={book.image}
         />
-        {/* Breadcrumb */}
-        <div className="bg-gray-50 py-3 px-4 lg:px-24 mb-6">
-          <div className="flex items-center text-sm">
-            <Link to="/" className="text-purple-600 hover:underline">
-              Home
-            </Link>
-            <span className="mx-2 text-purple-600">/</span>
-            <Link to="/books" className="text-purple-600 hover:underline">
-              Books
-            </Link>
-            <span className="mx-2 text-purple-600">/</span>
-            <span className="text-gray-500">{book.title}</span>
-          </div>
-        </div>
+        <PageHero
+          variant="compact"
+          eyebrow={book.format === "Course" ? "Course" : "Book"}
+          title={book.title}
+          subtitle={`by ${book.author}`}
+          backgroundImage={book.image}
+          align="left"
+          overlayClass="bg-gradient-to-r from-black/88 via-purple-950/82 to-black/75"
+          minHeight="min-h-[240px] md:min-h-[280px]"
+          breadcrumbs={[
+            { label: "Home", to: "/" },
+            { label: "Books", to: "/books" },
+            { label: book.title?.length > 40 ? `${book.title.slice(0, 40)}…` : book.title },
+          ]}
+        />
 
-        <div className="lg:px-24 mx-auto p-4 bg-white">
+        <div className="lg:px-24 mx-auto p-4 bg-white -mt-2 relative z-10">
           {/* Product Overview Section */}
           <div className="flex flex-col lg:flex-row gap-8 mb-10">
             {/* Left Column - Images */}

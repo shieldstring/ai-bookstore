@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useGetBlogDetailsQuery } from "../redux/slices/blogApiSlice";
 import ErrorMessage from "../components/common/ErrorMessage";
 import SEO from "../components/SEO";
+import PageHero from "../components/common/PageHero";
 import { Calendar, User, Clock, ArrowLeft } from "lucide-react";
 
 export default function BlogDetailPage() {
@@ -39,7 +40,7 @@ export default function BlogDetailPage() {
   const blog = data.data;
 
   return (
-    <div className="bg-slate-50 min-h-screen py-12">
+    <div className="bg-slate-50 min-h-screen">
       <SEO
         title={blog.title}
         description={blog.summary}
@@ -47,8 +48,23 @@ export default function BlogDetailPage() {
         type="article"
       />
 
-      <div className="container mx-auto px-4 max-w-3xl">
-        {/* Back Link */}
+      <PageHero
+        variant="compact"
+        eyebrow={blog.category}
+        title={blog.title}
+        subtitle={blog.summary}
+        backgroundImage={blog.imageUrl}
+        align="left"
+        overlayClass="bg-gradient-to-r from-black/88 via-purple-950/82 to-black/75"
+        minHeight="min-h-[260px] md:min-h-[300px]"
+        breadcrumbs={[
+          { label: "Home", to: "/" },
+          { label: "Blogs", to: "/blogs" },
+          { label: blog.title?.length > 36 ? `${blog.title.slice(0, 36)}…` : blog.title },
+        ]}
+      />
+
+      <div className="container mx-auto px-4 max-w-3xl py-10 -mt-2 relative z-10">
         <Link
           to="/blogs"
           className="inline-flex items-center text-slate-500 hover:text-purple-600 font-semibold text-sm transition-colors gap-2 mb-6"
@@ -57,43 +73,24 @@ export default function BlogDetailPage() {
           Back to Blogs
         </Link>
 
-        {/* Article Container Card */}
         <article className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden p-6 md:p-10 space-y-6">
-          {/* Cover Photo */}
-          <div className="w-full h-80 rounded-2xl overflow-hidden shadow-sm border border-slate-100 relative">
-            <img
-              src={blog.imageUrl}
-              alt={blog.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          {/* Heading */}
-          <div className="space-y-3 pb-6 border-b border-slate-100">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="bg-purple-50 text-purple-700 font-bold px-3 py-1 rounded-full text-xxs uppercase tracking-wider border border-purple-100">
-                {blog.category}
-              </span>
-              <span className="text-slate-400 text-xxs font-semibold flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5" />
-                {blog.readTime}
-              </span>
-            </div>
-
-            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 leading-tight">
-              {blog.title}
-            </h1>
-
-            {/* Author info */}
-            <div className="flex items-center gap-3 pt-3">
-              <div className="h-10 w-10 bg-purple-50 rounded-full flex items-center justify-center border border-purple-100 text-purple-600">
-                <User className="h-5 w-5" />
+          <div className="flex flex-wrap items-center gap-3 pb-4 border-b border-slate-100">
+            <span className="bg-purple-50 text-purple-700 font-bold px-3 py-1 rounded-full text-xxs uppercase tracking-wider border border-purple-100">
+              {blog.category}
+            </span>
+            <span className="text-slate-400 text-xxs font-semibold flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5" />
+              {blog.readTime}
+            </span>
+            <div className="flex items-center gap-2 ml-auto">
+              <div className="h-8 w-8 bg-purple-50 rounded-full flex items-center justify-center border border-purple-100 text-purple-600">
+                <User className="h-4 w-4" />
               </div>
               <div>
                 <p className="font-bold text-slate-700 text-xs">{blog.authorName}</p>
-                <p className="text-slate-400 text-xxs flex items-center gap-1 mt-0.5">
+                <p className="text-slate-400 text-xxs flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  Published {new Date(blog.createdAt).toLocaleDateString(undefined, {
+                  {new Date(blog.createdAt).toLocaleDateString(undefined, {
                     year: "numeric",
                     month: "long",
                     day: "numeric",

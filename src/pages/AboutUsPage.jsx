@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
+import PageHero from "../components/common/PageHero";
 import {
   ArrowRight,
   BookOpen,
@@ -92,53 +93,28 @@ export default function AboutUsPage() {
         type="website"
       />
 
-      {/* Artistic Hero — portrait only on this page */}
-      <section className="relative min-h-[70vh] flex items-center overflow-hidden bg-[#0a0a0a]">
-        <style>
-          {`
-            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Caveat:wght@400;700&display=swap');
-            .about-quote { font-family: 'Playfair Display', serif; }
-            .about-signature { font-family: 'Caveat', cursive; }
-          `}
-        </style>
-
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-950/80 via-black/70 to-black/90 z-10" />
-
-        <div className="container mx-auto px-4 py-20 relative z-20 max-w-6xl">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="order-2 lg:order-1 text-white space-y-6">
-              <p className="text-[#D4AF37] text-xs font-bold uppercase tracking-[0.35em]">
-                About Us
-              </p>
-              <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
-                Wisdom Peters
-              </h1>
-              <p className="text-purple-200/90 text-sm md:text-base leading-relaxed">
-                {roles.join(" · ")}
-              </p>
-              <div className="relative pt-2">
-                <span className="about-quote text-5xl text-[#D4AF37]/25 absolute -top-4 -left-1" aria-hidden="true">"</span>
-                <blockquote className="about-quote text-lg md:text-xl italic text-white/90 leading-relaxed border-l-2 border-[#D4AF37]/50 pl-5">
-                  When God has something to teach me, He sends me a teacher. I may not like the lessons but they are ideal for me.
-                </blockquote>
-                <p className="about-signature text-2xl text-[#D4AF37]/80 mt-3 pl-5">— Wisdom Peters</p>
-              </div>
-            </div>
-
-            <div className="order-1 lg:order-2 flex justify-center">
-              <div className="relative">
-                <div className="absolute -inset-4 border border-[#D4AF37]/30 rounded-2xl rotate-3" aria-hidden="true" />
-                <div className="absolute -inset-4 border border-purple-500/20 rounded-2xl -rotate-2" aria-hidden="true" />
-                <img
-                  src="/pl 3.jpeg"
-                  alt="Wisdom Peters — Bible teacher, pastor, and life strategist"
-                  className="relative w-64 md:w-80 lg:w-96 rounded-2xl shadow-2xl object-cover aspect-[3/4] ring-2 ring-[#D4AF37]/40"
-                />
-              </div>
-            </div>
+      <PageHero
+        variant="featured"
+        eyebrow="About Us"
+        title="Wisdom Peters"
+        subtitle={roles.join(" · ")}
+        align="left"
+        breadcrumbs={[
+          { label: "Home", to: "/" },
+          { label: "About" },
+        ]}
+        aside={
+          <div className="relative art-hero-float">
+            <div className="absolute -inset-4 border border-[#D4AF37]/30 rounded-2xl rotate-3" aria-hidden="true" />
+            <div className="absolute -inset-4 border border-purple-500/20 rounded-2xl -rotate-2" aria-hidden="true" />
+            <img
+              src="/pl 3.jpeg"
+              alt="Wisdom Peters — Bible teacher, pastor, and life strategist"
+              className="relative w-64 md:w-80 lg:w-96 rounded-2xl shadow-2xl object-cover aspect-[3/4] ring-2 ring-[#D4AF37]/40"
+            />
           </div>
-        </div>
-      </section>
+        }
+      />
 
       {/* Bio */}
       <section className="container mx-auto px-4 py-16 max-w-4xl">

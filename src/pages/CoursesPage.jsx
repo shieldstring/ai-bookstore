@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useGetCoursesQuery } from "../redux/slices/courseApiSlice";
 import ErrorMessage from "../components/common/ErrorMessage";
 import SEO from "../components/SEO";
-import ParallaxSection from "../components/common/ParallaxSection";
+import PageHero from "../components/common/PageHero";
 import { Star, Video, Search, ArrowRight, BookOpen } from "lucide-react";
 
 export default function CoursesPage() {
@@ -55,23 +55,19 @@ export default function CoursesPage() {
         type="website"
       />
 
-      <ParallaxSection
-        image="/pI 1.png"
-        overlayClass="bg-black/70"
-        minHeight="min-h-[280px]"
-        className="flex items-center"
-      >
-        <div className="container mx-auto px-4 max-w-6xl py-16 text-center">
-          <h1 className="text-3xl font-extrabold text-white md:text-4xl">
-            Online Learning Courses
-          </h1>
-          <p className="text-white/80 text-sm mt-3 leading-relaxed max-w-xl mx-auto">
-            Acquire specialized knowledge and grow your career with structured, curriculum-based online video courses.
-          </p>
-        </div>
-      </ParallaxSection>
+      <PageHero
+        eyebrow="Online Learning"
+        title="Courses"
+        subtitle="Acquire specialized knowledge and grow with structured, curriculum-based video courses."
+        backgroundImage="/pI 1.png"
+        overlayClass="bg-gradient-to-br from-black/78 via-purple-950/72 to-black/85"
+        breadcrumbs={[
+          { label: "Home", to: "/" },
+          { label: "Courses" },
+        ]}
+      />
 
-      <div className="container mx-auto px-4 max-w-6xl py-12">
+      <div className="container mx-auto px-4 max-w-6xl py-12 -mt-2 relative z-10">
         {/* Filter and Search Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-200">
           {/* Category selection */}

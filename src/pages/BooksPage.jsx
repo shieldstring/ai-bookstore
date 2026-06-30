@@ -18,6 +18,7 @@ import { addToCartWithSync } from "../redux/slices/cartThunks";
 import { useDispatch } from "react-redux";
 import LoadingSkeleton from "../components/preloader/LoadingSkeleton";
 import ErrorMessage from "../components/common/ErrorMessage";
+import PageHero from "../components/common/PageHero";
 
 const BooksPage = () => {
   const location = useLocation();
@@ -270,26 +271,27 @@ const BooksPage = () => {
   }
   return (
     <div>
-      {/* Breadcrumb */}
-      <div className="bg-gray-50 py-3">
-        <div className="container mx-auto px-4 flex justify-between">
-          <div className="flex items-center text-sm">
-            <Link to="/" className="text-gray-600 hover:text-purple-700">
-              Home
-            </Link>
-            <span className="mx-2 text-gray-500">/</span>
-            <span className="text-gray-900">Books</span>
-          </div>
-
+      <PageHero
+        eyebrow="Library"
+        title="Books"
+        subtitle="Discover transformational reads curated to elevate your faith, mindset, and purpose."
+        backgroundImage="/pl 2.jpeg"
+        overlayClass="bg-gradient-to-br from-black/82 via-purple-950/78 to-black/88"
+        align="left"
+        breadcrumbs={[
+          { label: "Home", to: "/" },
+          { label: "Books" },
+        ]}
+        actions={
           <button
-            className="md:hidden flex items-center text-sm gap-x-2 border border-gray-300 rounded-md px-2 py-1.5"
+            className="md:hidden inline-flex items-center gap-2 px-4 py-2 border border-[#D4AF37]/40 text-[#D4AF37] text-xs font-semibold uppercase tracking-wider rounded hover:bg-[#D4AF37]/10 transition"
             onClick={() => setShowFilters(!showFilters)}
           >
             <Filter className="w-4 h-4" />
             {showFilters ? "Hide Filters" : "Show Filters"}
           </button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row">

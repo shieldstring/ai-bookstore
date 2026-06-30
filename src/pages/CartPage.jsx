@@ -13,6 +13,7 @@ import OrderSummary from "../components/cart/OrderSummary";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import Newsletter from "../components/common/Newsletter";
 import SEO from "../components/SEO";
+import PageHero from "../components/common/PageHero";
 import LoadingSkeleton from "../components/preloader/LoadingSkeleton";
 import { enrichCartItems } from "../utils/fetchProductDetails";
 
@@ -130,22 +131,18 @@ const CartPage = () => {
         name="AI-Powered Social-Ecommerce"
         type="description"
       />
-      {/* Breadcrumb */}
-      <div className="bg-gray-50 py-3 ">
-        <div className="container mx-auto px-4 flex justify-between">
-          <div className="flex items-center text-sm">
-            <Link
-              to="/"
-              className="hover:text-gray-600 font-semibold text-purple-700"
-            >
-              Home
-            </Link>
-            <span className="mx-2 text-gray-500">/</span>
-            <span className="text-gray-900">Cart</span>
-          </div>
-        </div>
-      </div>
-      <div className="max-w-4xl 2xl:max-w-6xl mx-auto px-4 lg:py-10">
+      <PageHero
+        variant="compact"
+        eyebrow="Your Selection"
+        title="Shopping Cart"
+        subtitle="Review your items and proceed to checkout when you're ready."
+        align="left"
+        breadcrumbs={[
+          { label: "Home", to: "/" },
+          { label: "Cart" },
+        ]}
+      />
+      <div className="max-w-4xl 2xl:max-w-6xl mx-auto px-4 lg:py-10 -mt-2 relative z-10">
         <div className="mb-8">
           {cartData?.length === 0 ? (
             <div className="text-center py-12">

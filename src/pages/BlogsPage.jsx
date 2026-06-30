@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useGetBlogsQuery } from "../redux/slices/blogApiSlice";
 import ErrorMessage from "../components/common/ErrorMessage";
 import SEO from "../components/SEO";
+import PageHero from "../components/common/PageHero";
 import { Calendar, User, Search, ArrowRight, BookOpen } from "lucide-react";
 
 export default function BlogsPage() {
@@ -49,7 +50,7 @@ export default function BlogsPage() {
   const totalPages = data?.pages || 1;
 
   return (
-    <div className="bg-slate-50 min-h-screen py-12">
+    <div className="bg-slate-50 min-h-screen">
       <SEO
         title="Bookstore Blogs & Articles"
         description="Explore Bookstore's official news, lists, mental health benefits, and reading guides."
@@ -57,17 +58,19 @@ export default function BlogsPage() {
         type="website"
       />
 
-      <div className="container mx-auto px-4 max-w-6xl">
-        {/* Header Block */}
-        <div className="text-center max-w-xl mx-auto mb-12">
-          <h1 className="text-3xl font-extrabold text-slate-800 md:text-4xl">
-            Bookstore Blogs
-          </h1>
-          <p className="text-slate-500 text-sm mt-3 leading-relaxed">
-            Discover guides, benefits of reading, book summaries, and professional industry news compiled by bookstore admins.
-          </p>
-        </div>
+      <PageHero
+        eyebrow="Insights & Inspiration"
+        title="Blogs"
+        subtitle="Guides, benefits of reading, book summaries, and industry news from Wisdom Peters."
+        backgroundImage="/pI 1.png"
+        overlayClass="bg-gradient-to-br from-black/80 via-purple-950/75 to-black/85"
+        breadcrumbs={[
+          { label: "Home", to: "/" },
+          { label: "Blogs" },
+        ]}
+      />
 
+      <div className="container mx-auto px-4 max-w-6xl py-12 -mt-2 relative z-10">
         {/* Filters and Search toolbar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 pb-6 border-b border-slate-200">
           {/* Category Chips */}

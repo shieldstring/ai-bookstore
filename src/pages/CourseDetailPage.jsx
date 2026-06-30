@@ -3,6 +3,7 @@ import { Star, ShoppingCart, Video, ShieldCheck, Clock, BookOpen, User, Store } 
 import Newsletter from "../components/common/Newsletter";
 import ValueProps from "../components/common/ValueProps";
 import SEO from "../components/SEO";
+import PageHero from "../components/common/PageHero";
 import ReviewList from "../components/bookDetails/ReviewList";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import ReviewForm from "../components/bookDetails/ReviewForm";
@@ -121,18 +122,23 @@ export default function CourseDetailPage() {
         type="website"
       />
 
-      {/* Breadcrumbs */}
-      <div className="bg-white py-3 border-b border-slate-200">
-        <div className="container mx-auto px-4 max-w-5xl text-xs text-slate-500 flex items-center gap-2">
-          <Link to="/" className="hover:text-purple-600 transition-colors">Home</Link>
-          <span>/</span>
-          <Link to="/courses" className="hover:text-purple-600 transition-colors">Courses</Link>
-          <span>/</span>
-          <span className="text-slate-800 font-semibold truncate max-w-xs">{course.title}</span>
-        </div>
-      </div>
+      <PageHero
+        variant="compact"
+        eyebrow="Course Syllabus"
+        title={course.title}
+        subtitle={`Instructor: ${course.author}`}
+        backgroundImage={course.image}
+        align="left"
+        overlayClass="bg-gradient-to-r from-black/88 via-purple-950/82 to-black/75"
+        minHeight="min-h-[240px] md:min-h-[280px]"
+        breadcrumbs={[
+          { label: "Home", to: "/" },
+          { label: "Courses", to: "/courses" },
+          { label: course.title?.length > 40 ? `${course.title.slice(0, 40)}…` : course.title },
+        ]}
+      />
 
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
+      <div className="container mx-auto px-4 py-8 max-w-5xl -mt-2 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Main Course Info Column */}
