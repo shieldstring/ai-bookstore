@@ -5,8 +5,8 @@ export default function SEO({ title, description, name, image, type,  url = wind
 		<Helmet>
 			{/* Standard metadata tags */}
 			<title>{title}</title>
-			<meta name="description" content={"Join our community of book lovers, discover new books, join reading groups, and earn rewards through our MLM program."} />
-			<meta name="keywords" content={"books, e-commerce, social network, reading, MLM, rewards"} />
+			<meta name="description" content={description || "Discover transformational books, interactive courses, and community insights curated by Wisdom Peters to elevate your faith, mindset, purpose, and business."} />
+			<meta name="keywords" content="Wisdom Peters, books, e-commerce, social network, reading, MLM, rewards, courses, mindset, theology" />
 			<meta name="robots" content="index, follow" />
 			{/* End standard metadata tags */}
 			{/* Facebook tags */}

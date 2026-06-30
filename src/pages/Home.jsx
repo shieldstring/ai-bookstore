@@ -24,10 +24,10 @@ const Home = () => {
   return (
     <div>
       <SEO
-        title="AI-Powered Social-Ecommerce | Home"
-        description="AI-Powered Social-Ecommerce Platform is a comprehensive system integrating eCommerce, social networking, and MLM for book sales, community engagement, and earning opportunities."
-        name="AI-Powered Social-Ecommerce"
-        type="description"
+        title="Wisdom Peters | Bookstore, Courses & Community"
+        description="Discover transformational books, interactive courses, and community insights curated by Wisdom Peters to elevate your faith, mindset, purpose, and business."
+        name="Wisdom Peters"
+        type="website"
       />
 
       {/* Hero Section */}

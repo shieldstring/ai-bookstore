@@ -75,7 +75,7 @@ const MyOrders = () => {
       <div className="bg-white rounded-2xl border border-slate-200/60 p-6 min-h-[70vh]">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 pb-4 border-b border-slate-100">
           <div>
-            <h2 className="text-xl font-bold text-slate-800 font-extrabold">My Orders</h2>
+            <h2 className="text-xl text-slate-800 font-extrabold">My Orders</h2>
             <p className="text-slate-500 text-xs mt-1">Review your recent purchases and check transaction status</p>
           </div>
           <div className="relative mt-4 md:mt-0">
