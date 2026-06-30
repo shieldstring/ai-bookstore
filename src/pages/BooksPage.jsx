@@ -25,6 +25,7 @@ const BooksPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
+  const { currency, format } = useCurrency();
 
   // Initialize state from URL params
   const [currentPage, setCurrentPage] = useState(
@@ -222,7 +223,6 @@ const BooksPage = () => {
 
   // Add to Cart
   const dispatch = useDispatch();
-  const { currency, format } = useCurrency();
   const addToCart = async (bookId) => {
     try {
       await dispatch(addToCartWithSync({ bookId, quantity: 1 }));

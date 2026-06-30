@@ -1,4 +1,4 @@
-import { ShoppingCart, X, Heart, AlertCircle } from "lucide-react";
+import { ShoppingCart, X, Heart } from "lucide-react";
 import SEO from "../../../components/SEO";
 import { useEffect } from "react";
 import useCurrency from "../../../hooks/useCurrency";
