@@ -17,6 +17,7 @@ import RecentOrders from "../../../components/dashboard/RecentOrders";
 import UserProfileCard from "../../../components/dashboard/UserProfileCard";
 import UpcomingChallenges from "../../../components/dashboard/UpcomingChallenges";
 import { useGetRecommendationsQuery } from "../../../redux/slices/bookSlice";
+import { useGetMyEnrollmentsQuery } from "../../../redux/slices/enrollmentApiSlice";
 import SEO from "../../../components/SEO";
 import LoadingSkeleton from "../../../components/preloader/LoadingSkeleton";
 import { Link } from "react-router-dom";
@@ -31,6 +32,7 @@ const UserDashboard = () => {
   const { data, isLoading, error } = useGetUserDashboardQuery();
   const [books, setBooks] = useState([]);
   const { data: recommemdedbooks } = useGetRecommendationsQuery();
+  const { data: enrollmentsData, isLoading: enrollmentsLoading } = useGetMyEnrollmentsQuery();
 
   useEffect(() => {
     if (recommemdedbooks) {
@@ -132,6 +134,83 @@ const UserDashboard = () => {
                   challenges={data.upcomingChallenges || []}
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Enrolled Courses */}
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+              <div className="flex items-center">
+                <BookOpen className="h-5 w-5 text-purple-500 mr-2" />
+                <h2 className="text-lg font-semibold text-gray-800">
+                  My Active Courses
+                </h2>
+              </div>
+              <Link
+                to="/dashboard/courses"
+                className="text-sm font-medium text-purple-600 hover:text-purple-700"
+              >
+                View all
+              </Link>
+            </div>
+            <div className="p-6">
+              {enrollmentsLoading ? (
+                <div className="space-y-3">
+                  <div className="h-10 bg-slate-100 animate-pulse rounded-lg"></div>
+                  <div className="h-10 bg-slate-100 animate-pulse rounded-lg"></div>
+                </div>
+              ) : (enrollmentsData?.data || []).length === 0 ? (
+                <div className="text-center py-6 text-slate-500">
+                  <p className="text-sm font-medium">No courses enrolled yet</p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Unlock learning by visiting our{" "}
+                    <Link to="/courses" className="text-purple-600 hover:underline font-bold">
+                      Courses Directory
+                    </Link>
+                    .
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(enrollmentsData?.data || []).slice(0, 2).map((enrollment) => {
+                    const course = enrollment.courseId;
+                    if (!course) return null;
+                    const totalLessons = course.sections?.reduce((acc, sec) => acc + (sec.lessons?.length || 0), 0) || 0;
+                    const completedCount = enrollment.completedLessons?.length || 0;
+                    const progressPercentage = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+                    
+                    return (
+                      <div
+                        key={enrollment._id}
+                        className="flex gap-4 p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors"
+                      >
+                        <img
+                          src={course.image}
+                          alt={course.title}
+                          className="w-20 h-14 object-cover rounded-lg shadow-sm border border-slate-100"
+                        />
+                        <div className="flex-1 min-w-0 flex flex-col justify-between">
+                          <div>
+                            <h4 className="font-bold text-slate-800 text-xs truncate">
+                              <Link to={`/dashboard/courses/${course._id}`}>{course.title}</Link>
+                            </h4>
+                            <p className="text-slate-550 text-[10px] mt-0.5">Instructor: {course.author}</p>
+                          </div>
+                          <div className="mt-2 flex items-center gap-2">
+                            <div className="flex-grow bg-slate-100 rounded-full h-1 overflow-hidden">
+                              <div
+                                className="bg-purple-600 h-full rounded-full"
+                                style={{ width: `${progressPercentage}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-[10px] text-slate-700 font-bold">{progressPercentage}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
 
