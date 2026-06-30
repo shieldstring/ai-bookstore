@@ -116,8 +116,7 @@ export default function CreateCourse({ onClose, refetch }) {
       const payload = {
         ...formData,
         format: "Course",
-        isbn: `COURSE-${Date.now()}`,
-        inventory: 99999, // Infinite seats
+        inventory: 99999,
         price: parseFloat(formData.price),
         originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : undefined,
         sections,

@@ -122,7 +122,6 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
     // Required fields validation
     if (!formData.title.trim()) newErrors.title = "Title is required";
     if (!formData.author.trim()) newErrors.author = "Author is required";
-    if (formData.format !== "Course" && !formData.isbn.trim()) newErrors.isbn = "ISBN is required";
     if (!formData.publisher.trim())
       newErrors.publisher = "Publisher is required";
     if (!formData.description.trim())
@@ -156,10 +155,12 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
         newErrors.inventory = "Inventory cannot be negative";
       }
 
-      // ISBN validation
-      const cleanIsbn = formData.isbn.replace(/[-\s]/g, "");
-      if (!/^(?:\d{9}[\dXx]|\d{13})$/.test(cleanIsbn)) {
-        newErrors.isbn = "Enter a valid 10- or 13-digit ISBN";
+      // ISBN validation (optional)
+      if (formData.isbn.trim()) {
+        const cleanIsbn = formData.isbn.replace(/[-\s]/g, "");
+        if (!/^(?:\d{9}[\dXx]|\d{13})$/.test(cleanIsbn)) {
+          newErrors.isbn = "Enter a valid 10- or 13-digit ISBN";
+        }
       }
     } else {
       if (sections.length === 0) {
@@ -224,7 +225,11 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
         originalPrice: formData.originalPrice
           ? parseFloat(formData.originalPrice)
           : undefined,
-        isbn: formData.format === "Course" ? (details.isbn && details.isbn.startsWith("COURSE-") ? details.isbn : `COURSE-${Date.now()}`) : formData.isbn.replace(/[-\s]/g, ""),
+        ...(formData.format !== "Course" && formData.isbn.trim()
+          ? { isbn: formData.isbn.replace(/[-\s]/g, "") }
+          : formData.format === "Course" && details.isbn
+            ? { isbn: details.isbn }
+            : {}),
         language: formData.language,
         format: formData.format,
         publishDate: formData.publishedDate,
@@ -426,7 +431,7 @@ export default function EditProduct({ productId, onClose, details, refetch }) {
                     {formData.format !== "Course" && (
                       <div className="space-y-2">
                         <label className="block text-sm font-medium text-slate-700">
-                          ISBN <span className="text-red-500">*</span>
+                          ISBN <span className="text-slate-400 font-normal">(optional)</span>
                         </label>
                         <input
                           type="text"

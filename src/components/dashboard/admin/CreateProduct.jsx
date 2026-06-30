@@ -122,7 +122,6 @@ export default function CreateProduct({ onClose,  refetch }) {
     // Required fields validation
     if (!formData.title.trim()) newErrors.title = "Title is required";
     if (!formData.author.trim()) newErrors.author = "Author is required";
-    if (formData.format !== "Course" && !formData.isbn.trim()) newErrors.isbn = "ISBN is required";
     if (!formData.publisher.trim())
       newErrors.publisher = "Publisher is required";
     if (!formData.publishedDate)
@@ -146,10 +145,12 @@ export default function CreateProduct({ onClose,  refetch }) {
       else if (parseInt(formData.inventory) < 0)
         newErrors.inventory = "Inventory cannot be negative";
 
-      // ISBN validation
-      const cleanIsbn = formData.isbn.replace(/[-\s]/g, "");
-      if (!/^(?:\d{9}[\dXx]|\d{13})$/.test(cleanIsbn)) {
-        newErrors.isbn = "Enter a valid 10- or 13-digit ISBN";
+      // ISBN validation (optional)
+      if (formData.isbn.trim()) {
+        const cleanIsbn = formData.isbn.replace(/[-\s]/g, "");
+        if (!/^(?:\d{9}[\dXx]|\d{13})$/.test(cleanIsbn)) {
+          newErrors.isbn = "Enter a valid 10- or 13-digit ISBN";
+        }
       }
     } else {
       if (sections.length === 0) {
@@ -199,7 +200,9 @@ export default function CreateProduct({ onClose,  refetch }) {
         originalPrice: formData.originalPrice
           ? parseFloat(formData.originalPrice)
           : undefined,
-        isbn: formData.format === "Course" ? `COURSE-${Date.now()}` : formData.isbn.replace(/[-\s]/g, ""), // Clean ISBN
+        ...(formData.format !== "Course" && formData.isbn.trim()
+          ? { isbn: formData.isbn.replace(/[-\s]/g, "") }
+          : {}),
         language: formData.language,
         format: formData.format,
         publishDate: formData.publishedDate, // Matches model field name
@@ -412,14 +415,14 @@ export default function CreateProduct({ onClose,  refetch }) {
                     {formData.format !== "Course" && (
                       <div className="space-y-2">
                         <label className="block text-sm font-medium text-slate-700">
-                          ISBN <span className="text-red-500">*</span>
+                          ISBN <span className="text-slate-400 font-normal">(optional)</span>
                         </label>
                         <input
                           type="text"
                           name="isbn"
                           value={formData.isbn}
                           onChange={handleChange}
-                          placeholder="978-3-16-148410-0"
+                          placeholder="Leave blank to auto-generate (e.g. BOOK-…)"
                           className={`w-full px-4 py-3 rounded-lg border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                             errors.isbn
                               ? "border-red-300 bg-red-50"
