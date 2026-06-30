@@ -11,6 +11,7 @@ import LoadingSpinner from "../../common/LoadingSpinner";
 import { getPriceValidationError } from "../../../utils/currency";
 import LessonQuizEditor from "./LessonQuizEditor";
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
+import { COURSE_CATEGORIES } from "../../../constants/courseCategories";
 
 export default function CreateCourse({ onClose, refetch }) {
   const [addCourse, { isLoading }] = useAddCourseMutation();
@@ -42,13 +43,7 @@ export default function CreateCourse({ onClose, refetch }) {
 
   const [errors, setErrors] = useState({});
 
-  const categories = [
-    "Education",
-    "Business & Economics",
-    "Science & Technology",
-    "Self-Help",
-    "Health & Fitness",
-  ];
+  const categories = COURSE_CATEGORIES;
 
   const languages = [
     "English",
@@ -227,7 +222,7 @@ export default function CreateCourse({ onClose, refetch }) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-700">Course Price ($) *</label>
+                  <label className="text-xs font-semibold text-slate-700">Course Price (£) *</label>
                   <input
                     type="number"
                     step="0.01"
@@ -241,7 +236,7 @@ export default function CreateCourse({ onClose, refetch }) {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-700">Original Price ($) (Optional)</label>
+                  <label className="text-xs font-semibold text-slate-700">Original Price (£) (Optional)</label>
                   <input
                     type="number"
                     step="0.01"

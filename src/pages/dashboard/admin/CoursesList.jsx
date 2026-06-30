@@ -17,6 +17,7 @@ import { useSelector } from "react-redux";
 import {
   useGetCoursesQuery,
   useGetSellerCoursesQuery,
+  useGetCourseDetailsQuery,
   useDeleteCourseMutation,
 } from "../../../redux/slices/courseApiSlice";
 
@@ -27,7 +28,6 @@ const CoursesList = () => {
   const [category, setCategory] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [details, setDetails] = useState([]);
 
   // Query params for public/admin listing
   const queryParams = {
@@ -68,6 +68,14 @@ const CoursesList = () => {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
+
+  const {
+    data: editingCourseData,
+    isLoading: isLoadingEditingCourse,
+  } = useGetCourseDetailsQuery(
+    { courseId: editingProductId },
+    { skip: !editingProductId }
+  );
 
   // Trigger refetch on mount or query updates
   useEffect(() => {
@@ -178,6 +186,7 @@ const CoursesList = () => {
             <option value="Business & Economics">Business & Economics</option>
             <option value="Science & Technology">Science & Technology</option>
             <option value="Self-Help">Self-Help</option>
+            <option value="Religion & Spirituality">Religion & Spirituality</option>
             <option value="Health & Fitness">Health & Fitness</option>
           </select>
           <select
@@ -278,10 +287,7 @@ const CoursesList = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
-                      onClick={() => {
-                        setEditingProductId(course._id);
-                        setDetails(course);
-                      }}
+                      onClick={() => setEditingProductId(course._id)}
                       className="text-purple-600 hover:text-purple-900 mr-4 cursor-pointer"
                       title="Edit Course Curriculum"
                     >
@@ -391,12 +397,18 @@ const CoursesList = () => {
       {editingProductId && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-            <EditCourse
-              productId={editingProductId}
-              details={details}
-              onClose={() => setEditingProductId(null)}
-              refetch={refetch}
-            />
+            {isLoadingEditingCourse ? (
+              <div className="p-12 flex justify-center">
+                <LoadingSkeleton type="list" count={3} />
+              </div>
+            ) : (
+              <EditCourse
+                productId={editingProductId}
+                details={editingCourseData?.data}
+                onClose={() => setEditingProductId(null)}
+                refetch={refetch}
+              />
+            )}
           </div>
         </div>
       )}

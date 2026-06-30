@@ -11,6 +11,17 @@ import LoadingSpinner from "../../common/LoadingSpinner";
 import { uploadToCloudinary } from "../../../utils/cloudinaryUpload";
 import { getPriceValidationError } from "../../../utils/currency";
 import LessonQuizEditor from "./LessonQuizEditor";
+import { COURSE_CATEGORIES } from "../../../constants/courseCategories";
+
+const emptyLessonForm = () => ({
+  title: "",
+  content: "",
+  videoUrl: "",
+  pdfUrl: "",
+  imageUrl: "",
+  duration: "",
+  questions: [],
+});
 
 export default function EditCourse({ productId, details, onClose, refetch }) {
   const [updateCourse, { isLoading }] = useUpdateCourseMutation();
@@ -31,24 +42,12 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
   const [sections, setSections] = useState([]);
   const [newSectionTitle, setNewSectionTitle] = useState("");
   const [activeSectionIndexForLesson, setActiveSectionIndexForLesson] = useState(null);
-  const [lessonForm, setLessonForm] = useState({
-    title: "",
-    content: "",
-    videoUrl: "",
-    pdfUrl: "",
-    duration: "",
-    questions: [],
-  });
+  const [editingLesson, setEditingLesson] = useState(null);
+  const [lessonForm, setLessonForm] = useState(emptyLessonForm());
 
   const [errors, setErrors] = useState({});
 
-  const categories = [
-    "Education",
-    "Business & Economics",
-    "Science & Technology",
-    "Self-Help",
-    "Health & Fitness",
-  ];
+  const categories = COURSE_CATEGORIES;
 
   const languages = [
     "English",
@@ -88,7 +87,71 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
   };
 
   const fileInputRef = useRef(null);
+  const lessonImageInputRef = useRef(null);
+  const lessonPdfInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadingLessonAsset, setUploadingLessonAsset] = useState(false);
+
+  const resetLessonEditor = () => {
+    setLessonForm(emptyLessonForm());
+    setEditingLesson(null);
+    setActiveSectionIndexForLesson(null);
+  };
+
+  const startEditLesson = (sIndex, lIndex) => {
+    const lesson = sections[sIndex].lessons[lIndex];
+    setLessonForm({
+      title: lesson.title || "",
+      content: lesson.content || "",
+      videoUrl: lesson.videoUrl || "",
+      pdfUrl: lesson.pdfUrl || "",
+      imageUrl: lesson.imageUrl || "",
+      duration: lesson.duration || "",
+      questions: lesson.questions ? JSON.parse(JSON.stringify(lesson.questions)) : [],
+    });
+    setEditingLesson({ sIndex, lIndex });
+    setActiveSectionIndexForLesson(sIndex);
+  };
+
+  const saveLesson = (sIndex) => {
+    if (!lessonForm.title.trim()) return;
+
+    const lessonPayload = {
+      ...lessonForm,
+      questions: (lessonForm.questions || []).filter((q) => q.question?.trim()),
+    };
+
+    const newSecs = [...sections];
+
+    if (editingLesson && editingLesson.sIndex === sIndex) {
+      newSecs[sIndex].lessons[editingLesson.lIndex] = {
+        ...newSecs[sIndex].lessons[editingLesson.lIndex],
+        ...lessonPayload,
+      };
+    } else {
+      newSecs[sIndex].lessons.push(lessonPayload);
+    }
+
+    setSections(newSecs);
+    resetLessonEditor();
+  };
+
+  const handleLessonAssetUpload = async (e, field) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadingLessonAsset(true);
+      const url = await uploadToCloudinary(file);
+      setLessonForm((prev) => ({ ...prev, [field]: url }));
+      toast.success(field === "imageUrl" ? "Lesson image uploaded" : "File uploaded");
+    } catch (err) {
+      console.error("Lesson upload failed:", err);
+      toast.error("Failed to upload file. Please try again.");
+    } finally {
+      setUploadingLessonAsset(false);
+      e.target.value = "";
+    }
+  };
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -249,7 +312,7 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-700">Course Price ($) *</label>
+                  <label className="text-xs font-semibold text-slate-700">Course Price (£) *</label>
                   <input
                     type="number"
                     step="0.01"
@@ -263,7 +326,7 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-700">Original Price ($) (Optional)</label>
+                  <label className="text-xs font-semibold text-slate-700">Original Price (£) (Optional)</label>
                   <input
                     type="number"
                     step="0.01"
@@ -387,13 +450,21 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
                         <div key={lesson._id || lIndex} className="bg-white border border-slate-200 rounded-lg p-3 flex justify-between items-center shadow-xxs">
                           <div className="text-xxs">
                             <p className="font-semibold text-slate-800">{lesson.title}</p>
-                            <p className="text-slate-500 mt-0.5 flex gap-2">
+                            <p className="text-slate-500 mt-0.5 flex gap-2 flex-wrap">
                               {lesson.videoUrl && <span>🎥 Lecture Video</span>}
+                              {lesson.imageUrl && <span>🖼 Lesson Image</span>}
                               {lesson.pdfUrl && <span>📄 Handout Guide</span>}
                               {lesson.duration && <span className="text-slate-400">⏱ {lesson.duration}</span>}
                             </p>
                           </div>
                           <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => startEditLesson(sIndex, lIndex)}
+                              className="text-purple-600 hover:bg-purple-50 px-2 py-0.5 rounded text-xxs font-semibold"
+                            >
+                              Edit
+                            </button>
                             <button
                               type="button"
                               disabled={lIndex === 0}
@@ -451,7 +522,9 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
                     {/* Lesson Inline Creator */}
                     {activeSectionIndexForLesson === sIndex ? (
                       <div className="bg-white border border-slate-200 rounded-lg p-3 space-y-3 shadow-xs">
-                        <p className="text-xs font-semibold text-slate-800">Add Syllabus Lesson</p>
+                        <p className="text-xs font-semibold text-slate-800">
+                          {editingLesson?.sIndex === sIndex ? "Edit Lesson" : "Add Syllabus Lesson"}
+                        </p>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <input
@@ -470,7 +543,7 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
                           />
                           <input
                             type="text"
-                            placeholder="PDF Handout URL (Optional)"
+                            placeholder="PDF Handout URL (or upload below)"
                             value={lessonForm.pdfUrl}
                             onChange={(e) => setLessonForm({ ...lessonForm, pdfUrl: e.target.value })}
                             className="px-3 py-1.5 border border-slate-200 focus:outline-none rounded text-xxs focus:ring-1 focus:ring-purple-500"
@@ -482,6 +555,47 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
                             onChange={(e) => setLessonForm({ ...lessonForm, duration: e.target.value })}
                             className="px-3 py-1.5 border border-slate-200 focus:outline-none rounded text-xxs focus:ring-1 focus:ring-purple-500"
                           />
+                          <div className="md:col-span-2 flex flex-wrap gap-2">
+                            <input
+                              type="file"
+                              ref={lessonImageInputRef}
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => handleLessonAssetUpload(e, "imageUrl")}
+                            />
+                            <input
+                              type="file"
+                              ref={lessonPdfInputRef}
+                              accept="image/*,application/pdf"
+                              className="hidden"
+                              onChange={(e) => handleLessonAssetUpload(e, "pdfUrl")}
+                            />
+                            <button
+                              type="button"
+                              disabled={uploadingLessonAsset}
+                              onClick={() => lessonImageInputRef.current?.click()}
+                              className="px-3 py-1.5 border border-purple-200 bg-purple-50 text-purple-700 rounded text-xxs font-semibold hover:bg-purple-100"
+                            >
+                              {uploadingLessonAsset ? "Uploading…" : "Upload lesson image"}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={uploadingLessonAsset}
+                              onClick={() => lessonPdfInputRef.current?.click()}
+                              className="px-3 py-1.5 border border-slate-200 bg-white text-slate-700 rounded text-xxs font-semibold hover:bg-slate-50"
+                            >
+                              Upload PDF / handout
+                            </button>
+                          </div>
+                          {lessonForm.imageUrl && (
+                            <div className="md:col-span-2">
+                              <img
+                                src={lessonForm.imageUrl}
+                                alt="Lesson preview"
+                                className="h-24 w-full object-cover rounded border border-slate-200"
+                              />
+                            </div>
+                          )}
                           <textarea
                             placeholder="Lesson written summary description..."
                             value={lessonForm.content}
@@ -498,27 +612,17 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
                         <div className="flex justify-end gap-2 text-xxs pt-1">
                           <button
                             type="button"
-                            onClick={() => setActiveSectionIndexForLesson(null)}
+                            onClick={resetLessonEditor}
                             className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-medium cursor-pointer"
                           >
                             Cancel
                           </button>
                           <button
                             type="button"
-                            onClick={() => {
-                              if (!lessonForm.title.trim()) return;
-                              const newSecs = [...sections];
-                              newSecs[sIndex].lessons.push({
-                                ...lessonForm,
-                                questions: lessonForm.questions.filter((q) => q.question.trim()),
-                              });
-                              setSections(newSecs);
-                              setLessonForm({ title: "", content: "", videoUrl: "", pdfUrl: "", duration: "", questions: [] });
-                              setActiveSectionIndexForLesson(null);
-                            }}
+                            onClick={() => saveLesson(sIndex)}
                             className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded font-medium cursor-pointer"
                           >
-                            Save Lesson
+                            {editingLesson?.sIndex === sIndex ? "Update Lesson" : "Save Lesson"}
                           </button>
                         </div>
                       </div>
@@ -526,8 +630,8 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
                       <button
                         type="button"
                         onClick={() => {
+                          resetLessonEditor();
                           setActiveSectionIndexForLesson(sIndex);
-                          setLessonForm({ title: "", content: "", videoUrl: "", pdfUrl: "", duration: "", questions: [] });
                         }}
                         className="w-full py-1.5 border border-dashed border-slate-350 hover:border-slate-400 bg-white hover:bg-slate-50 text-xxs font-bold text-slate-600 rounded-lg transition-colors cursor-pointer"
                       >
@@ -562,21 +666,31 @@ export default function EditCourse({ productId, details, onClose, refetch }) {
                 />
 
                 {formData.image ? (
-                  <div className="relative rounded-lg overflow-hidden border border-slate-200 group">
-                    <img
-                      src={formData.image}
-                      alt="Course Banner"
-                      className="w-full h-44 object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="p-2 bg-white rounded-full text-slate-750 hover:scale-105 transition-transform"
-                      >
-                        <Camera className="h-5 w-5" />
-                      </button>
+                  <div className="space-y-2">
+                    <div className="relative rounded-lg overflow-hidden border border-slate-200 group">
+                      <img
+                        src={formData.image}
+                        alt="Course Banner"
+                        className="w-full h-44 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="p-2 bg-white rounded-full text-slate-750 hover:scale-105 transition-transform"
+                        >
+                          <Camera className="h-5 w-5" />
+                        </button>
+                      </div>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="w-full py-2 text-xxs font-semibold text-purple-700 border border-purple-200 rounded-lg hover:bg-purple-50"
+                    >
+                      {uploading ? "Uploading…" : "Change banner image"}
+                    </button>
                   </div>
                 ) : (
                   <button
